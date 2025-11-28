@@ -57,10 +57,10 @@ This project perfectly embodies the Frankenstein category because we:
 
 | Resource | URL |
 |----------|-----|
-| **Live API** | `https://your-deployment-url.com` |
-| **GitHub Repository** | `https://github.com/your-username/led-calculator-api` |
+| **Live API** | `https://led-api.unilumin-gtm.com/` |
+| **GitHub Repository** | `https://github.com/zlcggb/led-calculator-api` |
 | **Demo Video** | `https://youtube.com/watch?v=your-video-id` |
-| **Interactive Test Page** | `https://your-deployment-url.com/test` |
+| **Interactive Test Page** | `https://led-api.unilumin-gtm.com/test` |
 
 ---
 

@@ -405,7 +405,7 @@ router.post(
               width: cabinetSpecs.dimensions.width, 
               height: cabinetSpecs.dimensions.height 
             },
-            specs: { dimensions: cabinetSpecs.dimensions }
+            specs: cabinetSpecs
           });
         }
       }
@@ -425,8 +425,11 @@ router.post(
         },
         arrangement: {
           cabinets: cabinets,
-          strategy: 'single_cabinet',
-          coverage: 1.0
+          totalArea: screenArea,
+          screenArea: screenArea,
+          coverage: 1.0,
+          isFullyFilled: true,
+          strategy: 'row_wise'
         },
         pixels: {
           totalWidth: (cabinetSpecs.display.resolution?.width || 320) * columns,
@@ -437,11 +440,20 @@ router.post(
         powerConsumption: {
           maximum: (cabinetSpecs.power?.maxPower || 180) * totalCabinets,
           typical: (cabinetSpecs.power?.typicalPower || 60) * totalCabinets,
-          standby: (cabinetSpecs.power?.standbyPower || 5) * totalCabinets
+          standby: (cabinetSpecs.power?.standbyPower || 5) * totalCabinets,
+          heatGeneration: {
+            maxBTU: (cabinetSpecs.power?.maxPower || 180) * totalCabinets * 3.412,
+            typicalBTU: (cabinetSpecs.power?.typicalPower || 60) * totalCabinets * 3.412
+          }
         },
         physical: {
           totalWeight: (cabinetSpecs.physical?.weight || 10) * totalCabinets,
           structuralLoad: ((cabinetSpecs.physical?.weight || 10) * totalCabinets) / screenArea
+        },
+        controlSystem: {
+          controllers4K: Math.ceil(totalCabinets / 16),
+          sendingCards: Math.ceil(totalCabinets / 8),
+          fiberCables: Math.ceil(totalCabinets / 8)
         }
       };
 
