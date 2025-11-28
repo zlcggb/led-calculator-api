@@ -1,0 +1,14 @@
+{
+  "enabled": true,
+  "name": "API Endpoint Test Reminder",
+  "description": "当创建或修改 API 路由文件时，提醒添加对应的测试用例",
+  "version": "1",
+  "when": {
+    "type": "fileSaved",
+    "patterns": ["**/routes/*.ts", "**/routes/*.js"]
+  },
+  "then": {
+    "type": "askAgent",
+    "prompt": "检测到 API 路由文件被修改。请检查：\n1. 是否有对应的测试文件在 tests/ 目录下\n2. 新增的端点是否有 property-based 测试\n3. 错误处理是否完整（400/500 响应）\n4. 请求验证是否覆盖所有必填字段\n\n如果缺少测试，请建议添加相应的测试用例。"
+  }
+}

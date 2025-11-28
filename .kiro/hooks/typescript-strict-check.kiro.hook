@@ -1,0 +1,14 @@
+{
+  "enabled": true,
+  "name": "TypeScript Strict Type Check",
+  "description": "保存 TypeScript 文件时检查是否使用了 any 类型",
+  "version": "1",
+  "when": {
+    "type": "fileSaved",
+    "patterns": ["**/*.ts", "**/*.tsx"]
+  },
+  "then": {
+    "type": "askAgent",
+    "prompt": "请检查此 TypeScript 文件：\n1. 是否存在 `any` 类型？如果有，建议更具体的类型定义\n2. 函数参数和返回值是否有明确的类型注解\n3. 接口定义是否完整\n\n只在发现问题时提供建议，如果代码类型安全则无需回复。"
+  }
+}

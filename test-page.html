@@ -1,0 +1,1385 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LED Calculator API - 测试页面</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            color: #333;
+            line-height: 1.6;
+        }
+        .container { max-width: 1400px; margin: 0 auto; padding: 20px; }
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px 30px;
+            border-radius: 16px;
+            margin-bottom: 30px;
+            text-align: center;
+            box-shadow: 0 10px 40px rgba(102, 126, 234, 0.3);
+        }
+        .header h1 { font-size: 2.2rem; margin-bottom: 10px; font-weight: 700; }
+        .header p { font-size: 1.1rem; opacity: 0.9; }
+        .header-links {
+            margin-top: 16px;
+        }
+        .header-links a {
+            color: white;
+            text-decoration: none;
+            padding: 8px 16px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+        .header-links a:hover { background: rgba(255,255,255,0.3); }
+        .api-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 20px;
+            padding: 10px 20px;
+            background: rgba(255,255,255,0.15);
+            border-radius: 30px;
+        }
+        .status-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #ff4444;
+            animation: pulse 2s infinite;
+        }
+        .status-indicator.online { background: #44ff44; }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+        .tabs {
+            display: flex;
+            background: white;
+            border-radius: 16px;
+            padding: 8px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            gap: 8px;
+        }
+        .tab {
+            flex: 1;
+            padding: 14px 20px;
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 15px;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        .tab.active { 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+        .tab:hover:not(.active) { background: #f0f0f0; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; animation: fadeIn 0.3s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .card {
+            background: white;
+            border-radius: 16px;
+            padding: 28px;
+            margin-bottom: 24px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        }
+        .card h2 { color: #333; margin-bottom: 8px; font-size: 1.4rem; display: flex; align-items: center; gap: 10px; }
+        .card-subtitle { color: #6c757d; font-size: 14px; margin-bottom: 20px; }
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 24px; }
+        @media (max-width: 768px) { .form-grid { grid-template-columns: 1fr; } }
+        .form-section { background: #f8f9fa; border-radius: 12px; padding: 20px; }
+        .form-section h3 { font-size: 14px; color: #667eea; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 16px; font-weight: 600; }
+        .form-group { margin-bottom: 16px; }
+        .form-group:last-child { margin-bottom: 0; }
+        .form-group label { display: block; margin-bottom: 6px; font-weight: 500; color: #555; font-size: 13px; }
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 12px 14px;
+            border: 2px solid #e1e5e9;
+            border-radius: 10px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            background: white;
+        }
+        .form-group input:focus, .form-group select:focus { outline: none; border-color: #667eea; box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1); }
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 14px 28px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 15px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+        .btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4); }
+        .btn:disabled { background: #ccc; cursor: not-allowed; transform: none; box-shadow: none; }
+        .btn-secondary { background: #6c757d; box-shadow: 0 4px 15px rgba(108, 117, 125, 0.3); }
+        .btn-sm { padding: 8px 16px; font-size: 13px; }
+        .loading { display: inline-block; width: 16px; height: 16px; border: 2px solid #ffffff; border-radius: 50%; border-top-color: transparent; animation: spin 0.8s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .result-section { margin-top: 28px; }
+        .result-card { background: linear-gradient(135deg, #f8f9fa 0%, #fff 100%); border: 1px solid #e9ecef; border-radius: 12px; padding: 20px; margin-bottom: 16px; }
+        .result-card h3 { color: #495057; margin-bottom: 16px; font-size: 1rem; display: flex; align-items: center; gap: 8px; }
+        .result-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; }
+        .result-item { background: white; padding: 14px; border-radius: 10px; border-left: 4px solid #667eea; box-shadow: 0 2px 8px rgba(0,0,0,0.04); }
+        .result-item .label { font-size: 11px; color: #6c757d; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
+        .result-item .value { font-size: 18px; font-weight: 700; color: #333; }
+        .preview-container { background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); border: 2px dashed #dee2e6; border-radius: 12px; padding: 20px; text-align: center; min-height: 400px; display: flex; align-items: center; justify-content: center; }
+        .preview-container.has-content { border-style: solid; border-color: #667eea; }
+        .preview-container svg { max-width: 100%; height: auto; }
+        .error { background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%); color: #721c24; padding: 16px; border-radius: 12px; margin-bottom: 16px; }
+        .success { background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%); color: #155724; padding: 16px; border-radius: 12px; margin-bottom: 16px; }
+        .cabinet-info { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 8px; margin-top: 12px; font-size: 12px; color: #6c757d; background: white; padding: 12px; border-radius: 8px; }
+        .cabinet-info div { padding: 4px 0; border-bottom: 1px solid #f0f0f0; }
+        .multi-cabinet-section { border: 1px solid #e9ecef; border-radius: 10px; padding: 16px; margin-bottom: 12px; background: white; }
+        .json-viewer { background: #1e1e1e; color: #d4d4d4; border-radius: 10px; padding: 16px; font-family: monospace; font-size: 12px; max-height: 300px; overflow-y: auto; white-space: pre-wrap; }
+        .api-endpoint { background: linear-gradient(135deg, #e9ecef 0%, #f8f9fa 100%); padding: 8px 14px; border-radius: 8px; font-family: monospace; font-size: 12px; margin-bottom: 16px; display: inline-block; color: #667eea; font-weight: 500; }
+        .checkbox-group { display: flex; gap: 20px; flex-wrap: wrap; margin-top: 8px; }
+        .checkbox-item { display: flex; align-items: center; gap: 8px; background: white; padding: 10px 14px; border-radius: 8px; cursor: pointer; }
+        .checkbox-item input[type="checkbox"] { width: 18px; height: 18px; accent-color: #667eea; }
+        details { margin-top: 20px; }
+        summary { cursor: pointer; font-weight: 600; color: #667eea; padding: 12px; background: #f8f9fa; border-radius: 8px; }
+        .empty-state { text-align: center; padding: 40px; color: #6c757d; }
+        .empty-state-icon { font-size: 48px; margin-bottom: 16px; opacity: 0.5; }
+        .badge { display: inline-block; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; }
+        .badge-success { background: #d4edda; color: #155724; }
+        .badge-warning { background: #fff3cd; color: #856404; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🖥️ LED Calculator API</h1>
+            <p>LED显示墙计算与预览测试工具</p>
+            <div class="header-links">
+                <a href="/docs">📚 查看API文档</a>
+            </div>
+            <div class="api-status">
+                <span class="status-indicator" id="statusIndicator"></span>
+                <span id="statusText">检查API状态...</span>
+            </div>
+        </div>
+
+        <div class="tabs">
+            <button class="tab active" onclick="switchTab('layout')">📐 单箱体布局</button>
+            <button class="tab" onclick="switchTab('smart')">🧩 多箱体组合</button>
+            <button class="tab" onclick="switchTab('preview')">🖼️ SVG预览</button>
+            <button class="tab" onclick="switchTab('oneclick')">⚡ 一键计算预览</button>
+            
+        </div>
+
+        <!-- Optimal Layout Tab -->
+        <div id="layout" class="tab-content active">
+            <div class="card">
+                <h2>📐 单箱体最优布局计算</h2>
+                <p class="card-subtitle">在指定墙面尺寸内，使用单一箱体型号拼接LED屏幕，自动计算最优的行列布局</p>
+                <div class="api-endpoint">POST /api/calculate/optimal-layout</div>
+                <div class="form-grid">
+                    <div class="form-section">
+                        <h3>📦 箱体选择</h3>
+                        <div class="form-group">
+                            <label>箱体型号</label>
+                            <select id="layoutCabinetSelect" onchange="updateLayoutCabinetInfo()">
+                                <option value="">请选择箱体...</option>
+                            </select>
+                        </div>
+                        <div id="layoutCabinetInfo"></div>
+                    </div>
+                    <div class="form-section">
+                        <h3>📏 可用墙面尺寸</h3>
+                        <div class="form-group">
+                            <label>墙面宽度</label>
+                            <input type="number" id="layoutRoomWidth" value="5" step="0.1" min="0.1">
+                        </div>
+                        <div class="form-group">
+                            <label>墙面高度</label>
+                            <input type="number" id="layoutRoomHeight" value="3" step="0.1" min="0.1">
+                        </div>
+                        <div class="form-group">
+                            <label>单位</label>
+                            <select id="layoutUnit">
+                                <option value="meters">米 (Meters)</option>
+                                <option value="feet">英尺 (Feet)</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <button class="btn" onclick="calculateLayout()" id="layoutCalculateBtn">
+                    <span class="loading" style="display: none;"></span>
+                    🚀 计算最优布局
+                </button>
+                <div id="layoutResult" class="result-section"></div>
+            </div>
+        </div>
+
+        <!-- Smart Combination Tab -->
+        <div id="smart" class="tab-content">
+            <div class="card">
+                <h2>🧩 多箱体智能组合</h2>
+                <p class="card-subtitle">在指定墙面尺寸内，使用多种尺寸箱体组合拼接LED屏幕，智能计算最佳填充方案</p>
+                <div class="api-endpoint">POST /api/calculate/smart-combination</div>
+                <div class="form-grid">
+                    <div class="form-section">
+                        <h3>🎯 主箱体</h3>
+                        <div class="form-group">
+                            <label>主箱体型号</label>
+                            <select id="smartMainCabinet" onchange="updateSmartMainInfo()">
+                                <option value="">请选择主箱体...</option>
+                            </select>
+                        </div>
+                        <div id="smartMainCabinetInfo"></div>
+                    </div>
+                    <div class="form-section">
+                        <h3>📐 可用墙面尺寸 (毫米)</h3>
+                        <div class="form-group">
+                            <label>墙面宽度 (mm)</label>
+                            <input type="number" id="smartWallWidth" value="4300" min="100">
+                        </div>
+                        <div class="form-group">
+                            <label>墙面高度 (mm)</label>
+                            <input type="number" id="smartWallHeight" value="3300" min="100">
+                        </div>
+                    </div>
+                </div>
+                <div class="form-section" style="margin-bottom: 24px;">
+                    <h3>➕ 辅助箱体</h3>
+                    <div id="smartAuxiliaryList"></div>
+                    <button class="btn btn-secondary btn-sm" onclick="addAuxiliaryCabinet()" style="margin-top:12px;">+ 添加辅助箱体</button>
+                </div>
+                <button class="btn" onclick="calculateSmart()" id="smartCalculateBtn">
+                    <span class="loading" style="display: none;"></span>
+                    🔍 计算最优组合
+                </button>
+                <div id="smartResult" class="result-section"></div>
+            </div>
+        </div>
+
+        
+
+        <!-- Preview Tab -->
+        <div id="preview" class="tab-content">
+            <div class="card">
+                <h2>🖼️ SVG预览生成器</h2>
+                <p class="card-subtitle">基于计算结果生成LED屏幕的可视化预览图，展示箱体排列效果</p>
+                <div class="api-endpoint">POST /api/preview/svg</div>
+                <div class="form-grid">
+                    <div class="form-section">
+                        <h3>⚙️ 预览选项</h3>
+                        <div class="form-group">
+                            <label>画布宽度 (px)</label>
+                            <input type="number" id="previewWidth" value="800" min="100">
+                        </div>
+                        <div class="form-group">
+                            <label>画布高度 (px)</label>
+                            <input type="number" id="previewHeight" value="500" min="100">
+                        </div>
+                        <div class="checkbox-group">
+                            <label class="checkbox-item">
+                                <input type="checkbox" id="previewShowDimensions" checked>
+                                显示尺寸标注
+                            </label>
+                            <label class="checkbox-item">
+                                <input type="checkbox" id="previewShowPerson" checked>
+                                显示人物参照
+                            </label>
+                        </div>
+                    </div>
+                    <div class="form-section">
+                        <h3>📊 数据来源</h3>
+                        <p style="color:#6c757d;font-size:13px;margin-bottom:12px;">请先完成计算，然后选择数据来源生成预览</p>
+                        <div class="form-group">
+                            <label>选择计算结果</label>
+                            <select id="previewSource">
+                                <option value="">暂无可用的计算结果</option>
+                            </select>
+                        </div>
+                        <div id="previewSourceInfo" style="margin-top:12px;"></div>
+                    </div>
+                </div>
+                <button class="btn" onclick="generatePreview()" id="previewGenerateBtn" disabled>
+                    <span class="loading" style="display: none;"></span>
+                    🎨 生成SVG预览
+                </button>
+                <div id="previewResult" class="result-section">
+                    <div class="preview-container" id="previewContainer">
+                        <div class="empty-state">
+                            <div class="empty-state-icon">🖼️</div>
+                            <p>暂无预览图</p>
+                            <p style="font-size:13px;margin-top:8px;">请先完成计算，然后生成预览</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- One-Click Calculate + Preview Tab -->
+        <div id="oneclick" class="tab-content">
+            <div class="card">
+                <h2>⚡ 一键计算 + 预览</h2>
+                <p class="card-subtitle">输入箱体和墙面信息，一次请求同时返回计算结果和SVG预览图</p>
+                
+                <!-- 模式切换 -->
+                <div style="display:flex;gap:12px;margin-bottom:20px;">
+                    <button class="btn" id="oneclickModeSingle" onclick="switchOneclickMode('single')" style="flex:1;">
+                        📐 单箱体模式
+                    </button>
+                    <button class="btn btn-secondary" id="oneclickModeMulti" onclick="switchOneclickMode('multi')" style="flex:1;">
+                        🧩 多箱体模式
+                    </button>
+                </div>
+                <div class="api-endpoint" id="oneclickApiEndpoint">POST /api/calculate/optimal-layout-with-preview</div>
+                
+                <div class="form-grid">
+                    <div class="form-section">
+                        <h3>📦 箱体选择</h3>
+                        <div class="form-group">
+                            <label>箱体型号</label>
+                            <select id="oneclickMainCabinet" onchange="updateOneclickMainInfo()">
+                                <option value="">请选择箱体...</option>
+                            </select>
+                        </div>
+                        <div id="oneclickMainCabinetInfo"></div>
+                        <div class="form-group" style="margin-top:16px;" id="oneclickAutoAuxGroup">
+                            <label>
+                                <input type="checkbox" id="oneclickAutoAux" checked style="width:auto;margin-right:8px;">
+                                自动添加同系列辅助箱体 (多箱体模式)
+                            </label>
+                        </div>
+                    </div>
+                    <div class="form-section">
+                        <h3>📐 可用墙面尺寸</h3>
+                        <div class="form-group">
+                            <label>墙面宽度</label>
+                            <input type="number" id="oneclickWallWidth" value="5" step="0.1" min="0.1">
+                        </div>
+                        <div class="form-group">
+                            <label>墙面高度</label>
+                            <input type="number" id="oneclickWallHeight" value="3" step="0.1" min="0.1">
+                        </div>
+                        <div class="form-group">
+                            <label>单位</label>
+                            <select id="oneclickUnit">
+                                <option value="meters">米 (Meters)</option>
+                                <option value="feet">英尺 (Feet)</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-section" style="margin-bottom: 24px;">
+                    <h3>⚙️ 预览选项</h3>
+                    <div class="checkbox-group">
+                        <label class="checkbox-item">
+                            <input type="checkbox" id="oneclickShowDimensions" checked>
+                            显示尺寸标注
+                        </label>
+                        <label class="checkbox-item">
+                            <input type="checkbox" id="oneclickShowPerson" checked>
+                            显示人物参照
+                        </label>
+                    </div>
+                </div>
+                <button class="btn" onclick="calculateOneClick()" id="oneclickCalculateBtn">
+                    <span class="loading" style="display: none;"></span>
+                    ⚡ 一键计算并生成预览
+                </button>
+                <div id="oneclickResult" class="result-section"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 全局变量
+        let apiBaseUrl = 'http://localhost:3001';
+        let calculationResults = {};
+
+        // 产品数据 - 只包含 UslimIII MIP 1.5 和 UMiniW 0.9 两款产品
+        const cabinetData = [
+            // ========== UslimIII MIP 1.5 系列 (6种尺寸) ==========
+            {
+                id: "uslimiii-mip-15-500x1000",
+                name: "UslimIII MIP 1.5 (500×1000)",
+                family: "UslimIII",
+                dimensions: { width: 500, height: 1000, depth: 40 },
+                display: { pixelPitch: 1.5625, resolution: { width: 320, height: 640 }, brightness: 1000, refreshRate: 5760 },
+                power: { maxPower: 180, typicalPower: 60, standbyPower: 5 },
+                physical: { weight: 10.5 }
+            },
+            {
+                id: "uslimiii-mip-15-500x500",
+                name: "UslimIII MIP 1.5 (500×500)",
+                family: "UslimIII",
+                dimensions: { width: 500, height: 500, depth: 40 },
+                display: { pixelPitch: 1.5625, resolution: { width: 320, height: 320 }, brightness: 1000, refreshRate: 5760 },
+                power: { maxPower: 90, typicalPower: 30, standbyPower: 3 },
+                physical: { weight: 5.4 }
+            },
+            {
+                id: "uslimiii-mip-15-500x250",
+                name: "UslimIII MIP 1.5 (500×250)",
+                family: "UslimIII",
+                dimensions: { width: 500, height: 250, depth: 40 },
+                display: { pixelPitch: 1.5625, resolution: { width: 320, height: 160 }, brightness: 1000, refreshRate: 5760 },
+                power: { maxPower: 45, typicalPower: 15, standbyPower: 2 },
+                physical: { weight: 3.5 }
+            },
+            {
+                id: "uslimiii-mip-15-250x500",
+                name: "UslimIII MIP 1.5 (250×500)",
+                family: "UslimIII",
+                dimensions: { width: 250, height: 500, depth: 40 },
+                display: { pixelPitch: 1.5625, resolution: { width: 160, height: 320 }, brightness: 1000, refreshRate: 5760 },
+                power: { maxPower: 45, typicalPower: 15, standbyPower: 2 },
+                physical: { weight: 3.5 }
+            },
+            {
+                id: "uslimiii-mip-15-250x750",
+                name: "UslimIII MIP 1.5 (250×750)",
+                family: "UslimIII",
+                dimensions: { width: 250, height: 750, depth: 40 },
+                display: { pixelPitch: 1.5625, resolution: { width: 160, height: 480 }, brightness: 1000, refreshRate: 5760 },
+                power: { maxPower: 67.5, typicalPower: 22.5, standbyPower: 2 },
+                physical: { weight: 4.5 }
+            },
+            {
+                id: "uslimiii-mip-15-750x250",
+                name: "UslimIII MIP 1.5 (750×250)",
+                family: "UslimIII",
+                dimensions: { width: 750, height: 250, depth: 40 },
+                display: { pixelPitch: 1.5625, resolution: { width: 480, height: 160 }, brightness: 1000, refreshRate: 5760 },
+                power: { maxPower: 67.5, typicalPower: 22.5, standbyPower: 2 },
+                physical: { weight: 4.5 }
+            },
+            // ========== UMiniW 0.9 系列 (2种尺寸) ==========
+            {
+                id: "uminiw-09-600x337",
+                name: "UMiniW 0.9 (600×337.5)",
+                family: "UMiniW",
+                dimensions: { width: 600, height: 337.5, depth: 29.8 },
+                display: { pixelPitch: 0.9375, resolution: { width: 640, height: 360 }, brightness: 600, refreshRate: 3840 },
+                power: { maxPower: 60, typicalPower: 42, standbyPower: 3 },
+                physical: { weight: 4.3 }
+            },
+            {
+                id: "uminiw-09-300x337",
+                name: "UMiniW 0.9 (300×337.5)",
+                family: "UMiniW",
+                dimensions: { width: 300, height: 337.5, depth: 29.8 },
+                display: { pixelPitch: 0.9375, resolution: { width: 320, height: 360 }, brightness: 600, refreshRate: 3840 },
+                power: { maxPower: 30, typicalPower: 21, standbyPower: 2 },
+                physical: { weight: 2.5 }
+            }
+        ];
+
+        // 页面初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            checkApiStatus();
+            populateCabinetSelects();
+            // 初始化一键计算模式为单箱体
+            switchOneclickMode('single');
+        });
+
+        async function checkApiStatus() {
+            const statusIndicator = document.getElementById('statusIndicator');
+            const statusText = document.getElementById('statusText');
+            try {
+                const response = await fetch(`${apiBaseUrl}/health`);
+                if (response.ok) {
+                    statusIndicator.classList.add('online');
+                    statusText.textContent = 'API 在线';
+                } else {
+                    statusText.textContent = 'API 错误';
+                }
+            } catch (error) {
+                statusText.textContent = 'API 离线 - 请启动: npm run dev';
+            }
+        }
+
+        function populateCabinetSelects() {
+            const selects = ['layoutCabinetSelect', 'smartMainCabinet', 'oneclickMainCabinet'];
+            selects.forEach(selectId => {
+                const select = document.getElementById(selectId);
+                if (select) {
+                    select.innerHTML = '<option value="">请选择箱体...</option>';
+                    
+                    // UslimIII 系列
+                    const uslimGroup = cabinetData.filter(c => c.family === 'UslimIII');
+                    if (uslimGroup.length > 0) {
+                        const optgroup = document.createElement('optgroup');
+                        optgroup.label = '🔥 UslimIII MIP 1.5 系列';
+                        uslimGroup.forEach(cabinet => {
+                            const option = document.createElement('option');
+                            option.value = cabinet.id;
+                            option.textContent = cabinet.name;
+                            optgroup.appendChild(option);
+                        });
+                        select.appendChild(optgroup);
+                    }
+                    
+                    // UMiniW 系列
+                    const uminiGroup = cabinetData.filter(c => c.family === 'UMiniW');
+                    if (uminiGroup.length > 0) {
+                        const optgroup = document.createElement('optgroup');
+                        optgroup.label = '✨ UMiniW 0.9 系列';
+                        uminiGroup.forEach(cabinet => {
+                            const option = document.createElement('option');
+                            option.value = cabinet.id;
+                            option.textContent = cabinet.name;
+                            optgroup.appendChild(option);
+                        });
+                        select.appendChild(optgroup);
+                    }
+                }
+            });
+        }
+
+        function getSameFamilyCabinets(mainCabinetId) {
+            const mainCabinet = getCabinetById(mainCabinetId);
+            if (!mainCabinet) return [];
+            return cabinetData.filter(c => c.id !== mainCabinetId && c.family === mainCabinet.family);
+        }
+
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.getElementById(tabName).classList.add('active');
+            event.target.closest('.tab').classList.add('active');
+        }
+
+        function getCabinetById(id) {
+            return cabinetData.find(c => c.id === id);
+        }
+
+        function formatCabinetInfo(cabinet) {
+            if (!cabinet) return '';
+            return `
+                <div class="cabinet-info">
+                    <div><strong>尺寸:</strong> ${cabinet.dimensions.width}×${cabinet.dimensions.height}mm</div>
+                    <div><strong>像素间距:</strong> ${cabinet.display.pixelPitch}mm</div>
+                    <div><strong>分辨率:</strong> ${cabinet.display.resolution.width}×${cabinet.display.resolution.height}</div>
+                    <div><strong>亮度:</strong> ${cabinet.display.brightness} nits</div>
+                    <div><strong>重量:</strong> ${cabinet.physical.weight} kg</div>
+                    <div><strong>最大功率:</strong> ${cabinet.power.maxPower}W</div>
+                </div>
+            `;
+        }
+
+        function updateLayoutCabinetInfo() {
+            const cabinet = getCabinetById(document.getElementById('layoutCabinetSelect').value);
+            document.getElementById('layoutCabinetInfo').innerHTML = formatCabinetInfo(cabinet);
+        }
+
+        function updateSmartMainInfo() {
+            const mainCabinetId = document.getElementById('smartMainCabinet').value;
+            const cabinet = getCabinetById(mainCabinetId);
+            document.getElementById('smartMainCabinetInfo').innerHTML = formatCabinetInfo(cabinet);
+            
+            if (cabinet) {
+                const sameFamilyCabinets = getSameFamilyCabinets(mainCabinetId);
+                if (sameFamilyCabinets.length > 0) {
+                    const container = document.getElementById('smartAuxiliaryList');
+                    container.innerHTML = '';
+                    sameFamilyCabinets.forEach((auxCabinet) => {
+                        addAuxiliaryCabinetWithValue(auxCabinet.id);
+                    });
+                    document.getElementById('smartMainCabinetInfo').innerHTML += `
+                        <div style="margin-top:12px;padding:10px;background:#e8f5e9;border-radius:8px;color:#2e7d32;font-size:12px;">
+                            ✅ 已自动添加 ${sameFamilyCabinets.length} 个同系列辅助箱体
+                        </div>
+                    `;
+                }
+            }
+        }
+
+        function addAuxiliaryCabinetWithValue(cabinetId) {
+            const container = document.getElementById('smartAuxiliaryList');
+            const index = container.children.length;
+            const cabinet = getCabinetById(cabinetId);
+            
+            const div = document.createElement('div');
+            div.className = 'multi-cabinet-section';
+            div.innerHTML = `
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+                    <strong>辅助箱体 ${index + 1}</strong>
+                    <button class="btn btn-secondary btn-sm" onclick="this.parentElement.parentElement.remove()">移除</button>
+                </div>
+                <div class="form-group" style="margin-bottom:0;">
+                    <label>箱体型号</label>
+                    <select class="auxiliary-cabinet-select">
+                        <option value="">请选择箱体...</option>
+                        ${cabinetData.map(c => `<option value="${c.id}" ${c.id === cabinetId ? 'selected' : ''}>${c.name}</option>`).join('')}
+                    </select>
+                </div>
+                ${cabinet ? `<div style="margin-top:8px;font-size:12px;color:#6c757d;">尺寸: ${cabinet.dimensions.width}×${cabinet.dimensions.height}mm</div>` : ''}
+            `;
+            container.appendChild(div);
+        }
+
+        function addAuxiliaryCabinet() {
+            const container = document.getElementById('smartAuxiliaryList');
+            const index = container.children.length;
+            const div = document.createElement('div');
+            div.className = 'multi-cabinet-section';
+            div.innerHTML = `
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+                    <strong>辅助箱体 ${index + 1}</strong>
+                    <button class="btn btn-secondary btn-sm" onclick="this.parentElement.parentElement.remove()">移除</button>
+                </div>
+                <div class="form-group" style="margin-bottom:0;">
+                    <label>箱体型号</label>
+                    <select class="auxiliary-cabinet-select">
+                        <option value="">请选择箱体...</option>
+                        ${cabinetData.map(c => `<option value="${c.id}">${c.name}</option>`).join('')}
+                    </select>
+                </div>
+            `;
+            container.appendChild(div);
+        }
+
+        function showError(container, message) {
+            container.innerHTML = `<div class="error">❌ ${message}</div>`;
+        }
+
+        function showSuccess(message) {
+            return `<div class="success">✅ ${message}</div>`;
+        }
+
+        function convertToApiFormat(cabinet) {
+            return {
+                dimensions: cabinet.dimensions,
+                display: {
+                    pixelPitch: cabinet.display.pixelPitch,
+                    resolution: cabinet.display.resolution,
+                    brightness: cabinet.display.brightness,
+                    refreshRate: cabinet.display.refreshRate,
+                    colorDepth: 16
+                },
+                power: {
+                    maxPower: cabinet.power.maxPower,
+                    typicalPower: cabinet.power.typicalPower,
+                    standbyPower: cabinet.power.standbyPower || 5
+                },
+                physical: {
+                    weight: cabinet.physical.weight,
+                    operatingTemp: { min: 0, max: 45 },
+                    humidity: { min: 10, max: 90 },
+                    ipRating: "IP30"
+                },
+                installation: {
+                    mountingType: ["wall", "floor"],
+                    cableType: ["power", "data"],
+                    maintenanceAccess: "front"
+                }
+            };
+        }
+
+        // ==================== Optimal Layout 计算 ====================
+        async function calculateLayout() {
+            const btn = document.getElementById('layoutCalculateBtn');
+            const loading = btn.querySelector('.loading');
+            const resultDiv = document.getElementById('layoutResult');
+
+            const cabinetId = document.getElementById('layoutCabinetSelect').value;
+            if (!cabinetId) {
+                showError(resultDiv, '请选择箱体型号');
+                return;
+            }
+
+            const cabinet = getCabinetById(cabinetId);
+            btn.disabled = true;
+            loading.style.display = 'inline-block';
+
+            try {
+                const requestData = {
+                    cabinetSpecs: convertToApiFormat(cabinet),
+                    roomConfig: {
+                        dimensions: {
+                            width: parseFloat(document.getElementById('layoutRoomWidth').value),
+                            height: parseFloat(document.getElementById('layoutRoomHeight').value)
+                        },
+                        unit: document.getElementById('layoutUnit').value,
+                        wallType: 'flat'
+                    }
+                };
+
+                const response = await fetch(`${apiBaseUrl}/api/calculate/optimal-layout`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(requestData)
+                });
+
+                const result = await response.json();
+                if (result.success) {
+                    calculationResults.layout = {
+                        result: result.data,
+                        roomConfig: requestData.roomConfig,
+                        cabinet: cabinet,
+                        cabinetSpecs: requestData.cabinetSpecs
+                    };
+                    displayLayoutResult(result.data, resultDiv, cabinet);
+                    updatePreviewSources();
+                } else {
+                    showError(resultDiv, result.error?.message || '计算失败');
+                }
+            } catch (error) {
+                showError(resultDiv, `网络错误: ${error.message}`);
+            } finally {
+                btn.disabled = false;
+                loading.style.display = 'none';
+            }
+        }
+
+        function displayLayoutResult(data, container, cabinet) {
+            const totalCabinets = data.columns * data.rows;
+            const wallWidthM = (cabinet.dimensions.width * data.columns) / 1000;
+            const wallHeightM = (cabinet.dimensions.height * data.rows) / 1000;
+            const wallArea = wallWidthM * wallHeightM;
+            const totalPixelsW = cabinet.display.resolution.width * data.columns;
+            const totalPixelsH = cabinet.display.resolution.height * data.rows;
+            const totalWeight = cabinet.physical.weight * totalCabinets;
+            const maxPower = cabinet.power.maxPower * totalCabinets;
+
+            container.innerHTML = showSuccess('最优布局计算完成！') + `
+                <div class="result-card">
+                    <h3>📐 推荐布局</h3>
+                    <div class="result-grid">
+                        <div class="result-item"><div class="label">列数</div><div class="value">${data.columns}</div></div>
+                        <div class="result-item"><div class="label">行数</div><div class="value">${data.rows}</div></div>
+                        <div class="result-item"><div class="label">箱体总数</div><div class="value">${totalCabinets}</div></div>
+                    </div>
+                </div>
+                <div class="result-card">
+                    <h3>� 屏幕尺尺寸</h3>
+                    <div class="result-grid">
+                        <div class="result-item"><div class="label">宽度</div><div class="value">${wallWidthM.toFixed(2)} m</div></div>
+                        <div class="result-item"><div class="label">高度</div><div class="value">${wallHeightM.toFixed(2)} m</div></div>
+                        <div class="result-item"><div class="label">面积</div><div class="value">${wallArea.toFixed(2)} m²</div></div>
+                    </div>
+                </div>
+                <div class="result-card">
+                    <h3>🖥️ 分辨率信息</h3>
+                    <div class="result-grid">
+                        <div class="result-item"><div class="label">总宽度</div><div class="value">${totalPixelsW.toLocaleString()} px</div></div>
+                        <div class="result-item"><div class="label">总高度</div><div class="value">${totalPixelsH.toLocaleString()} px</div></div>
+                        <div class="result-item"><div class="label">总像素</div><div class="value">${(totalPixelsW * totalPixelsH).toLocaleString()}</div></div>
+                    </div>
+                </div>
+                <div class="result-card">
+                    <h3>⚡ 物理参数</h3>
+                    <div class="result-grid">
+                        <div class="result-item"><div class="label">总重量</div><div class="value">${totalWeight.toFixed(1)} kg</div></div>
+                        <div class="result-item"><div class="label">最大功率</div><div class="value">${maxPower.toLocaleString()} W</div></div>
+                        <div class="result-item"><div class="label">结构负载</div><div class="value">${(totalWeight / wallArea).toFixed(1)} kg/m²</div></div>
+                    </div>
+                </div>
+                <details>
+                    <summary>查看原始JSON响应</summary>
+                    <div class="json-viewer">${JSON.stringify(data, null, 2)}</div>
+                </details>
+            `;
+        }
+
+        // ==================== Smart Combination 计算 ====================
+        async function calculateSmart() {
+            const btn = document.getElementById('smartCalculateBtn');
+            const loading = btn.querySelector('.loading');
+            const resultDiv = document.getElementById('smartResult');
+
+            const mainCabinetId = document.getElementById('smartMainCabinet').value;
+            if (!mainCabinetId) {
+                showError(resultDiv, '请选择主箱体');
+                return;
+            }
+
+            const auxiliaryCabinets = [];
+            document.querySelectorAll('.auxiliary-cabinet-select').forEach(select => {
+                if (select.value) {
+                    const cabinet = getCabinetById(select.value);
+                    auxiliaryCabinets.push({
+                        id: cabinet.id,
+                        specs: convertToApiFormat(cabinet)
+                    });
+                }
+            });
+
+            if (auxiliaryCabinets.length === 0) {
+                showError(resultDiv, '请至少选择一个辅助箱体');
+                return;
+            }
+
+            btn.disabled = true;
+            loading.style.display = 'inline-block';
+
+            try {
+                const mainCabinet = getCabinetById(mainCabinetId);
+                const requestData = {
+                    mainCabinet: {
+                        id: mainCabinet.id,
+                        specs: convertToApiFormat(mainCabinet)
+                    },
+                    auxiliaryCabinets: auxiliaryCabinets,
+                    wallWidthMm: parseInt(document.getElementById('smartWallWidth').value),
+                    wallHeightMm: parseInt(document.getElementById('smartWallHeight').value)
+                };
+
+                const response = await fetch(`${apiBaseUrl}/api/calculate/smart-combination`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(requestData)
+                });
+
+                const result = await response.json();
+                if (result.success) {
+                    const calcResult = result.data.calculationResult;
+                    const wallWidthM = calcResult.wallDimensions.width;
+                    const wallHeightM = calcResult.wallDimensions.height;
+                    
+                    // 保存原始墙面尺寸
+                    const inputWallWidth = requestData.wallWidthMm;
+                    const inputWallHeight = requestData.wallHeightMm;
+                    
+                    calculationResults.smart = {
+                        result: calcResult,
+                        roomConfig: {
+                            dimensions: { width: inputWallWidth / 1000, height: inputWallHeight / 1000 },
+                            unit: 'meters',
+                            wallType: 'flat'
+                        },
+                        rawData: result.data,
+                        inputWall: { width: inputWallWidth, height: inputWallHeight }
+                    };
+                    displaySmartResult(result.data, resultDiv, inputWallWidth, inputWallHeight);
+                    updatePreviewSources();
+                } else {
+                    showError(resultDiv, result.error?.message || '计算失败');
+                }
+            } catch (error) {
+                showError(resultDiv, `网络错误: ${error.message}`);
+            } finally {
+                btn.disabled = false;
+                loading.style.display = 'none';
+            }
+        }
+
+        function displaySmartResult(data, container, inputWallWidthMm, inputWallHeightMm) {
+            const calcResult = data.calculationResult || {};
+            const inputWallWidthM = (inputWallWidthMm / 1000).toFixed(2);
+            const inputWallHeightM = (inputWallHeightMm / 1000).toFixed(2);
+            
+            container.innerHTML = showSuccess('智能组合分析完成！') + `
+                <div class="result-card">
+                    <h3>📐 可用墙面</h3>
+                    <div class="result-grid">
+                        <div class="result-item"><div class="label">宽度</div><div class="value">${inputWallWidthM} m</div></div>
+                        <div class="result-item"><div class="label">高度</div><div class="value">${inputWallHeightM} m</div></div>
+                    </div>
+                </div>
+                <div class="result-card">
+                    <h3>🎯 最优组合方案</h3>
+                    <div class="result-grid">
+                        <div class="result-item">
+                            <div class="label">覆盖率</div>
+                            <div class="value">${data.coveragePercentage || 'N/A'}</div>
+                        </div>
+                        <div class="result-item">
+                            <div class="label">完全填充</div>
+                            <div class="value">
+                                <span class="badge ${data.isFullyFilled ? 'badge-success' : 'badge-warning'}">
+                                    ${data.isFullyFilled ? '是' : '否'}
+                                </span>
+                            </div>
+                        </div>
+                        <div class="result-item">
+                            <div class="label">测试组合数</div>
+                            <div class="value">${data.testResultsCount || 0}</div>
+                        </div>
+                    </div>
+                </div>
+                ${data.bestCombination ? `
+                <div class="result-card">
+                    <h3>📦 箱体数量明细</h3>
+                    <div class="result-grid">
+                        ${data.bestCombination.map(cab => {
+                            const cabinet = getCabinetById(cab.id);
+                            return `<div class="result-item">
+                                <div class="label">${cabinet ? cabinet.name : cab.id}</div>
+                                <div class="value">${cab.count} 个</div>
+                            </div>`;
+                        }).join('')}
+                    </div>
+                </div>
+                ` : ''}
+                ${calcResult.wallDimensions ? `
+                <div class="result-card">
+                    <h3>📺 屏幕尺寸</h3>
+                    <div class="result-grid">
+                        <div class="result-item"><div class="label">宽度</div><div class="value">${calcResult.wallDimensions.width.toFixed(2)} m</div></div>
+                        <div class="result-item"><div class="label">高度</div><div class="value">${calcResult.wallDimensions.height.toFixed(2)} m</div></div>
+                        <div class="result-item"><div class="label">面积</div><div class="value">${calcResult.wallDimensions.area.toFixed(2)} m²</div></div>
+                    </div>
+                </div>
+                ` : ''}
+                ${calcResult.powerConsumption ? `
+                <div class="result-card">
+                    <h3>⚡ 功耗与物理参数</h3>
+                    <div class="result-grid">
+                        <div class="result-item"><div class="label">最大功率</div><div class="value">${calcResult.powerConsumption.maximum.toLocaleString()} W</div></div>
+                        <div class="result-item"><div class="label">典型功率</div><div class="value">${calcResult.powerConsumption.typical.toLocaleString()} W</div></div>
+                        <div class="result-item"><div class="label">总重量</div><div class="value">${calcResult.physical?.totalWeight?.toFixed(1) || 'N/A'} kg</div></div>
+                    </div>
+                </div>
+                ` : ''}
+                <details>
+                    <summary>查看原始JSON响应</summary>
+                    <div class="json-viewer">${JSON.stringify(data, null, 2)}</div>
+                </details>
+            `;
+        }
+
+        // ==================== One-Click 一键计算+预览 ====================
+        let oneclickMode = 'single'; // 'single' or 'multi'
+
+        function switchOneclickMode(mode) {
+            oneclickMode = mode;
+            const singleBtn = document.getElementById('oneclickModeSingle');
+            const multiBtn = document.getElementById('oneclickModeMulti');
+            const autoAuxGroup = document.getElementById('oneclickAutoAuxGroup');
+            const apiEndpoint = document.getElementById('oneclickApiEndpoint');
+            
+            if (mode === 'single') {
+                singleBtn.className = 'btn';
+                multiBtn.className = 'btn btn-secondary';
+                autoAuxGroup.style.display = 'none';
+                apiEndpoint.textContent = 'POST /api/calculate/optimal-layout-with-preview';
+            } else {
+                singleBtn.className = 'btn btn-secondary';
+                multiBtn.className = 'btn';
+                autoAuxGroup.style.display = 'block';
+                apiEndpoint.textContent = 'POST /api/calculate/smart-combination-with-preview';
+            }
+        }
+
+        function updateOneclickMainInfo() {
+            const mainCabinetId = document.getElementById('oneclickMainCabinet').value;
+            const cabinet = getCabinetById(mainCabinetId);
+            document.getElementById('oneclickMainCabinetInfo').innerHTML = formatCabinetInfo(cabinet);
+        }
+
+        async function calculateOneClick() {
+            const btn = document.getElementById('oneclickCalculateBtn');
+            const loading = btn.querySelector('.loading');
+            const resultDiv = document.getElementById('oneclickResult');
+
+            const mainCabinetId = document.getElementById('oneclickMainCabinet').value;
+            if (!mainCabinetId) {
+                showError(resultDiv, '请选择箱体型号');
+                return;
+            }
+
+            const mainCabinet = getCabinetById(mainCabinetId);
+            const unit = document.getElementById('oneclickUnit').value;
+            
+            // 获取墙面尺寸
+            let wallWidth = parseFloat(document.getElementById('oneclickWallWidth').value);
+            let wallHeight = parseFloat(document.getElementById('oneclickWallHeight').value);
+
+            btn.disabled = true;
+            loading.style.display = 'inline-block';
+            resultDiv.innerHTML = '<div style="text-align:center;padding:20px;color:#6c757d;">⏳ 正在计算并生成预览...</div>';
+
+            try {
+                const showDimensions = document.getElementById('oneclickShowDimensions').checked;
+                const showPerson = document.getElementById('oneclickShowPerson').checked;
+
+                if (oneclickMode === 'single') {
+                    // 单箱体模式
+                    const requestData = {
+                        cabinetSpecs: convertToApiFormat(mainCabinet),
+                        roomConfig: {
+                            dimensions: { width: wallWidth, height: wallHeight },
+                            unit: unit,
+                            wallType: 'flat'
+                        },
+                        previewOptions: {
+                            showDimensions: showDimensions,
+                            showPerson: showPerson,
+                            canvasWidth: 800,
+                            canvasHeight: 500,
+                            language: 'zh'
+                        }
+                    };
+
+                    const response = await fetch(`${apiBaseUrl}/api/calculate/optimal-layout-with-preview`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(requestData)
+                    });
+
+                    const result = await response.json();
+                    if (!result.success) {
+                        showError(resultDiv, result.error?.message || '计算失败');
+                        return;
+                    }
+
+                    displaySingleOneClickResult(result.data, resultDiv, mainCabinet);
+                } else {
+                    // 多箱体模式
+                    // 如果是英尺，先转换为米
+                    if (unit === 'feet') {
+                        wallWidth = wallWidth * 0.3048;
+                        wallHeight = wallHeight * 0.3048;
+                    }
+                    
+                    const wallWidthMm = Math.round(wallWidth * 1000);
+                    const wallHeightMm = Math.round(wallHeight * 1000);
+
+                    const autoAux = document.getElementById('oneclickAutoAux').checked;
+                    let auxiliaryCabinets = [];
+                    if (autoAux) {
+                        const sameFamilyCabinets = getSameFamilyCabinets(mainCabinetId);
+                        auxiliaryCabinets = sameFamilyCabinets.map(cab => ({
+                            id: cab.id,
+                            specs: convertToApiFormat(cab)
+                        }));
+                    }
+
+                    if (auxiliaryCabinets.length === 0) {
+                        showError(resultDiv, '没有可用的辅助箱体，请选择有同系列箱体的产品');
+                        return;
+                    }
+
+                    const requestData = {
+                        mainCabinet: {
+                            id: mainCabinet.id,
+                            specs: convertToApiFormat(mainCabinet)
+                        },
+                        auxiliaryCabinets: auxiliaryCabinets,
+                        wallWidthMm: wallWidthMm,
+                        wallHeightMm: wallHeightMm,
+                        previewOptions: {
+                            showDimensions: showDimensions,
+                            showPerson: showPerson,
+                            canvasWidth: 800,
+                            canvasHeight: 500,
+                            language: 'zh'
+                        }
+                    };
+
+                    const response = await fetch(`${apiBaseUrl}/api/calculate/smart-combination-with-preview`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(requestData)
+                    });
+
+                    const result = await response.json();
+                    if (!result.success) {
+                        showError(resultDiv, result.error?.message || '计算失败');
+                        return;
+                    }
+
+                    const previewResult = { success: true, data: result.data.preview };
+                    displayOneClickResult(result.data, previewResult, resultDiv, wallWidth, wallHeight);
+                }
+            } catch (error) {
+                showError(resultDiv, `网络错误: ${error.message}`);
+            } finally {
+                btn.disabled = false;
+                loading.style.display = 'none';
+            }
+        }
+
+        // 单箱体一键结果显示
+        function displaySingleOneClickResult(data, container, cabinet) {
+            const calcResult = data.calculationResult || {};
+            
+            let powerHtml = '';
+            if (calcResult.powerConsumption) {
+                powerHtml = `
+                <div class="result-card">
+                    <h3>⚡ 功耗与物理参数</h3>
+                    <div class="result-grid">
+                        <div class="result-item"><div class="label">最大功率</div><div class="value">${calcResult.powerConsumption.maximum.toLocaleString()} W</div></div>
+                        <div class="result-item"><div class="label">典型功率</div><div class="value">${calcResult.powerConsumption.typical.toLocaleString()} W</div></div>
+                        <div class="result-item"><div class="label">总重量</div><div class="value">${calcResult.physical?.totalWeight?.toFixed(1) || 'N/A'} kg</div></div>
+                    </div>
+                </div>`;
+            }
+            
+            let html = showSuccess('单箱体一键计算完成！') + `
+                <div class="form-grid">
+                    <div>
+                        <div class="result-card">
+                            <h3>📐 可用墙面</h3>
+                            <div class="result-grid">
+                                <div class="result-item"><div class="label">宽度</div><div class="value">${data.roomDimensions.widthM.toFixed(2)} m</div></div>
+                                <div class="result-item"><div class="label">高度</div><div class="value">${data.roomDimensions.heightM.toFixed(2)} m</div></div>
+                            </div>
+                        </div>
+                        <div class="result-card">
+                            <h3>📐 推荐布局</h3>
+                            <div class="result-grid">
+                                <div class="result-item"><div class="label">列数</div><div class="value">${data.columns}</div></div>
+                                <div class="result-item"><div class="label">行数</div><div class="value">${data.rows}</div></div>
+                                <div class="result-item"><div class="label">箱体总数</div><div class="value">${data.totalCabinets}</div></div>
+                            </div>
+                        </div>
+                        <div class="result-card">
+                            <h3>📺 屏幕尺寸</h3>
+                            <div class="result-grid">
+                                <div class="result-item"><div class="label">宽度</div><div class="value">${data.screenDimensions.widthM.toFixed(2)} m</div></div>
+                                <div class="result-item"><div class="label">高度</div><div class="value">${data.screenDimensions.heightM.toFixed(2)} m</div></div>
+                                <div class="result-item"><div class="label">面积</div><div class="value">${data.screenDimensions.areaM2.toFixed(2)} m²</div></div>
+                            </div>
+                        </div>
+                        ${powerHtml}
+                    </div>
+                    <div>
+                        <div class="result-card">
+                            <h3>🖼️ SVG预览</h3>
+                            <div class="preview-container has-content" style="min-height:300px;">
+                                ${data.preview?.svg || '<div class="empty-state"><div class="empty-state-icon">❌</div><p>预览生成失败</p></div>'}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <details>
+                    <summary>查看原始JSON响应</summary>
+                    <div class="json-viewer">${JSON.stringify(data, null, 2)}</div>
+                </details>
+            `;
+            
+            container.innerHTML = html;
+        }
+
+        // 多箱体一键结果显示
+        function displayOneClickResult(calcData, previewResult, container, wallWidthM, wallHeightM) {
+            const calcResult = calcData.calculationResult || {};
+            
+            let html = showSuccess('多箱体一键计算完成！') + `
+                <div class="form-grid">
+                    <div>
+                        <div class="result-card">
+                            <h3>📐 可用墙面</h3>
+                            <div class="result-grid">
+                                <div class="result-item"><div class="label">宽度</div><div class="value">${wallWidthM.toFixed(2)} m</div></div>
+                                <div class="result-item"><div class="label">高度</div><div class="value">${wallHeightM.toFixed(2)} m</div></div>
+                            </div>
+                        </div>
+                        <div class="result-card">
+                            <h3>🎯 最优组合方案</h3>
+                            <div class="result-grid">
+                                <div class="result-item">
+                                    <div class="label">覆盖率</div>
+                                    <div class="value">${calcData.coveragePercentage || 'N/A'}</div>
+                                </div>
+                                <div class="result-item">
+                                    <div class="label">完全填充</div>
+                                    <div class="value">
+                                        <span class="badge ${calcData.isFullyFilled ? 'badge-success' : 'badge-warning'}">
+                                            ${calcData.isFullyFilled ? '是' : '否'}
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        ${calcData.bestCombination ? `
+                        <div class="result-card">
+                            <h3>📦 箱体数量明细</h3>
+                            <div class="result-grid">
+                                ${calcData.bestCombination.map(cab => {
+                                    const cabinet = getCabinetById(cab.id);
+                                    return `<div class="result-item">
+                                        <div class="label">${cabinet ? cabinet.name : cab.id}</div>
+                                        <div class="value">${cab.count} 个</div>
+                                    </div>`;
+                                }).join('')}
+                            </div>
+                        </div>
+                        ` : ''}
+                        ${calcResult.wallDimensions ? `
+                        <div class="result-card">
+                            <h3>📺 屏幕尺寸</h3>
+                            <div class="result-grid">
+                                <div class="result-item"><div class="label">宽度</div><div class="value">${calcResult.wallDimensions.width.toFixed(2)} m</div></div>
+                                <div class="result-item"><div class="label">高度</div><div class="value">${calcResult.wallDimensions.height.toFixed(2)} m</div></div>
+                                <div class="result-item"><div class="label">面积</div><div class="value">${calcResult.wallDimensions.area.toFixed(2)} m²</div></div>
+                            </div>
+                        </div>
+                        ` : ''}
+                        ${calcResult.powerConsumption ? `
+                        <div class="result-card">
+                            <h3>⚡ 功耗与物理参数</h3>
+                            <div class="result-grid">
+                                <div class="result-item"><div class="label">最大功率</div><div class="value">${calcResult.powerConsumption.maximum.toLocaleString()} W</div></div>
+                                <div class="result-item"><div class="label">典型功率</div><div class="value">${calcResult.powerConsumption.typical.toLocaleString()} W</div></div>
+                                <div class="result-item"><div class="label">总重量</div><div class="value">${calcResult.physical?.totalWeight?.toFixed(1) || 'N/A'} kg</div></div>
+                            </div>
+                        </div>
+                        ` : ''}
+                    </div>
+                    <div>
+                        <div class="result-card">
+                            <h3>🖼️ SVG预览</h3>
+                            <div class="preview-container has-content" style="min-height:300px;">
+                                ${previewResult.success ? previewResult.data.svg : `<div class="empty-state"><div class="empty-state-icon">❌</div><p>预览生成失败</p></div>`}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <details>
+                    <summary>查看原始JSON响应</summary>
+                    <div class="json-viewer">${JSON.stringify({ calculation: calcData, preview: previewResult.success ? { width: previewResult.data.width, height: previewResult.data.height } : previewResult }, null, 2)}</div>
+                </details>
+            `;
+            
+            container.innerHTML = html;
+        }
+
+        // ==================== Preview 生成 ====================
+        function updatePreviewSources() {
+            const select = document.getElementById('previewSource');
+            const infoDiv = document.getElementById('previewSourceInfo');
+            select.innerHTML = '<option value="">请选择计算结果...</option>';
+            
+            if (calculationResults.layout) {
+                select.innerHTML += '<option value="layout">📐 单箱体布局结果</option>';
+            }
+            if (calculationResults.smart) {
+                select.innerHTML += '<option value="smart">🧩 多箱体组合结果</option>';
+            }
+            
+            const hasResults = Object.keys(calculationResults).length > 0;
+            document.getElementById('previewGenerateBtn').disabled = !hasResults;
+            
+            if (hasResults) {
+                infoDiv.innerHTML = `<div style="padding:10px;background:#e3f2fd;border-radius:8px;color:#1565c0;font-size:12px;">
+                    ✅ 已有 ${Object.keys(calculationResults).length} 个计算结果可用
+                </div>`;
+            } else {
+                infoDiv.innerHTML = `<div style="padding:10px;background:#fff3e0;border-radius:8px;color:#e65100;font-size:12px;">
+                    ⚠️ 请先完成计算以获取数据
+                </div>`;
+            }
+        }
+
+        async function generatePreview() {
+            const btn = document.getElementById('previewGenerateBtn');
+            const loading = btn.querySelector('.loading');
+            const container = document.getElementById('previewContainer');
+            
+            const source = document.getElementById('previewSource').value;
+            if (!source || !calculationResults[source]) {
+                container.innerHTML = '<div class="empty-state"><div class="empty-state-icon">⚠️</div><p>请先选择计算结果</p></div>';
+                return;
+            }
+
+            const width = parseInt(document.getElementById('previewWidth').value);
+            const height = parseInt(document.getElementById('previewHeight').value);
+            const showDimensions = document.getElementById('previewShowDimensions').checked;
+            const showPerson = document.getElementById('previewShowPerson').checked;
+
+            btn.disabled = true;
+            loading.style.display = 'inline-block';
+
+            try {
+                const calcResult = calculationResults[source];
+                let requestData;
+
+                if (source === 'layout') {
+                    const cabinet = calcResult.cabinet;
+                    const layoutData = calcResult.result;
+                    const cols = layoutData.columns;
+                    const rows = layoutData.rows;
+                    const totalCabinets = cols * rows;
+                    
+                    const wallWidthM = (cabinet.dimensions.width * cols) / 1000;
+                    const wallHeightM = (cabinet.dimensions.height * rows) / 1000;
+                    const wallArea = wallWidthM * wallHeightM;
+                    
+                    const cabinets = [];
+                    for (let row = 0; row < rows; row++) {
+                        for (let col = 0; col < cols; col++) {
+                            cabinets.push({
+                                cabinetId: cabinet.id,
+                                position: { x: col * cabinet.dimensions.width, y: row * cabinet.dimensions.height },
+                                size: { width: cabinet.dimensions.width, height: cabinet.dimensions.height },
+                                specs: { dimensions: cabinet.dimensions }
+                            });
+                        }
+                    }
+
+                    requestData = {
+                        calculationResult: {
+                            wallDimensions: { width: wallWidthM, height: wallHeightM, area: wallArea, diagonal: Math.sqrt(wallWidthM * wallWidthM + wallHeightM * wallHeightM) * 39.37 },
+                            cabinetCount: { total: totalCabinets, horizontal: cols, vertical: rows },
+                            arrangement: { cabinets: cabinets, strategy: 'single_cabinet', coverage: 1.0 },
+                            pixels: {
+                                totalWidth: cabinet.display.resolution.width * cols,
+                                totalHeight: cabinet.display.resolution.height * rows,
+                                totalPixels: cabinet.display.resolution.width * cols * cabinet.display.resolution.height * rows,
+                                pixelDensity: (cabinet.display.resolution.width * cols * cabinet.display.resolution.height * rows) / wallArea
+                            },
+                            powerConsumption: {
+                                maximum: cabinet.power.maxPower * totalCabinets,
+                                typical: cabinet.power.typicalPower * totalCabinets,
+                                standby: (cabinet.power.standbyPower || 5) * totalCabinets
+                            },
+                            physical: {
+                                totalWeight: cabinet.physical.weight * totalCabinets,
+                                structuralLoad: (cabinet.physical.weight * totalCabinets) / wallArea
+                            }
+                        },
+                        roomConfig: calcResult.roomConfig,
+                        options: { showDimensions, showPerson, canvasWidth: width, canvasHeight: height, format: 'json' }
+                    };
+                } else {
+                    requestData = {
+                        calculationResult: calcResult.result,
+                        roomConfig: calcResult.roomConfig,
+                        options: { showDimensions, showPerson, canvasWidth: width, canvasHeight: height, format: 'json' }
+                    };
+                }
+
+                const response = await fetch(`${apiBaseUrl}/api/preview/svg`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(requestData)
+                });
+
+                const result = await response.json();
+                if (result.success) {
+                    container.innerHTML = result.data.svg;
+                    container.classList.add('has-content');
+                } else {
+                    container.innerHTML = `<div class="empty-state"><div class="empty-state-icon">❌</div><p>生成失败: ${result.error?.message || '未知错误'}</p></div>`;
+                    container.classList.remove('has-content');
+                }
+            } catch (error) {
+                container.innerHTML = `<div class="empty-state"><div class="empty-state-icon">❌</div><p>网络错误: ${error.message}</p></div>`;
+                container.classList.remove('has-content');
+            } finally {
+                btn.disabled = false;
+                loading.style.display = 'none';
+            }
+        }
+    </script>
+</body>
+</html>

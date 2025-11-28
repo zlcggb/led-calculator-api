@@ -1,0 +1,14 @@
+{
+  "enabled": true,
+  "name": "SVG Coordinate System Check",
+  "description": "修改 SVG 生成相关代码时，提醒检查坐标系转换",
+  "version": "1",
+  "when": {
+    "type": "fileSaved",
+    "patterns": ["**/svg-generator.ts", "**/preview*.ts"]
+  },
+  "then": {
+    "type": "askAgent",
+    "prompt": "检测到 SVG 生成代码被修改。请验证：\n\n⚠️ 坐标系转换规则：\n- 箱体位置存储使用底部左侧原点 (y=0 在底部)\n- SVG 渲染使用顶部左侧原点 (y=0 在顶部)\n- 必须进行 Y 坐标翻转：svgY = screenHeight - storageY - cabinetHeight\n\n请检查：\n1. Y 坐标是否正确翻转\n2. 箱体颜色是否按类型（而非位置）分配\n3. 尺寸标注是否正确显示"
+  }
+}

@@ -1,0 +1,137 @@
+# Implementation Plan
+
+- [x] 1. Initialize project structure
+  - [x] 1.1 Create `led-calculator-api` directory with package.json and tsconfig.json
+    - Initialize npm project with Express, TypeScript, cors, and development dependencies
+    - Configure TypeScript for Node.js environment
+    - _Requirements: 5.3_
+  - [x] 1.2 Set up project file structure
+    - Create src/, routes/, services/, middleware/, types/, utils/ directories
+    - _Requirements: 5.3_
+
+- [x] 2. Copy and adapt core algorithm files
+  - [x] 2.1 Copy type definitions from `src/products/data/led-configurator-types.ts`
+    - Remove React-specific imports if any
+    - Export all types needed for API
+    - _Requirements: 1.1, 2.1_
+  - [x] 2.2 Copy calculator utilities from `src/products/utils/`
+    - Copy `configurator-calculator.ts` (remove sendingCard API calls for simplicity)
+    - Copy `multi-cabinet-calculator.ts`
+    - Copy `linear-equation-calculator.ts`
+    - Adapt imports to work in Node.js environment
+    - _Requirements: 1.1, 2.1, 2.2, 3.1_
+
+- [x] 3. Implement API server and middleware
+  - [x] 3.1 Create Express server with CORS support
+    - Configure CORS to allow all origins (or configurable)
+    - Set up JSON body parser
+    - _Requirements: 6.1, 6.2_
+  - [x] 3.2 Implement logging middleware
+    - Log request method, path, and response time
+    - _Requirements: 5.2_
+  - [x] 3.3 Implement error handling middleware
+    - Return structured error responses
+    - Handle validation errors, calculation errors
+    - _Requirements: 5.1_
+  - [x] 3.4 Implement validation middleware
+    - Validate required fields in request body
+    - Return 400 for missing/invalid fields
+    - _Requirements: 1.2, 2.4_
+
+- [x] 4. Implement calculator routes
+  - [x] 4.1 Implement POST `/api/calculate/single` endpoint
+    - Accept cabinetSpecs, roomConfig, displayConfig
+    - Call calculateDisplayWallSpecs (without API calls)
+    - Return CalculationResult
+    - _Requirements: 1.1, 1.3_
+  - [x] 4.2 Write property test for single cabinet calculation
+    - **Property 1: Single cabinet calculation returns complete results**
+    - **Validates: Requirements 1.1**
+  - [x] 4.3 Implement POST `/api/calculate/multi` endpoint
+    - Accept cabinetSelections, roomConfig, displayConfig, arrangementDirection
+    - Call calculateMultiCabinetDisplayWall
+    - Return CalculationResult with arrangement
+    - _Requirements: 2.1, 2.2, 2.3_
+  - [x] 4.4 Write property test for multi-cabinet arrangement
+    - **Property 3: Multi-cabinet arrangement has no overlapping cabinets**
+    - **Validates: Requirements 2.2**
+  - [ ] 4.5 Write property test for arrangement direction
+    - **Property 4: Arrangement direction mirrors x-coordinates**
+    - **Validates: Requirements 2.3**
+  - [x] 4.6 Implement POST `/api/calculate/smart-combination` endpoint
+    - Accept mainCabinet, auxiliaryCabinets, wallWidthMm, wallHeightMm
+    - Call progressiveCabinetCombinationTest
+    - Return best combination with coverage
+    - _Requirements: 3.1, 3.3_
+  - [x] 4.7 Implement POST `/api/calculate/optimal-layout` endpoint
+    - Accept cabinetSpecs, roomConfig
+    - Call calculateOptimalLayout
+    - Return columns and rows
+    - _Requirements: 4.1, 4.2, 4.3_
+  - [ ]* 4.8 Write property test for optimal layout
+    - **Property 5: Optimal layout returns positive integers**
+    - **Validates: Requirements 4.1, 4.3**
+  - [ ]* 4.9 Write property test for unit conversion
+    - **Property 6: Unit conversion preserves layout**
+    - **Validates: Requirements 4.2**
+
+- [x] 5. Implement validation and error handling
+  - [x] 5.1 Add request body validation for all endpoints
+    - Validate cabinetSpecs has required fields (dimensions, display, power, physical)
+    - Validate roomConfig has dimensions and unit
+    - Validate displayConfig has layout
+    - _Requirements: 1.2_
+  - [ ]* 5.2 Write property test for validation
+    - **Property 2: Invalid requests return 400 errors**
+    - **Validates: Requirements 1.2**
+  - [x] 5.3 Add cabinet count limit check (max 1000)
+    - Return 400 if total cabinets exceed limit
+    - _Requirements: 2.4_
+
+- [x] 6. Add CORS and finalize
+  - [x] 6.1 Configure CORS middleware properly
+    - Allow configurable origins via environment variable
+    - Handle preflight OPTIONS requests
+    - _Requirements: 6.1, 6.2_
+  - [ ]* 6.2 Write property test for CORS
+    - **Property 7: CORS headers present in responses**
+    - **Validates: Requirements 6.1**
+
+- [x] 7. Implement preview generation endpoints
+  - [x] 7.1 Create SVG generator utility (`svg-generator.ts`)
+    - Extract SVG rendering logic from DisplayWallPreview.tsx
+    - Implement pure function that generates SVG string from calculation result
+    - Support cabinet coloring, dimension annotations, person reference
+    - _Requirements: 7.1, 7.2, 7.3_
+  - [x] 7.2 Implement POST `/api/preview/svg` endpoint
+    - Accept calculationResult, roomConfig, and options
+    - Return SVG string with appropriate Content-Type
+    - Support both 'svg' and 'json' output formats
+    - _Requirements: 7.1, 7.4, 7.5_
+  - [x] 7.3 Write property test for SVG preview
+    - **Property 8: SVG preview contains all cabinets**
+    - **Validates: Requirements 7.2**
+  - [x] 7.4 Write property test for SVG dimensions
+    - **Property 9: SVG dimensions match request**
+    - **Validates: Requirements 7.3**
+  - [x] 7.5 Implement POST `/api/preview/png` endpoint
+    - Use sharp or canvas library to convert SVG to PNG
+    - Support custom width/height parameters
+    - _Requirements: 8.1, 8.2, 8.3_
+
+- [x] 8. Create deployment configuration
+  - [x] 8.1 Add npm scripts for build and start
+    - `npm run build` - compile TypeScript
+    - `npm run start` - run production server
+    - `npm run dev` - run development server with hot reload
+    - _Requirements: 5.3_
+  - [x] 8.2 Create Dockerfile for containerized deployment
+    - Multi-stage build for smaller image
+    - _Requirements: 5.3_
+  - [x] 8.3 Add README with API documentation
+    - Document all endpoints with request/response examples
+    - Include deployment instructions
+    - _Requirements: 1.1, 2.1, 3.1, 4.1, 7.1, 8.1_
+
+- [x] 9. Checkpoint - Make sure all tests pass
+  - Ensure all tests pass, ask the user if questions arise.
