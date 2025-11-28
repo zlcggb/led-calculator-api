@@ -215,6 +215,10 @@
             <div class="note">
                 <div class="note-title">💡 基础URL</div>
                 <p>开发环境: <code>http://localhost:3001</code></p>
+                <p>生产环境: <code>https://your-domain.com</code> (替换为您的实际域名)</p>
+                <p style="margin-top: 8px; font-size: 13px; color: #6c757d;">
+                    💡 提示：在浏览器中使用时，可以使用 <code>window.location.origin</code> 自动获取当前域名
+                </p>
             </div>
         </div>
 
@@ -636,8 +640,13 @@ td>
 
             <h3>8.2 JavaScript 调用示例</h3>
             <div class="code-block"><span class="comment">// 单箱体最优布局计算</span>
+<span class="comment">// 自动检测 API 地址（开发环境使用 localhost，生产环境使用当前域名）</span>
+const API_BASE = window.location.hostname === 'localhost' 
+  ? 'http://localhost:3001' 
+  : window.location.origin;
+
 async function calculateOptimalLayout() {
-  const response = await fetch(<span class="string">'http://localhost:3001/api/calculate/optimal-layout'</span>, {
+  const response = await fetch(<span class="string">`${API_BASE}/api/calculate/optimal-layout`</span>, {
     method: <span class="string">'POST'</span>,
     headers: { <span class="string">'Content-Type'</span>: <span class="string">'application/json'</span> },
     body: JSON.stringify({
@@ -666,7 +675,8 @@ async function calculateOptimalLayout() {
 }</div>
 
             <h3>8.3 cURL 调用示例</h3>
-            <div class="code-block">curl -X POST http://localhost:3001/api/calculate/optimal-layout \
+            <div class="code-block"><span class="comment"># 替换 YOUR_DOMAIN 为您的实际域名</span>
+curl -X POST https://YOUR_DOMAIN/api/calculate/optimal-layout \
   -H "Content-Type: application/json" \
   -d '{
     "cabinetSpecs": {
