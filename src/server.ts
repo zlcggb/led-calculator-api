@@ -78,6 +78,11 @@ app.get('/api-reference', (_req, res) => {
   res.sendFile(path.join(__dirname, '..', 'api-reference.html'));
 });
 
+// Serve Vue integration guide
+app.get('/vue-integration', (_req, res) => {
+  res.sendFile(path.join(__dirname, '..', 'vue-integration.html'));
+});
+
 // 404 handler for undefined routes
 app.use(notFoundHandler);
 

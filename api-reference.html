@@ -30,6 +30,7 @@
             gap: 16px;
             justify-content: center;
             margin-top: 20px;
+            flex-wrap: wrap;
         }
         .nav-links a {
             color: white;
@@ -55,6 +56,7 @@
             padding-bottom: 12px;
         }
         .card h3 { color: #333; margin: 20px 0 12px; font-size: 1.1rem; }
+        .card h4 { color: #555; margin: 16px 0 10px; font-size: 1rem; }
         .endpoint {
             background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
             padding: 12px 20px;
@@ -141,6 +143,24 @@
             margin: 16px 0;
         }
         .note-title { font-weight: bold; color: #e65100; margin-bottom: 8px; }
+        .note-success {
+            background: #e8f5e9;
+            border-left: 4px solid #4caf50;
+            padding: 16px;
+            border-radius: 0 8px 8px 0;
+            margin: 16px 0;
+        }
+        .note-success .note-title { color: #2e7d32; }
+        .section-divider {
+            border: none;
+            border-top: 1px solid #e0e0e0;
+            margin: 30px 0;
+        }
+        .sub-table {
+            background: #fafafa;
+            margin-left: 20px;
+        }
+        .sub-table th { background: #f0f0f0; }
     </style>
 </head>
 <body>
@@ -212,12 +232,11 @@
                     <td>基于计算结果生成LED屏幕的可视化预览图，展示箱体排列效果</td>
                 </tr>
             </table>
-            <div class="note">
-                <div class="note-title">💡 基础URL</div>
-                <p>开发环境: <code>http://localhost:3001</code></p>
-                <p>生产环境: <code>https://your-domain.com</code> (替换为您的实际域名)</p>
+            <div class="note-success">
+                <div class="note-title">🚀 API 基础地址</div>
+                <p><strong>生产环境:</strong> <code>https://led-api.unilumin-gtm.com</code></p>
                 <p style="margin-top: 8px; font-size: 13px; color: #6c757d;">
-                    💡 提示：在浏览器中使用时，可以使用 <code>window.location.origin</code> 自动获取当前域名
+                    所有API请求都应使用此基础地址，例如：<code>https://led-api.unilumin-gtm.com/api/calculate/optimal-layout</code>
                 </p>
             </div>
         </div>
@@ -246,42 +265,246 @@
   },
   <span class="key">"power"</span>: {
     <span class="key">"maxPower"</span>: <span class="number">180</span>,               <span class="comment">// 最大功率 (W)</span>
-    <span class="key">"typicalPower"</span>: <span class="number">60</span>,           <span class="comment">// 典型功率 (W)</span>
+    <span class="key">"typicalPower"</span>: <span class="number">60</span>,           <span class="comment">// 典型功率 (W)=最大功率 (W) /3</span>
     <span class="key">"standbyPower"</span>: <span class="number">5</span>            <span class="comment">// 待机功率 (W)</span>
   },
   <span class="key">"physical"</span>: {
     <span class="key">"weight"</span>: <span class="number">10.5</span>,               <span class="comment">// 重量 (kg)</span>
-    <span class="key">"operatingTemp"</span>: { <span class="key">"min"</span>: <span class="number">0</span>, <span class="key">"max"</span>: <span class="number">45</span> },
-    <span class="key">"humidity"</span>: { <span class="key">"min"</span>: <span class="number">10</span>, <span class="key">"max"</span>: <span class="number">90</span> },
-    <span class="key">"ipRating"</span>: <span class="string">"IP30"</span>
+    <span class="key">"operatingTemp"</span>: { <span class="key">"min"</span>: <span class="number">0</span>, <span class="key">"max"</span>: <span class="number">45</span> },   <span class="comment">// 工作温度范围 (°C)</span>
+    <span class="key">"humidity"</span>: { <span class="key">"min"</span>: <span class="number">10</span>, <span class="key">"max"</span>: <span class="number">90</span> },      <span class="comment">// 工作湿度范围 (%)</span>
+    <span class="key">"ipRating"</span>: <span class="string">"IP30"</span>            <span class="comment">// 防护等级</span>
   },
   <span class="key">"installation"</span>: {
-    <span class="key">"mountingType"</span>: [<span class="string">"wall"</span>, <span class="string">"floor"</span>],
-    <span class="key">"cableType"</span>: [<span class="string">"power"</span>, <span class="string">"data"</span>],
-    <span class="key">"maintenanceAccess"</span>: <span class="string">"front"</span>
+    <span class="key">"mountingType"</span>: [<span class="string">"wall"</span>, <span class="string">"floor"</span>],       <span class="comment">// 安装方式</span>
+    <span class="key">"cableType"</span>: [<span class="string">"power"</span>, <span class="string">"data"</span>],          <span class="comment">// 线缆类型</span>
+    <span class="key">"maintenanceAccess"</span>: <span class="string">"front"</span>             <span class="comment">// 维护方式</span>
   }
 }</div>
 
-            <h3>2.2 字段说明</h3>
+            <h3>2.2 dimensions - 箱体尺寸</h3>
+            <p>定义箱体的物理尺寸，用于计算屏幕布局和排列。</p>
             <table>
-                <tr><th>字段路径</th><th>类型</th><th>必填</th><th>说明</th></tr>
-                <tr><td>dimensions.width</td><td><span class="type-badge">number</span></td><td><span class="required">必填</span></td><td>箱体宽度，单位毫米</td></tr>
-                <tr><td>dimensions.height</td><td><span class="type-badge">number</span></td><td><span class="required">必填</span></td><td>箱体高度，单位毫米</td></tr>
-                <tr><td>dimensions.depth</td><td><span class="type-badge">number</span></td><td><span class="optional">可选</span></td><td>箱体深度，单位毫米</td></tr>
-                <tr><td>display.pixelPitch</td><td><span class="type-badge">number</span></td><td><span class="required">必填</span></td><td>像素间距，单位毫米</td></tr>
-                <tr><td>display.resolution.width</td><td><span class="type-badge">number</span></td><td><span class="required">必填</span></td><td>水平像素数</td></tr>
-                <tr><td>display.resolution.height</td><td><span class="type-badge">number</span></td><td><span class="required">必填</span></td><td>垂直像素数</td></tr>
-                <tr><td>display.brightness</td><td><span class="type-badge">number</span></td><td><span class="optional">可选</span></td><td>亮度，单位nits</td></tr>
-                <tr><td>power.maxPower</td><td><span class="type-badge">number</span></td><td><span class="required">必填</span></td><td>最大功率，单位瓦特</td></tr>
-                <tr><td>power.typicalPower</td><td><span class="type-badge">number</span></td><td><span class="required">必填</span></td><td>典型功率，单位瓦特</td></tr>
-                <tr><td>physical.weight</td><td><span class="type-badge">number</span></td><td><span class="required">必填</span></td><td>单箱体重量，单位千克</td></tr>
+                <tr><th>字段路径</th><th>类型</th><th>必填</th><th>单位</th><th>说明</th><th>示例值</th></tr>
+                <tr>
+                    <td>dimensions.width</td>
+                    <td><span class="type-badge">number</span></td>
+                    <td><span class="required">必填</span></td>
+                    <td>毫米 (mm)</td>
+                    <td>箱体宽度，即水平方向的物理尺寸。用于计算水平方向可放置的箱体数量。</td>
+                    <td>500</td>
+                </tr>
+                <tr>
+                    <td>dimensions.height</td>
+                    <td><span class="type-badge">number</span></td>
+                    <td><span class="required">必填</span></td>
+                    <td>毫米 (mm)</td>
+                    <td>箱体高度，即垂直方向的物理尺寸。用于计算垂直方向可放置的箱体数量。</td>
+                    <td>1000</td>
+                </tr>
+                <tr>
+                    <td>dimensions.depth</td>
+                    <td><span class="type-badge">number</span></td>
+                    <td><span class="optional">可选</span></td>
+                    <td>毫米 (mm)</td>
+                    <td>箱体深度/厚度。用于安装空间规划，不影响屏幕布局计算。</td>
+                    <td>40</td>
+                </tr>
             </table>
+
+            <h3>2.3 display - 显示参数</h3>
+            <p>定义LED显示屏的显示性能参数，用于计算分辨率和显示效果。</p>
+            <table>
+                <tr><th>字段路径</th><th>类型</th><th>必填</th><th>单位</th><th>说明</th><th>示例值</th></tr>
+                <tr>
+                    <td>display.pixelPitch</td>
+                    <td><span class="type-badge">number</span></td>
+                    <td><span class="required">必填</span></td>
+                    <td>毫米 (mm)</td>
+                    <td>像素间距，即相邻两个LED灯珠中心点之间的距离。数值越小，显示越精细。常见值：0.9、1.2、1.5、1.9、2.5等。</td>
+                    <td>1.5625</td>
+                </tr>
+                <tr>
+                    <td>display.resolution.width</td>
+                    <td><span class="type-badge">number</span></td>
+                    <td><span class="required">必填</span></td>
+                    <td>像素 (px)</td>
+                    <td>单个箱体的水平分辨率，即水平方向的像素数量。计算公式：箱体宽度(mm) ÷ 像素间距(mm)。</td>
+                    <td>320</td>
+                </tr>
+                <tr>
+                    <td>display.resolution.height</td>
+                    <td><span class="type-badge">number</span></td>
+                    <td><span class="required">必填</span></td>
+                    <td>像素 (px)</td>
+                    <td>单个箱体的垂直分辨率，即垂直方向的像素数量。计算公式：箱体高度(mm) ÷ 像素间距(mm)。</td>
+                    <td>640</td>
+                </tr>
+                <tr>
+                    <td>display.brightness</td>
+                    <td><span class="type-badge">number</span></td>
+                    <td><span class="optional">可选</span></td>
+                    <td>尼特 (nits)</td>
+                    <td>屏幕亮度，表示显示屏的发光强度。室内屏通常为600-1500nits，户外屏可达5000nits以上。</td>
+                    <td>1000</td>
+                </tr>
+                <tr>
+                    <td>display.refreshRate</td>
+                    <td><span class="type-badge">number</span></td>
+                    <td><span class="optional">可选</span></td>
+                    <td>赫兹 (Hz)</td>
+                    <td>刷新率，表示屏幕每秒刷新的次数。高刷新率可减少闪烁，适合视频拍摄。常见值：1920、3840、5760Hz。</td>
+                    <td>5760</td>
+                </tr>
+                <tr>
+                    <td>display.colorDepth</td>
+                    <td><span class="type-badge">number</span></td>
+                    <td><span class="optional">可选</span></td>
+                    <td>位 (bit)</td>
+                    <td>色深/灰度等级，表示颜色的精细程度。常见值：14bit（16384级灰度）、16bit（65536级灰度）。</td>
+                    <td>16</td>
+                </tr>
+            </table>
+
+            <h3>2.4 power - 功率参数</h3>
+            <p>定义箱体的电力消耗参数，用于计算整屏的功率需求和电力规划。</p>
+            <table>
+                <tr><th>字段路径</th><th>类型</th><th>必填</th><th>单位</th><th>说明</th><th>示例值</th></tr>
+                <tr>
+                    <td>power.maxPower</td>
+                    <td><span class="type-badge">number</span></td>
+                    <td><span class="required">必填</span></td>
+                    <td>瓦特 (W)</td>
+                    <td>单个箱体的最大功率消耗，即全白画面时的功率。用于计算电源容量和配电需求。整屏最大功率 = 箱体数量 × maxPower。</td>
+                    <td>180</td>
+                </tr>
+                <tr>
+                    <td>power.typicalPower</td>
+                    <td><span class="type-badge">number</span></td>
+                    <td><span class="required">必填</span></td>
+                    <td>瓦特 (W)</td>
+                    <td>单个箱体的典型功率消耗，即正常播放内容时的平均功率。通常为最大功率的30%-50%。用于估算日常运营电费。</td>
+                    <td>60</td>
+                </tr>
+                <tr>
+                    <td>power.standbyPower</td>
+                    <td><span class="type-badge">number</span></td>
+                    <td><span class="optional">可选</span></td>
+                    <td>瓦特 (W)</td>
+                    <td>单个箱体的待机功率，即屏幕关闭但系统通电时的功率消耗。用于计算非工作时段的电力消耗。</td>
+                    <td>5</td>
+                </tr>
+            </table>
+
+            <h3>2.5 physical - 物理参数</h3>
+            <p>定义箱体的物理特性和环境要求，用于安装规划和环境适配。</p>
+            <table>
+                <tr><th>字段路径</th><th>类型</th><th>必填</th><th>单位</th><th>说明</th><th>示例值</th></tr>
+                <tr>
+                    <td>physical.weight</td>
+                    <td><span class="type-badge">number</span></td>
+                    <td><span class="required">必填</span></td>
+                    <td>千克 (kg)</td>
+                    <td>单个箱体的重量。用于计算整屏总重量，评估墙体承重和安装结构需求。整屏重量 = 箱体数量 × weight。</td>
+                    <td>10.5</td>
+                </tr>
+                <tr>
+                    <td>physical.operatingTemp.min</td>
+                    <td><span class="type-badge">number</span></td>
+                    <td><span class="optional">可选</span></td>
+                    <td>摄氏度 (°C)</td>
+                    <td>最低工作温度。低于此温度可能影响显示效果或损坏设备。室内屏通常为0°C，户外屏可达-20°C。</td>
+                    <td>0</td>
+                </tr>
+                <tr>
+                    <td>physical.operatingTemp.max</td>
+                    <td><span class="type-badge">number</span></td>
+                    <td><span class="optional">可选</span></td>
+                    <td>摄氏度 (°C)</td>
+                    <td>最高工作温度。超过此温度需要额外散热措施。室内屏通常为45°C，户外屏可达50°C以上。</td>
+                    <td>45</td>
+                </tr>
+                <tr>
+                    <td>physical.humidity.min</td>
+                    <td><span class="type-badge">number</span></td>
+                    <td><span class="optional">可选</span></td>
+                    <td>百分比 (%)</td>
+                    <td>最低工作湿度。过低的湿度可能产生静电问题。</td>
+                    <td>10</td>
+                </tr>
+                <tr>
+                    <td>physical.humidity.max</td>
+                    <td><span class="type-badge">number</span></td>
+                    <td><span class="optional">可选</span></td>
+                    <td>百分比 (%)</td>
+                    <td>最高工作湿度（非凝结）。过高的湿度可能导致电路短路或腐蚀。</td>
+                    <td>90</td>
+                </tr>
+                <tr>
+                    <td>physical.ipRating</td>
+                    <td><span class="type-badge">string</span></td>
+                    <td><span class="optional">可选</span></td>
+                    <td>-</td>
+                    <td>防护等级（IP等级）。第一位数字表示防尘等级(0-6)，第二位表示防水等级(0-8)。室内屏通常为IP30/IP40，户外屏为IP65/IP67。</td>
+                    <td>"IP30"</td>
+                </tr>
+            </table>
+
+            <h3>2.6 installation - 安装参数</h3>
+            <p>定义箱体的安装方式和维护要求，用于工程规划。</p>
+            <table>
+                <tr><th>字段路径</th><th>类型</th><th>必填</th><th>说明</th><th>可选值</th><th>示例值</th></tr>
+                <tr>
+                    <td>installation.mountingType</td>
+                    <td><span class="type-badge">string[]</span></td>
+                    <td><span class="optional">可选</span></td>
+                    <td>支持的安装方式列表。不同安装方式需要不同的结构支撑。</td>
+                    <td>
+                        <code>"wall"</code> - 壁挂安装<br>
+                        <code>"floor"</code> - 落地安装<br>
+                        <code>"ceiling"</code> - 吊装<br>
+                        <code>"stack"</code> - 堆叠安装
+                    </td>
+                    <td>["wall", "floor"]</td>
+                </tr>
+                <tr>
+                    <td>installation.cableType</td>
+                    <td><span class="type-badge">string[]</span></td>
+                    <td><span class="optional">可选</span></td>
+                    <td>需要的线缆类型列表。用于布线规划。</td>
+                    <td>
+                        <code>"power"</code> - 电源线<br>
+                        <code>"data"</code> - 数据线/网线<br>
+                        <code>"signal"</code> - 信号线
+                    </td>
+                    <td>["power", "data"]</td>
+                </tr>
+                <tr>
+                    <td>installation.maintenanceAccess</td>
+                    <td><span class="type-badge">string</span></td>
+                    <td><span class="optional">可选</span></td>
+                    <td>维护通道方向。决定了安装时需要预留的维护空间位置。</td>
+                    <td>
+                        <code>"front"</code> - 前维护（从屏幕正面维护）<br>
+                        <code>"rear"</code> - 后维护（从屏幕背面维护）<br>
+                        <code>"both"</code> - 前后均可维护
+                    </td>
+                    <td>"front"</td>
+                </tr>
+            </table>
+
+            <div class="note">
+                <div class="note-title">💡 字段使用说明</div>
+                <p><strong>必填字段</strong>：dimensions（width, height）、display（pixelPitch, resolution）、power（maxPower, typicalPower）、physical（weight）是计算所必需的核心参数。</p>
+                <p style="margin-top:8px;"><strong>可选字段</strong>：其他字段为辅助信息，用于生成更完整的项目报告，不影响核心计算结果。</p>
+            </div>
         </div>
-td>
- 
-       <!-- 可用墙面配置数据结构 -->
+
+        <!-- 可用墙面配置数据结构 -->
         <div class="card" id="room-config">
             <h2>3. 可用墙面配置数据结构 (RoomConfig)</h2>
+            <p>定义LED屏幕的安装空间限制，API将在此范围内计算最优布局。</p>
+            
+            <h3>3.1 完整结构</h3>
             <div class="code-block">{
   <span class="key">"dimensions"</span>: {
     <span class="key">"width"</span>: <span class="number">5</span>,       <span class="comment">// 可用墙面宽度</span>
@@ -290,20 +513,46 @@ td>
   <span class="key">"unit"</span>: <span class="string">"meters"</span>,    <span class="comment">// 单位: "meters" 或 "feet"</span>
   <span class="key">"wallType"</span>: <span class="string">"flat"</span>   <span class="comment">// 墙面类型: "flat"</span>
 }</div>
+
+            <h3>3.2 字段说明</h3>
             <table>
-                <tr><th>字段</th><th>类型</th><th>必填</th><th>说明</th></tr>
-                <tr><td>dimensions.width</td><td><span class="type-badge">number</span></td><td><span class="required">必填</span></td><td>可用墙面宽度</td></tr>
-                <tr><td>dimensions.height</td><td><span class="type-badge">number</span></td><td><span class="required">必填</span></td><td>可用墙面高度</td></tr>
-                <tr><td>unit</td><td><span class="type-badge">string</span></td><td><span class="required">必填</span></td><td>"meters" 或 "feet"</td></tr>
-                <tr><td>wallType</td><td><span class="type-badge">string</span></td><td><span class="optional">可选</span></td><td>默认 "flat"</td></tr>
+                <tr><th>字段</th><th>类型</th><th>必填</th><th>说明</th><th>示例值</th></tr>
+                <tr>
+                    <td>dimensions.width</td>
+                    <td><span class="type-badge">number</span></td>
+                    <td><span class="required">必填</span></td>
+                    <td>可用墙面的最大宽度。LED屏幕的实际宽度不会超过此值。单位由 <code>unit</code> 字段决定。</td>
+                    <td>5</td>
+                </tr>
+                <tr>
+                    <td>dimensions.height</td>
+                    <td><span class="type-badge">number</span></td>
+                    <td><span class="required">必填</span></td>
+                    <td>可用墙面的最大高度。LED屏幕的实际高度不会超过此值。单位由 <code>unit</code> 字段决定。</td>
+                    <td>3</td>
+                </tr>
+                <tr>
+                    <td>unit</td>
+                    <td><span class="type-badge">string</span></td>
+                    <td><span class="required">必填</span></td>
+                    <td>尺寸单位。<code>"meters"</code> 表示米制单位，<code>"feet"</code> 表示英制单位。API内部会统一转换为毫米进行计算。</td>
+                    <td>"meters"</td>
+                </tr>
+                <tr>
+                    <td>wallType</td>
+                    <td><span class="type-badge">string</span></td>
+                    <td><span class="optional">可选</span></td>
+                    <td>墙面类型。目前仅支持 <code>"flat"</code>（平面墙）。未来可能支持曲面墙等类型。默认值为 "flat"。</td>
+                    <td>"flat"</td>
+                </tr>
             </table>
         </div>
 
         <!-- 单箱体最优布局 API -->
         <div class="card" id="optimal-layout">
             <h2>4. API: 单箱体最优布局</h2>
-            <div class="endpoint"><span class="method">POST</span>/api/calculate/optimal-layout</div>
-            <p>在指定墙面尺寸内，使用单一箱体型号拼接LED屏幕，自动计算最优的行列布局。</p>
+            <div class="endpoint"><span class="method">POST</span> https://led-api.unilumin-gtm.com/api/calculate/optimal-layout</div>
+            <p>在指定墙面尺寸内，使用单一箱体型号拼接LED屏幕，自动计算最优的行列布局。适用于使用统一规格箱体的标准项目。</p>
             
             <h3>4.1 请求参数</h3>
             <div class="code-block">{
@@ -326,35 +575,71 @@ td>
 
             <h3>4.3 响应字段说明</h3>
             <table>
-                <tr><th>字段</th><th>类型</th><th>说明</th></tr>
-                <tr><td>columns</td><td><span class="type-badge">number</span></td><td>水平方向箱体数量</td></tr>
-                <tr><td>rows</td><td><span class="type-badge">number</span></td><td>垂直方向箱体数量</td></tr>
-                <tr><td>totalCabinets</td><td><span class="type-badge">number</span></td><td>箱体总数 (columns × rows)</td></tr>
-                <tr><td>wallWidth</td><td><span class="type-badge">number</span></td><td>实际屏幕宽度 (mm)</td></tr>
-                <tr><td>wallHeight</td><td><span class="type-badge">number</span></td><td>实际屏幕高度 (mm)</td></tr>
-                <tr><td>coverage</td><td><span class="type-badge">number</span></td><td>墙面覆盖率 (0-1)</td></tr>
+                <tr><th>字段</th><th>类型</th><th>说明</th><th>示例值</th></tr>
+                <tr>
+                    <td>success</td>
+                    <td><span class="type-badge">boolean</span></td>
+                    <td>请求是否成功。<code>true</code> 表示计算成功，<code>false</code> 表示出错。</td>
+                    <td>true</td>
+                </tr>
+                <tr>
+                    <td>data.columns</td>
+                    <td><span class="type-badge">number</span></td>
+                    <td>水平方向的箱体数量（列数）。表示一行需要放置多少个箱体。</td>
+                    <td>8</td>
+                </tr>
+                <tr>
+                    <td>data.rows</td>
+                    <td><span class="type-badge">number</span></td>
+                    <td>垂直方向的箱体数量（行数）。表示需要堆叠多少行箱体。</td>
+                    <td>3</td>
+                </tr>
+                <tr>
+                    <td>data.totalCabinets</td>
+                    <td><span class="type-badge">number</span></td>
+                    <td>箱体总数。计算公式：columns × rows。用于采购和成本估算。</td>
+                    <td>24</td>
+                </tr>
+                <tr>
+                    <td>data.wallWidth</td>
+                    <td><span class="type-badge">number</span></td>
+                    <td>实际屏幕宽度，单位毫米。计算公式：columns × 箱体宽度。</td>
+                    <td>4000</td>
+                </tr>
+                <tr>
+                    <td>data.wallHeight</td>
+                    <td><span class="type-badge">number</span></td>
+                    <td>实际屏幕高度，单位毫米。计算公式：rows × 箱体高度。</td>
+                    <td>3000</td>
+                </tr>
+                <tr>
+                    <td>data.coverage</td>
+                    <td><span class="type-badge">number</span></td>
+                    <td>墙面覆盖率，范围0-1。表示LED屏幕面积占可用墙面面积的比例。1.0表示完全填满。</td>
+                    <td>0.96</td>
+                </tr>
             </table>
         </div>
 
         <!-- 多箱体智能组合 API -->
         <div class="card" id="smart-combination">
             <h2>5. API: 多箱体智能组合</h2>
-            <div class="endpoint"><span class="method">POST</span>/api/calculate/smart-combination</div>
-            <p>在指定墙面尺寸内，使用多种尺寸箱体组合拼接LED屏幕，智能计算最佳填充方案。</p>
+            <div class="endpoint"><span class="method">POST</span> https://led-api.unilumin-gtm.com/api/calculate/smart-combination</div>
+            <p>在指定墙面尺寸内，使用多种尺寸箱体组合拼接LED屏幕，智能计算最佳填充方案。适用于需要精确填充特定空间的项目。</p>
             
             <h3>5.1 请求参数</h3>
             <div class="code-block">{
   <span class="key">"mainCabinet"</span>: {
-    <span class="key">"id"</span>: <span class="string">"uslimiii-mip-15-500x1000"</span>,  <span class="comment">// 主箱体ID</span>
-    <span class="key">"specs"</span>: { ... }                        <span class="comment">// 主箱体规格</span>
+    <span class="key">"id"</span>: <span class="string">"uslimiii-mip-15-500x1000"</span>,  <span class="comment">// 主箱体ID（唯一标识）</span>
+    <span class="key">"specs"</span>: { ... }                        <span class="comment">// 主箱体规格（见第2节）</span>
   },
   <span class="key">"auxiliaryCabinets"</span>: [                    <span class="comment">// 辅助箱体数组</span>
     {
-      <span class="key">"id"</span>: <span class="string">"uslimiii-mip-15-500x500"</span>,
-      <span class="key">"specs"</span>: { ... }
+      <span class="key">"id"</span>: <span class="string">"uslimiii-mip-15-500x500"</span>,   <span class="comment">// 辅助箱体ID</span>
+      <span class="key">"specs"</span>: { ... }                       <span class="comment">// 辅助箱体规格</span>
     },
     {
-      <span class="key">"id"</span>: <span class="string">"uslimiii-mip-15-250x500"</span>,
+      <span class="key">"id"</span>: <span class="string">"uslimiii-mip-15-250x500"</span>,   <span class="comment">// 另一个辅助箱体</span>
       <span class="key">"specs"</span>: { ... }
     }
   ],
@@ -364,19 +649,63 @@ td>
 
             <h3>5.2 请求字段说明</h3>
             <table>
-                <tr><th>字段</th><th>类型</th><th>必填</th><th>说明</th></tr>
-                <tr><td>mainCabinet.id</td><td><span class="type-badge">string</span></td><td><span class="required">必填</span></td><td>主箱体唯一标识</td></tr>
-                <tr><td>mainCabinet.specs</td><td><span class="type-badge">object</span></td><td><span class="required">必填</span></td><td>主箱体规格数据</td></tr>
-                <tr><td>auxiliaryCabinets</td><td><span class="type-badge">array</span></td><td><span class="required">必填</span></td><td>辅助箱体数组，至少1个</td></tr>
-                <tr><td>wallWidthMm</td><td><span class="type-badge">number</span></td><td><span class="required">必填</span></td><td>可用墙面宽度，单位毫米</td></tr>
-                <tr><td>wallHeightMm</td><td><span class="type-badge">number</span></td><td><span class="required">必填</span></td><td>可用墙面高度，单位毫米</td></tr>
+                <tr><th>字段</th><th>类型</th><th>必填</th><th>说明</th><th>示例值</th></tr>
+                <tr>
+                    <td>mainCabinet.id</td>
+                    <td><span class="type-badge">string</span></td>
+                    <td><span class="required">必填</span></td>
+                    <td>主箱体的唯一标识符。用于在结果中区分不同类型的箱体。建议使用产品型号作为ID。</td>
+                    <td>"uslimiii-mip-15-500x1000"</td>
+                </tr>
+                <tr>
+                    <td>mainCabinet.specs</td>
+                    <td><span class="type-badge">object</span></td>
+                    <td><span class="required">必填</span></td>
+                    <td>主箱体的完整规格数据，结构同第2节 CabinetSpecs。主箱体是优先使用的箱体类型。</td>
+                    <td>见第2节</td>
+                </tr>
+                <tr>
+                    <td>auxiliaryCabinets</td>
+                    <td><span class="type-badge">array</span></td>
+                    <td><span class="required">必填</span></td>
+                    <td>辅助箱体数组，至少包含1个辅助箱体。辅助箱体用于填充主箱体无法覆盖的边缘区域。</td>
+                    <td>-</td>
+                </tr>
+                <tr>
+                    <td>auxiliaryCabinets[].id</td>
+                    <td><span class="type-badge">string</span></td>
+                    <td><span class="required">必填</span></td>
+                    <td>辅助箱体的唯一标识符。</td>
+                    <td>"uslimiii-mip-15-500x500"</td>
+                </tr>
+                <tr>
+                    <td>auxiliaryCabinets[].specs</td>
+                    <td><span class="type-badge">object</span></td>
+                    <td><span class="required">必填</span></td>
+                    <td>辅助箱体的完整规格数据。</td>
+                    <td>见第2节</td>
+                </tr>
+                <tr>
+                    <td>wallWidthMm</td>
+                    <td><span class="type-badge">number</span></td>
+                    <td><span class="required">必填</span></td>
+                    <td>可用墙面宽度，单位毫米。注意：此接口直接使用毫米，与单箱体接口的 roomConfig 不同。</td>
+                    <td>4300</td>
+                </tr>
+                <tr>
+                    <td>wallHeightMm</td>
+                    <td><span class="type-badge">number</span></td>
+                    <td><span class="required">必填</span></td>
+                    <td>可用墙面高度，单位毫米。</td>
+                    <td>3300</td>
+                </tr>
             </table>
 
             <h3>5.3 响应数据</h3>
             <div class="code-block">{
   <span class="key">"success"</span>: <span class="number">true</span>,
   <span class="key">"data"</span>: {
-    <span class="key">"isFullyFilled"</span>: <span class="number">true</span>,              <span class="comment">// 是否完全填充</span>
+    <span class="key">"isFullyFilled"</span>: <span class="number">true</span>,              <span class="comment">// 是否完全填充（无空隙）</span>
     <span class="key">"coveragePercentage"</span>: <span class="string">"100%"</span>,       <span class="comment">// 覆盖率百分比</span>
     <span class="key">"testResultsCount"</span>: <span class="number">156</span>,            <span class="comment">// 测试的组合数量</span>
     <span class="key">"bestCombination"</span>: [                   <span class="comment">// 最优组合方案</span>
@@ -384,25 +713,25 @@ td>
       { <span class="key">"id"</span>: <span class="string">"uslimiii-mip-15-250x500"</span>, <span class="key">"count"</span>: <span class="number">6</span> }
     ],
     <span class="key">"adjustedSize"</span>: {                       <span class="comment">// 实际屏幕尺寸</span>
-      <span class="key">"width"</span>: <span class="number">4250</span>,
-      <span class="key">"height"</span>: <span class="number">3000</span>
+      <span class="key">"width"</span>: <span class="number">4250</span>,                        <span class="comment">// 实际宽度 (mm)</span>
+      <span class="key">"height"</span>: <span class="number">3000</span>                        <span class="comment">// 实际高度 (mm)</span>
     },
     <span class="key">"calculationResult"</span>: {                  <span class="comment">// 详细计算结果</span>
-      <span class="key">"wallDimensions"</span>: {                   <span class="comment">// 屏幕尺寸</span>
-        <span class="key">"width"</span>: <span class="number">4.25</span>,                      <span class="comment">// 米</span>
+      <span class="key">"wallDimensions"</span>: {                   <span class="comment">// 屏幕尺寸（米）</span>
+        <span class="key">"width"</span>: <span class="number">4.25</span>,
         <span class="key">"height"</span>: <span class="number">3.0</span>,
         <span class="key">"area"</span>: <span class="number">12.75</span>
       },
       <span class="key">"arrangement"</span>: {                       <span class="comment">// 箱体排列信息</span>
-        <span class="key">"cabinets"</span>: [...],                   <span class="comment">// 每个箱体的位置</span>
+        <span class="key">"cabinets"</span>: [...],                   <span class="comment">// 每个箱体的位置坐标</span>
         <span class="key">"strategy"</span>: <span class="string">"row_wise"</span>,
         <span class="key">"coverage"</span>: <span class="number">1.0</span>
       },
-      <span class="key">"powerConsumption"</span>: {
+      <span class="key">"powerConsumption"</span>: {                 <span class="comment">// 功率统计</span>
         <span class="key">"maximum"</span>: <span class="number">4590</span>,                   <span class="comment">// 最大功率 (W)</span>
-        <span class="key">"typical"</span>: <span class="number">1530</span>                    <span class="comment">// 典型功率 (W)</span>
+        <span class="key">"typical"</span>: <span class="number">1530</span>                    <span class="comment">// 典型功率 (W)=最大功率 (W) /3</span>
       },
-      <span class="key">"physical"</span>: {
+      <span class="key">"physical"</span>: {                          <span class="comment">// 物理参数统计</span>
         <span class="key">"totalWeight"</span>: <span class="number">273</span>                 <span class="comment">// 总重量 (kg)</span>
       }
     }
@@ -411,13 +740,85 @@ td>
 
             <h3>5.4 响应字段说明</h3>
             <table>
-                <tr><th>字段</th><th>类型</th><th>说明</th></tr>
-                <tr><td>isFullyFilled</td><td><span class="type-badge">boolean</span></td><td>墙面是否被完全填充（无空隙）</td></tr>
-                <tr><td>coveragePercentage</td><td><span class="type-badge">string</span></td><td>墙面覆盖率百分比</td></tr>
-                <tr><td>testResultsCount</td><td><span class="type-badge">number</span></td><td>算法测试的组合方案数量</td></tr>
-                <tr><td>bestCombination</td><td><span class="type-badge">array</span></td><td>最优组合：每种箱体的ID和数量</td></tr>
-                <tr><td>adjustedSize</td><td><span class="type-badge">object</span></td><td>实际屏幕尺寸 (mm)</td></tr>
-                <tr><td>calculationResult.arrangement.cabinets</td><td><span class="type-badge">array</span></td><td>每个箱体的位置坐标，用于预览</td></tr>
+                <tr><th>字段</th><th>类型</th><th>说明</th><th>示例值</th></tr>
+                <tr>
+                    <td>isFullyFilled</td>
+                    <td><span class="type-badge">boolean</span></td>
+                    <td>墙面是否被完全填充（无空隙）。<code>true</code> 表示箱体组合完美覆盖了目标区域。</td>
+                    <td>true</td>
+                </tr>
+                <tr>
+                    <td>coveragePercentage</td>
+                    <td><span class="type-badge">string</span></td>
+                    <td>墙面覆盖率百分比字符串。"100%" 表示完全填充。</td>
+                    <td>"100%"</td>
+                </tr>
+                <tr>
+                    <td>testResultsCount</td>
+                    <td><span class="type-badge">number</span></td>
+                    <td>算法测试的组合方案数量。数值越大表示算法搜索范围越广。</td>
+                    <td>156</td>
+                </tr>
+                <tr>
+                    <td>bestCombination</td>
+                    <td><span class="type-badge">array</span></td>
+                    <td>最优组合方案数组。每个元素包含箱体ID和所需数量。</td>
+                    <td>-</td>
+                </tr>
+                <tr>
+                    <td>bestCombination[].id</td>
+                    <td><span class="type-badge">string</span></td>
+                    <td>箱体的唯一标识符，与请求中的ID对应。</td>
+                    <td>"uslimiii-mip-15-500x1000"</td>
+                </tr>
+                <tr>
+                    <td>bestCombination[].count</td>
+                    <td><span class="type-badge">number</span></td>
+                    <td>该类型箱体的所需数量。</td>
+                    <td>24</td>
+                </tr>
+                <tr>
+                    <td>adjustedSize.width</td>
+                    <td><span class="type-badge">number</span></td>
+                    <td>实际屏幕宽度，单位毫米。可能小于请求的墙面宽度。</td>
+                    <td>4250</td>
+                </tr>
+                <tr>
+                    <td>adjustedSize.height</td>
+                    <td><span class="type-badge">number</span></td>
+                    <td>实际屏幕高度，单位毫米。可能小于请求的墙面高度。</td>
+                    <td>3000</td>
+                </tr>
+                <tr>
+                    <td>calculationResult.wallDimensions</td>
+                    <td><span class="type-badge">object</span></td>
+                    <td>屏幕尺寸信息（米制）。包含 width、height、area 三个字段。</td>
+                    <td>-</td>
+                </tr>
+                <tr>
+                    <td>calculationResult.arrangement.cabinets</td>
+                    <td><span class="type-badge">array</span></td>
+                    <td>每个箱体的详细位置信息数组。用于生成SVG预览图。</td>
+                    <td>-</td>
+                </tr>
+                <tr>
+                    <td>calculationResult.powerConsumption.maximum</td>
+                    <td><span class="type-badge">number</span></td>
+                    <td>整屏最大功率，单位瓦特。用于电源配置。</td>
+                    <td>4590</td>
+                </tr>
+                <tr>
+                    <td>calculationResult.powerConsumption.typical</td>
+                    <td><span class="type-badge">number</span></td>
+                    <td>整屏典型功率，单位瓦特。用于日常运营成本估算。</td>
+                    <td>1530</td>
+                </tr>
+                <tr>
+                    <td>calculationResult.physical.totalWeight</td>
+                    <td><span class="type-badge">number</span></td>
+                    <td>整屏总重量，单位千克。用于结构承重设计。</td>
+                    <td>273</td>
+                </tr>
             </table>
         </div>
 
@@ -425,13 +826,13 @@ td>
         <div class="card" id="oneclick-apis">
             <h2>6. API: 一键计算+预览 ⚡ 推荐</h2>
             
-            <div class="note">
+            <div class="note-success">
                 <div class="note-title">💡 为什么推荐使用一键接口？</div>
-                <p>相比分别调用计算和预览两个接口，一键接口只需一次网络请求，避免了重复数据传输，响应更快。</p>
+                <p>相比分别调用计算和预览两个接口，一键接口只需一次网络请求，避免了重复数据传输，响应更快，集成更简单。</p>
             </div>
 
             <h3 id="optimal-layout-with-preview">6.1 单箱体一键计算+预览</h3>
-            <div class="endpoint"><span class="method">POST</span>/api/calculate/optimal-layout-with-preview</div>
+            <div class="endpoint"><span class="method">POST</span> https://led-api.unilumin-gtm.com/api/calculate/optimal-layout-with-preview</div>
             <p>使用单一箱体型号，一次请求同时返回最优布局计算结果和SVG预览图。</p>
             
             <h4>请求参数</h4>
@@ -442,12 +843,53 @@ td>
     <span class="key">"unit"</span>: <span class="string">"meters"</span>
   },
   <span class="key">"previewOptions"</span>: {                     <span class="comment">// 预览选项 (可选)</span>
-    <span class="key">"showDimensions"</span>: <span class="number">true</span>,
-    <span class="key">"showPerson"</span>: <span class="number">true</span>,
-    <span class="key">"canvasWidth"</span>: <span class="number">800</span>,
-    <span class="key">"canvasHeight"</span>: <span class="number">500</span>
+    <span class="key">"showDimensions"</span>: <span class="number">true</span>,              <span class="comment">// 显示尺寸标注</span>
+    <span class="key">"showPerson"</span>: <span class="number">true</span>,                  <span class="comment">// 显示人物参照</span>
+    <span class="key">"canvasWidth"</span>: <span class="number">800</span>,                 <span class="comment">// 画布宽度 (px)</span>
+    <span class="key">"canvasHeight"</span>: <span class="number">500</span>,                <span class="comment">// 画布高度 (px)</span>
+    <span class="key">"language"</span>: <span class="string">"zh"</span>                     <span class="comment">// 语言: "zh" 或 "en"</span>
   }
 }</div>
+
+            <h4>previewOptions 字段说明</h4>
+            <table>
+                <tr><th>字段</th><th>类型</th><th>必填</th><th>默认值</th><th>说明</th></tr>
+                <tr>
+                    <td>showDimensions</td>
+                    <td><span class="type-badge">boolean</span></td>
+                    <td><span class="optional">可选</span></td>
+                    <td>true</td>
+                    <td>是否在预览图中显示尺寸标注（宽度、高度）。</td>
+                </tr>
+                <tr>
+                    <td>showPerson</td>
+                    <td><span class="type-badge">boolean</span></td>
+                    <td><span class="optional">可选</span></td>
+                    <td>true</td>
+                    <td>是否显示人物参照图（1.7m高的人形轮廓），用于直观感受屏幕大小。</td>
+                </tr>
+                <tr>
+                    <td>canvasWidth</td>
+                    <td><span class="type-badge">number</span></td>
+                    <td><span class="optional">可选</span></td>
+                    <td>800</td>
+                    <td>SVG画布宽度，单位像素。</td>
+                </tr>
+                <tr>
+                    <td>canvasHeight</td>
+                    <td><span class="type-badge">number</span></td>
+                    <td><span class="optional">可选</span></td>
+                    <td>500</td>
+                    <td>SVG画布高度，单位像素。</td>
+                </tr>
+                <tr>
+                    <td>language</td>
+                    <td><span class="type-badge">string</span></td>
+                    <td><span class="optional">可选</span></td>
+                    <td>"zh"</td>
+                    <td>预览图中文字的语言。<code>"zh"</code> 中文，<code>"en"</code> 英文。</td>
+                </tr>
+            </table>
 
             <h4>响应数据</h4>
             <div class="code-block">{
@@ -457,23 +899,26 @@ td>
     <span class="key">"rows"</span>: <span class="number">3</span>,                            <span class="comment">// 行数</span>
     <span class="key">"totalCabinets"</span>: <span class="number">30</span>,                 <span class="comment">// 箱体总数</span>
     <span class="key">"screenDimensions"</span>: {                <span class="comment">// 屏幕尺寸</span>
-      <span class="key">"widthM"</span>: <span class="number">5.0</span>, <span class="key">"heightM"</span>: <span class="number">3.0</span>, <span class="key">"areaM2"</span>: <span class="number">15.0</span>
+      <span class="key">"widthM"</span>: <span class="number">5.0</span>,                      <span class="comment">// 宽度 (米)</span>
+      <span class="key">"heightM"</span>: <span class="number">3.0</span>,                     <span class="comment">// 高度 (米)</span>
+      <span class="key">"areaM2"</span>: <span class="number">15.0</span>                      <span class="comment">// 面积 (平方米)</span>
     },
-    <span class="key">"calculationResult"</span>: { ... },        <span class="comment">// 详细计算结果</span>
+    <span class="key">"calculationResult"</span>: { ... },        <span class="comment">// 详细计算结果（同第4节）</span>
     <span class="key">"preview"</span>: {                          <span class="comment">// SVG预览</span>
-      <span class="key">"svg"</span>: <span class="string">"&lt;svg ...&gt;...&lt;/svg&gt;"</span>,
-      <span class="key">"width"</span>: <span class="number">800</span>, <span class="key">"height"</span>: <span class="number">500</span>
+      <span class="key">"svg"</span>: <span class="string">"&lt;svg ...&gt;...&lt;/svg&gt;"</span>,    <span class="comment">// SVG字符串</span>
+      <span class="key">"width"</span>: <span class="number">800</span>,                       <span class="comment">// 画布宽度</span>
+      <span class="key">"height"</span>: <span class="number">500</span>                       <span class="comment">// 画布高度</span>
     }
   }
 }</div>
 
-            <hr style="margin:30px 0;border:none;border-top:1px solid #e0e0e0;">
+            <hr class="section-divider">
 
             <h3 id="smart-combination-with-preview">6.2 多箱体一键计算+预览</h3>
-            <div class="endpoint"><span class="method">POST</span>/api/calculate/smart-combination-with-preview</div>
+            <div class="endpoint"><span class="method">POST</span> https://led-api.unilumin-gtm.com/api/calculate/smart-combination-with-preview</div>
             <p>使用多种尺寸箱体组合，一次请求同时返回智能组合计算结果和SVG预览图。</p>
 
-            <h3>6.1 请求参数</h3>
+            <h4>请求参数</h4>
             <div class="code-block">{
   <span class="key">"mainCabinet"</span>: {
     <span class="key">"id"</span>: <span class="string">"uslimiii-mip-15-500x1000"</span>,
@@ -484,20 +929,20 @@ td>
   ],
   <span class="key">"wallWidthMm"</span>: <span class="number">4300</span>,                    <span class="comment">// 可用墙面宽度 (mm)</span>
   <span class="key">"wallHeightMm"</span>: <span class="number">3300</span>,                   <span class="comment">// 可用墙面高度 (mm)</span>
-  <span class="key">"previewOptions"</span>: {                       <span class="comment">// 预览选项 (可选)</span>
-    <span class="key">"showDimensions"</span>: <span class="number">true</span>,                <span class="comment">// 显示尺寸标注</span>
-    <span class="key">"showPerson"</span>: <span class="number">true</span>,                    <span class="comment">// 显示人物参照</span>
-    <span class="key">"canvasWidth"</span>: <span class="number">800</span>,                   <span class="comment">// 画布宽度 (px)</span>
-    <span class="key">"canvasHeight"</span>: <span class="number">500</span>,                  <span class="comment">// 画布高度 (px)</span>
-    <span class="key">"language"</span>: <span class="string">"zh"</span>                       <span class="comment">// 语言: "zh" 或 "en"</span>
+  <span class="key">"previewOptions"</span>: {                       <span class="comment">// 预览选项 (可选，同6.1节)</span>
+    <span class="key">"showDimensions"</span>: <span class="number">true</span>,
+    <span class="key">"showPerson"</span>: <span class="number">true</span>,
+    <span class="key">"canvasWidth"</span>: <span class="number">800</span>,
+    <span class="key">"canvasHeight"</span>: <span class="number">500</span>,
+    <span class="key">"language"</span>: <span class="string">"zh"</span>
   }
 }</div>
 
-            <h3>6.2 响应数据</h3>
+            <h4>响应数据</h4>
             <div class="code-block">{
   <span class="key">"success"</span>: <span class="number">true</span>,
   <span class="key">"data"</span>: {
-    <span class="comment">// ===== 计算结果 =====</span>
+    <span class="comment">// ===== 计算结果（同第5节）=====</span>
     <span class="key">"bestCombination"</span>: [...],              <span class="comment">// 最优组合方案</span>
     <span class="key">"coveragePercentage"</span>: <span class="string">"100%"</span>,
     <span class="key">"isFullyFilled"</span>: <span class="number">true</span>,
@@ -517,35 +962,72 @@ td>
   }
 }</div>
 
-            <h3>6.3 响应字段说明</h3>
+            <h4>响应字段说明</h4>
             <table>
                 <tr><th>字段</th><th>类型</th><th>说明</th></tr>
-                <tr><td>bestCombination</td><td><span class="type-badge">array</span></td><td>最优组合：每种箱体的ID和数量</td></tr>
-                <tr><td>coveragePercentage</td><td><span class="type-badge">string</span></td><td>墙面覆盖率百分比</td></tr>
-                <tr><td>isFullyFilled</td><td><span class="type-badge">boolean</span></td><td>墙面是否被完全填充</td></tr>
-                <tr><td>adjustedSize</td><td><span class="type-badge">object</span></td><td>实际屏幕尺寸 (mm)</td></tr>
-                <tr><td>calculationResult</td><td><span class="type-badge">object</span></td><td>详细计算结果</td></tr>
-                <tr><td>preview.svg</td><td><span class="type-badge">string</span></td><td>SVG预览图字符串</td></tr>
-                <tr><td>preview.width</td><td><span class="type-badge">number</span></td><td>画布宽度</td></tr>
-                <tr><td>preview.height</td><td><span class="type-badge">number</span></td><td>画布高度</td></tr>
+                <tr>
+                    <td>bestCombination</td>
+                    <td><span class="type-badge">array</span></td>
+                    <td>最优组合方案，包含每种箱体的ID和数量。详见第5.4节。</td>
+                </tr>
+                <tr>
+                    <td>coveragePercentage</td>
+                    <td><span class="type-badge">string</span></td>
+                    <td>墙面覆盖率百分比。</td>
+                </tr>
+                <tr>
+                    <td>isFullyFilled</td>
+                    <td><span class="type-badge">boolean</span></td>
+                    <td>墙面是否被完全填充（无空隙）。</td>
+                </tr>
+                <tr>
+                    <td>adjustedSize</td>
+                    <td><span class="type-badge">object</span></td>
+                    <td>实际屏幕尺寸（毫米），包含 width 和 height。</td>
+                </tr>
+                <tr>
+                    <td>calculationResult</td>
+                    <td><span class="type-badge">object</span></td>
+                    <td>详细计算结果，包含 wallDimensions、arrangement、powerConsumption、physical。</td>
+                </tr>
+                <tr>
+                    <td>preview.svg</td>
+                    <td><span class="type-badge">string</span></td>
+                    <td>SVG预览图的完整XML字符串。可直接嵌入HTML或保存为.svg文件。</td>
+                </tr>
+                <tr>
+                    <td>preview.width</td>
+                    <td><span class="type-badge">number</span></td>
+                    <td>SVG画布宽度（像素）。</td>
+                </tr>
+                <tr>
+                    <td>preview.height</td>
+                    <td><span class="type-badge">number</span></td>
+                    <td>SVG画布高度（像素）。</td>
+                </tr>
             </table>
         </div>
 
         <!-- SVG预览生成 API -->
         <div class="card" id="preview">
             <h2>7. API: SVG预览生成</h2>
-            <div class="endpoint"><span class="method">POST</span>/api/preview/svg</div>
-            <p>基于计算结果生成LED屏幕的可视化预览图，展示箱体排列效果。</p>
+            <div class="endpoint"><span class="method">POST</span> https://led-api.unilumin-gtm.com/api/preview/svg</div>
+            <p>基于计算结果生成LED屏幕的可视化预览图，展示箱体排列效果。此接口需要先调用计算接口获取结果，再传入生成预览。</p>
+            
+            <div class="note">
+                <div class="note-title">💡 提示</div>
+                <p>如果您需要同时获取计算结果和预览图，建议使用第6节的一键接口，可减少一次网络请求。</p>
+            </div>
             
             <h3>7.1 请求参数</h3>
             <div class="code-block">{
-  <span class="key">"calculationResult"</span>: {                  <span class="comment">// 计算结果 (来自上述API)</span>
-    <span class="key">"wallDimensions"</span>: {                   <span class="comment">// 屏幕尺寸</span>
+  <span class="key">"calculationResult"</span>: {                  <span class="comment">// 计算结果 (来自第4或第5节API)</span>
+    <span class="key">"wallDimensions"</span>: {                   <span class="comment">// 屏幕尺寸（米）</span>
       <span class="key">"width"</span>: <span class="number">4.0</span>,
       <span class="key">"height"</span>: <span class="number">3.0</span>,
       <span class="key">"area"</span>: <span class="number">12.0</span>
     },
-    <span class="key">"cabinetCount"</span>: {
+    <span class="key">"cabinetCount"</span>: {                      <span class="comment">// 箱体数量统计</span>
       <span class="key">"total"</span>: <span class="number">24</span>,
       <span class="key">"horizontal"</span>: <span class="number">8</span>,
       <span class="key">"vertical"</span>: <span class="number">3</span>
@@ -553,14 +1035,14 @@ td>
     <span class="key">"arrangement"</span>: {                        <span class="comment">// 箱体排列信息</span>
       <span class="key">"cabinets"</span>: [
         {
-          <span class="key">"cabinetId"</span>: <span class="string">"cabinet-1"</span>,
-          <span class="key">"position"</span>: { <span class="key">"x"</span>: <span class="number">0</span>, <span class="key">"y"</span>: <span class="number">0</span> },
-          <span class="key">"size"</span>: { <span class="key">"width"</span>: <span class="number">500</span>, <span class="key">"height"</span>: <span class="number">1000</span> }
+          <span class="key">"cabinetId"</span>: <span class="string">"cabinet-1"</span>,        <span class="comment">// 箱体标识</span>
+          <span class="key">"position"</span>: { <span class="key">"x"</span>: <span class="number">0</span>, <span class="key">"y"</span>: <span class="number">0</span> },   <span class="comment">// 位置坐标 (mm)</span>
+          <span class="key">"size"</span>: { <span class="key">"width"</span>: <span class="number">500</span>, <span class="key">"height"</span>: <span class="number">1000</span> }  <span class="comment">// 尺寸 (mm)</span>
         }
         <span class="comment">// ... 更多箱体</span>
       ],
-      <span class="key">"strategy"</span>: <span class="string">"row_wise"</span>,
-      <span class="key">"coverage"</span>: <span class="number">1.0</span>
+      <span class="key">"strategy"</span>: <span class="string">"row_wise"</span>,              <span class="comment">// 排列策略</span>
+      <span class="key">"coverage"</span>: <span class="number">1.0</span>                       <span class="comment">// 覆盖率</span>
     }
   },
   <span class="key">"roomConfig"</span>: {                           <span class="comment">// 可用墙面配置</span>
@@ -568,38 +1050,139 @@ td>
     <span class="key">"unit"</span>: <span class="string">"meters"</span>
   },
   <span class="key">"options"</span>: {                               <span class="comment">// 预览选项</span>
-    <span class="key">"showDimensions"</span>: <span class="number">true</span>,                <span class="comment">// 显示尺寸标注</span>
-    <span class="key">"showPerson"</span>: <span class="number">true</span>,                    <span class="comment">// 显示人物参照</span>
-    <span class="key">"canvasWidth"</span>: <span class="number">800</span>,                   <span class="comment">// 画布宽度 (px)</span>
-    <span class="key">"canvasHeight"</span>: <span class="number">500</span>,                  <span class="comment">// 画布高度 (px)</span>
-    <span class="key">"format"</span>: <span class="string">"json"</span>                       <span class="comment">// 返回格式</span>
+    <span class="key">"showDimensions"</span>: <span class="number">true</span>,
+    <span class="key">"showPerson"</span>: <span class="number">true</span>,
+    <span class="key">"canvasWidth"</span>: <span class="number">800</span>,
+    <span class="key">"canvasHeight"</span>: <span class="number">500</span>,
+    <span class="key">"format"</span>: <span class="string">"json"</span>,
+    <span class="key">"language"</span>: <span class="string">"zh"</span>
   }
 }</div>
 
             <h3>7.2 请求字段说明</h3>
             <table>
                 <tr><th>字段</th><th>类型</th><th>必填</th><th>说明</th></tr>
-                <tr><td>calculationResult</td><td><span class="type-badge">object</span></td><td><span class="required">必填</span></td><td>来自计算API的结果数据</td></tr>
-                <tr><td>calculationResult.wallDimensions</td><td><span class="type-badge">object</span></td><td><span class="required">必填</span></td><td>屏幕尺寸信息</td></tr>
-                <tr><td>calculationResult.arrangement</td><td><span class="type-badge">object</span></td><td><span class="required">必填</span></td><td>箱体排列信息</td></tr>
-                <tr><td>roomConfig</td><td><span class="type-badge">object</span></td><td><span class="required">必填</span></td><td>可用墙面配置</td></tr>
-                <tr><td>options.showDimensions</td><td><span class="type-badge">boolean</span></td><td><span class="optional">可选</span></td><td>是否显示尺寸标注，默认true</td></tr>
-                <tr><td>options.showPerson</td><td><span class="type-badge">boolean</span></td><td><span class="optional">可选</span></td><td>是否显示人物参照，默认true</td></tr>
-                <tr><td>options.canvasWidth</td><td><span class="type-badge">number</span></td><td><span class="optional">可选</span></td><td>画布宽度，默认800</td></tr>
-                <tr><td>options.canvasHeight</td><td><span class="type-badge">number</span></td><td><span class="optional">可选</span></td><td>画布高度，默认500</td></tr>
+                <tr>
+                    <td>calculationResult</td>
+                    <td><span class="type-badge">object</span></td>
+                    <td><span class="required">必填</span></td>
+                    <td>来自计算API（第4或第5节）的完整结果数据。</td>
+                </tr>
+                <tr>
+                    <td>calculationResult.wallDimensions</td>
+                    <td><span class="type-badge">object</span></td>
+                    <td><span class="required">必填</span></td>
+                    <td>屏幕尺寸信息，包含 width（米）、height（米）、area（平方米）。</td>
+                </tr>
+                <tr>
+                    <td>calculationResult.arrangement</td>
+                    <td><span class="type-badge">object</span></td>
+                    <td><span class="required">必填</span></td>
+                    <td>箱体排列信息，包含 cabinets 数组。</td>
+                </tr>
+                <tr>
+                    <td>calculationResult.arrangement.cabinets</td>
+                    <td><span class="type-badge">array</span></td>
+                    <td><span class="required">必填</span></td>
+                    <td>每个箱体的位置和尺寸信息数组。</td>
+                </tr>
+                <tr>
+                    <td>calculationResult.arrangement.cabinets[].cabinetId</td>
+                    <td><span class="type-badge">string</span></td>
+                    <td><span class="required">必填</span></td>
+                    <td>箱体标识符，用于区分不同类型的箱体（不同类型显示不同颜色）。</td>
+                </tr>
+                <tr>
+                    <td>calculationResult.arrangement.cabinets[].position</td>
+                    <td><span class="type-badge">object</span></td>
+                    <td><span class="required">必填</span></td>
+                    <td>箱体位置坐标（毫米），包含 x 和 y。坐标原点在屏幕左下角。</td>
+                </tr>
+                <tr>
+                    <td>calculationResult.arrangement.cabinets[].size</td>
+                    <td><span class="type-badge">object</span></td>
+                    <td><span class="required">必填</span></td>
+                    <td>箱体尺寸（毫米），包含 width 和 height。</td>
+                </tr>
+                <tr>
+                    <td>roomConfig</td>
+                    <td><span class="type-badge">object</span></td>
+                    <td><span class="required">必填</span></td>
+                    <td>可用墙面配置，用于在预览图中显示墙面边界。</td>
+                </tr>
+                <tr>
+                    <td>options.showDimensions</td>
+                    <td><span class="type-badge">boolean</span></td>
+                    <td><span class="optional">可选</span></td>
+                    <td>是否显示尺寸标注，默认 true。</td>
+                </tr>
+                <tr>
+                    <td>options.showPerson</td>
+                    <td><span class="type-badge">boolean</span></td>
+                    <td><span class="optional">可选</span></td>
+                    <td>是否显示人物参照，默认 true。</td>
+                </tr>
+                <tr>
+                    <td>options.canvasWidth</td>
+                    <td><span class="type-badge">number</span></td>
+                    <td><span class="optional">可选</span></td>
+                    <td>画布宽度（像素），默认 800。</td>
+                </tr>
+                <tr>
+                    <td>options.canvasHeight</td>
+                    <td><span class="type-badge">number</span></td>
+                    <td><span class="optional">可选</span></td>
+                    <td>画布高度（像素），默认 500。</td>
+                </tr>
+                <tr>
+                    <td>options.format</td>
+                    <td><span class="type-badge">string</span></td>
+                    <td><span class="optional">可选</span></td>
+                    <td>返回格式，<code>"json"</code>（默认）返回JSON包装的SVG，<code>"svg"</code> 直接返回SVG文件。</td>
+                </tr>
+                <tr>
+                    <td>options.language</td>
+                    <td><span class="type-badge">string</span></td>
+                    <td><span class="optional">可选</span></td>
+                    <td>语言设置，<code>"zh"</code> 中文（默认），<code>"en"</code> 英文。</td>
+                </tr>
             </table>
 
             <h3>7.3 响应数据</h3>
             <div class="code-block">{
   <span class="key">"success"</span>: <span class="number">true</span>,
   <span class="key">"data"</span>: {
-    <span class="key">"svg"</span>: <span class="string">"&lt;svg xmlns='...'&gt;...&lt;/svg&gt;"</span>,  <span class="comment">// SVG字符串</span>
+    <span class="key">"svg"</span>: <span class="string">"&lt;svg xmlns='http://www.w3.org/2000/svg' ...&gt;...&lt;/svg&gt;"</span>,
     <span class="key">"width"</span>: <span class="number">800</span>,
     <span class="key">"height"</span>: <span class="number">500</span>
   }
 }</div>
+
+            <h4>响应字段说明</h4>
+            <table>
+                <tr><th>字段</th><th>类型</th><th>说明</th></tr>
+                <tr>
+                    <td>success</td>
+                    <td><span class="type-badge">boolean</span></td>
+                    <td>请求是否成功。</td>
+                </tr>
+                <tr>
+                    <td>data.svg</td>
+                    <td><span class="type-badge">string</span></td>
+                    <td>完整的SVG XML字符串。可直接使用 <code>innerHTML</code> 插入DOM，或保存为 .svg 文件。</td>
+                </tr>
+                <tr>
+                    <td>data.width</td>
+                    <td><span class="type-badge">number</span></td>
+                    <td>SVG画布宽度（像素）。</td>
+                </tr>
+                <tr>
+                    <td>data.height</td>
+                    <td><span class="type-badge">number</span></td>
+                    <td>SVG画布高度（像素）。</td>
+                </tr>
+            </table>
         </div>
-</span>
 
         <!-- 完整示例 -->
         <div class="card" id="examples">
@@ -617,10 +1200,21 @@ td>
     <span class="key">"pixelPitch"</span>: <span class="number">1.5625</span>,
     <span class="key">"resolution"</span>: { <span class="key">"width"</span>: <span class="number">320</span>, <span class="key">"height"</span>: <span class="number">640</span> },
     <span class="key">"brightness"</span>: <span class="number">1000</span>,
-    <span class="key">"refreshRate"</span>: <span class="number">5760</span>
+    <span class="key">"refreshRate"</span>: <span class="number">5760</span>,
+    <span class="key">"colorDepth"</span>: <span class="number">16</span>
   },
   <span class="key">"power"</span>: { <span class="key">"maxPower"</span>: <span class="number">180</span>, <span class="key">"typicalPower"</span>: <span class="number">60</span>, <span class="key">"standbyPower"</span>: <span class="number">5</span> },
-  <span class="key">"physical"</span>: { <span class="key">"weight"</span>: <span class="number">10.5</span> }
+  <span class="key">"physical"</span>: { 
+    <span class="key">"weight"</span>: <span class="number">10.5</span>,
+    <span class="key">"operatingTemp"</span>: { <span class="key">"min"</span>: <span class="number">0</span>, <span class="key">"max"</span>: <span class="number">45</span> },
+    <span class="key">"humidity"</span>: { <span class="key">"min"</span>: <span class="number">10</span>, <span class="key">"max"</span>: <span class="number">90</span> },
+    <span class="key">"ipRating"</span>: <span class="string">"IP30"</span>
+  },
+  <span class="key">"installation"</span>: {
+    <span class="key">"mountingType"</span>: [<span class="string">"wall"</span>, <span class="string">"floor"</span>],
+    <span class="key">"cableType"</span>: [<span class="string">"power"</span>, <span class="string">"data"</span>],
+    <span class="key">"maintenanceAccess"</span>: <span class="string">"front"</span>
+  }
 }</div>
 
             <h4>UMiniW 0.9 (600×337.5mm)</h4>
@@ -632,19 +1226,28 @@ td>
     <span class="key">"pixelPitch"</span>: <span class="number">0.9375</span>,
     <span class="key">"resolution"</span>: { <span class="key">"width"</span>: <span class="number">640</span>, <span class="key">"height"</span>: <span class="number">360</span> },
     <span class="key">"brightness"</span>: <span class="number">600</span>,
-    <span class="key">"refreshRate"</span>: <span class="number">3840</span>
+    <span class="key">"refreshRate"</span>: <span class="number">3840</span>,
+    <span class="key">"colorDepth"</span>: <span class="number">14</span>
   },
   <span class="key">"power"</span>: { <span class="key">"maxPower"</span>: <span class="number">60</span>, <span class="key">"typicalPower"</span>: <span class="number">42</span>, <span class="key">"standbyPower"</span>: <span class="number">3</span> },
-  <span class="key">"physical"</span>: { <span class="key">"weight"</span>: <span class="number">4.3</span> }
+  <span class="key">"physical"</span>: { 
+    <span class="key">"weight"</span>: <span class="number">4.3</span>,
+    <span class="key">"operatingTemp"</span>: { <span class="key">"min"</span>: <span class="number">0</span>, <span class="key">"max"</span>: <span class="number">45</span> },
+    <span class="key">"humidity"</span>: { <span class="key">"min"</span>: <span class="number">10</span>, <span class="key">"max"</span>: <span class="number">90</span> },
+    <span class="key">"ipRating"</span>: <span class="string">"IP30"</span>
+  },
+  <span class="key">"installation"</span>: {
+    <span class="key">"mountingType"</span>: [<span class="string">"wall"</span>],
+    <span class="key">"cableType"</span>: [<span class="string">"power"</span>, <span class="string">"data"</span>],
+    <span class="key">"maintenanceAccess"</span>: <span class="string">"front"</span>
+  }
 }</div>
 
             <h3>8.2 JavaScript 调用示例</h3>
-            <div class="code-block"><span class="comment">// 单箱体最优布局计算</span>
-<span class="comment">// 自动检测 API 地址（开发环境使用 localhost，生产环境使用当前域名）</span>
-const API_BASE = window.location.hostname === 'localhost' 
-  ? 'http://localhost:3001' 
-  : window.location.origin;
+            <div class="code-block"><span class="comment">// API 基础地址</span>
+const API_BASE = <span class="string">'https://led-api.unilumin-gtm.com'</span>;
 
+<span class="comment">// 示例1: 单箱体最优布局计算</span>
 async function calculateOptimalLayout() {
   const response = await fetch(<span class="string">`${API_BASE}/api/calculate/optimal-layout`</span>, {
     method: <span class="string">'POST'</span>,
@@ -671,12 +1274,54 @@ async function calculateOptimalLayout() {
   });
   
   const result = await response.json();
-  console.log(<span class="string">'推荐布局:'</span>, result.data.columns, <span class="string">'列 ×'</span>, result.data.rows, <span class="string">'行'</span>);
+  if (result.success) {
+    console.log(<span class="string">'推荐布局:'</span>, result.data.columns, <span class="string">'列 ×'</span>, result.data.rows, <span class="string">'行'</span>);
+    console.log(<span class="string">'箱体总数:'</span>, result.data.totalCabinets);
+    console.log(<span class="string">'屏幕尺寸:'</span>, result.data.wallWidth, <span class="string">'mm ×'</span>, result.data.wallHeight, <span class="string">'mm'</span>);
+  }
+  return result;
+}
+
+<span class="comment">// 示例2: 单箱体一键计算+预览（推荐）</span>
+async function calculateWithPreview() {
+  const response = await fetch(<span class="string">`${API_BASE}/api/calculate/optimal-layout-with-preview`</span>, {
+    method: <span class="string">'POST'</span>,
+    headers: { <span class="string">'Content-Type'</span>: <span class="string">'application/json'</span> },
+    body: JSON.stringify({
+      cabinetSpecs: {
+        dimensions: { width: <span class="number">500</span>, height: <span class="number">1000</span>, depth: <span class="number">40</span> },
+        display: {
+          pixelPitch: <span class="number">1.5625</span>,
+          resolution: { width: <span class="number">320</span>, height: <span class="number">640</span> }
+        },
+        power: { maxPower: <span class="number">180</span>, typicalPower: <span class="number">60</span> },
+        physical: { weight: <span class="number">10.5</span> }
+      },
+      roomConfig: {
+        dimensions: { width: <span class="number">5</span>, height: <span class="number">3</span> },
+        unit: <span class="string">'meters'</span>
+      },
+      previewOptions: {
+        showDimensions: <span class="number">true</span>,
+        showPerson: <span class="number">true</span>,
+        canvasWidth: <span class="number">800</span>,
+        canvasHeight: <span class="number">500</span>,
+        language: <span class="string">'zh'</span>
+      }
+    })
+  });
+  
+  const result = await response.json();
+  if (result.success) {
+    <span class="comment">// 显示SVG预览图</span>
+    document.getElementById(<span class="string">'preview-container'</span>).innerHTML = result.data.preview.svg;
+  }
+  return result;
 }</div>
 
             <h3>8.3 cURL 调用示例</h3>
-            <div class="code-block"><span class="comment"># 替换 YOUR_DOMAIN 为您的实际域名</span>
-curl -X POST https://YOUR_DOMAIN/api/calculate/optimal-layout \
+            <div class="code-block"><span class="comment"># 示例1: 单箱体最优布局计算</span>
+curl -X POST https://led-api.unilumin-gtm.com/api/calculate/optimal-layout \
   -H "Content-Type: application/json" \
   -d '{
     "cabinetSpecs": {
@@ -696,11 +1341,81 @@ curl -X POST https://YOUR_DOMAIN/api/calculate/optimal-layout \
       "unit": "meters",
       "wallType": "flat"
     }
+  }'
+
+<span class="comment"># 示例2: 多箱体智能组合</span>
+curl -X POST https://led-api.unilumin-gtm.com/api/calculate/smart-combination \
+  -H "Content-Type: application/json" \
+  -d '{
+    "mainCabinet": {
+      "id": "uslimiii-mip-15-500x1000",
+      "specs": {
+        "dimensions": { "width": 500, "height": 1000 },
+        "display": { "pixelPitch": 1.5625, "resolution": { "width": 320, "height": 640 } },
+        "power": { "maxPower": 180, "typicalPower": 60 },
+        "physical": { "weight": 10.5 }
+      }
+    },
+    "auxiliaryCabinets": [
+      {
+        "id": "uslimiii-mip-15-500x500",
+        "specs": {
+          "dimensions": { "width": 500, "height": 500 },
+          "display": { "pixelPitch": 1.5625, "resolution": { "width": 320, "height": 320 } },
+          "power": { "maxPower": 90, "typicalPower": 30 },
+          "physical": { "weight": 5.25 }
+        }
+      }
+    ],
+    "wallWidthMm": 4300,
+    "wallHeightMm": 3300
   }'</div>
+
+            <h3>8.4 错误处理</h3>
+            <p>当请求失败时，API会返回以下格式的错误响应：</p>
+            <div class="code-block">{
+  <span class="key">"success"</span>: <span class="number">false</span>,
+  <span class="key">"error"</span>: {
+    <span class="key">"code"</span>: <span class="string">"VALIDATION_ERROR"</span>,      <span class="comment">// 错误代码</span>
+    <span class="key">"message"</span>: <span class="string">"箱体宽度必须大于0"</span>,    <span class="comment">// 错误描述</span>
+    <span class="key">"details"</span>: { ... }                   <span class="comment">// 详细信息（可选）</span>
+  },
+  <span class="key">"timestamp"</span>: <span class="string">"2024-01-15T10:30:00.000Z"</span>
+}</div>
+
+            <h4>常见错误代码</h4>
+            <table>
+                <tr><th>错误代码</th><th>HTTP状态码</th><th>说明</th><th>解决方案</th></tr>
+                <tr>
+                    <td><code>VALIDATION_ERROR</code></td>
+                    <td>400</td>
+                    <td>请求参数验证失败</td>
+                    <td>检查请求体格式和必填字段</td>
+                </tr>
+                <tr>
+                    <td><code>CABINET_LIMIT_EXCEEDED</code></td>
+                    <td>400</td>
+                    <td>箱体总数超过限制（>1000）</td>
+                    <td>减小墙面尺寸或使用更大的箱体</td>
+                </tr>
+                <tr>
+                    <td><code>SCREEN_SIZE_EXCEEDED</code></td>
+                    <td>400</td>
+                    <td>屏幕尺寸超过限制（>50m）</td>
+                    <td>减小墙面尺寸</td>
+                </tr>
+                <tr>
+                    <td><code>CALCULATION_ERROR</code></td>
+                    <td>500</td>
+                    <td>内部计算错误</td>
+                    <td>检查输入数据是否合理，如仍有问题请联系技术支持</td>
+                </tr>
+            </table>
         </div>
 
         <div style="text-align:center;padding:40px;color:#6c757d;">
             <p>📚 LED Calculator API 数据定义文档</p>
+            <p style="margin-top:8px;">API地址: <code>https://led-api.unilumin-gtm.com</code></p>
             <p style="margin-top:8px;"><a href="/" style="color:#667eea;">前往测试页面 →</a></p>
         </div>
     </div>

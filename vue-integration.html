@@ -1,0 +1,1234 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LED Calculator API - Vue 集成指南</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            color: #333;
+            line-height: 1.7;
+        }
+        .container { max-width: 1000px; margin: 0 auto; padding: 20px; }
+        .header {
+            background: linear-gradient(135deg, #42b883 0%, #35495e 100%);
+            color: white;
+            padding: 40px 30px;
+            border-radius: 16px;
+            margin-bottom: 30px;
+            text-align: center;
+            box-shadow: 0 10px 40px rgba(66, 184, 131, 0.3);
+        }
+        .header h1 { font-size: 2.2rem; margin-bottom: 10px; }
+        .header p { font-size: 1.1rem; opacity: 0.9; }
+        .header-links { margin-top: 16px; display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+        .header-links a {
+            color: white;
+            text-decoration: none;
+            padding: 8px 16px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+        .header-links a:hover { background: rgba(255,255,255,0.3); }
+        .card {
+            background: white;
+            border-radius: 16px;
+            padding: 28px;
+            margin-bottom: 24px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        }
+        .card h2 {
+            color: #42b883;
+            margin-bottom: 16px;
+            font-size: 1.4rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border-bottom: 2px solid #f0f0f0;
+            padding-bottom: 12px;
+        }
+        .card h3 { color: #35495e; margin: 24px 0 12px; font-size: 1.1rem; }
+        .card h4 { color: #555; margin: 16px 0 8px; font-size: 1rem; }
+        .card p { margin-bottom: 12px; color: #555; }
+        .step-number {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, #42b883 0%, #35495e 100%);
+            color: white;
+            border-radius: 50%;
+            font-weight: bold;
+            font-size: 14px;
+        }
+        .code-block {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            border-radius: 10px;
+            padding: 20px;
+            font-family: 'Monaco', 'Menlo', 'Consolas', monospace;
+            font-size: 13px;
+            overflow-x: auto;
+            white-space: pre;
+            margin: 16px 0;
+            position: relative;
+        }
+        .code-block .comment { color: #6a9955; }
+        .code-block .keyword { color: #569cd6; }
+        .code-block .string { color: #ce9178; }
+        .code-block .function { color: #dcdcaa; }
+        .code-block .variable { color: #9cdcfe; }
+        .code-block .number { color: #b5cea8; }
+        .code-block .type { color: #4ec9b0; }
+        .code-filename {
+            position: absolute;
+            top: 8px;
+            right: 12px;
+            background: rgba(255,255,255,0.1);
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 11px;
+            color: #888;
+        }
+        .copy-btn {
+            position: absolute;
+            top: 8px;
+            right: 120px;
+            background: rgba(255,255,255,0.1);
+            border: none;
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 11px;
+            color: #888;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .copy-btn:hover { background: rgba(255,255,255,0.2); color: #fff; }
+        .note {
+            background: #e8f5e9;
+            border-left: 4px solid #42b883;
+            padding: 16px;
+            border-radius: 0 8px 8px 0;
+            margin: 16px 0;
+        }
+        .note-title { font-weight: bold; color: #2e7d32; margin-bottom: 8px; }
+        .warning {
+            background: #fff3e0;
+            border-left: 4px solid #ff9800;
+            padding: 16px;
+            border-radius: 0 8px 8px 0;
+            margin: 16px 0;
+        }
+        .warning-title { font-weight: bold; color: #e65100; margin-bottom: 8px; }
+        .toc {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 24px;
+        }
+        .toc h3 { margin-bottom: 12px; color: #42b883; }
+        .toc ul { list-style: none; }
+        .toc li { margin: 8px 0; }
+        .toc a { color: #333; text-decoration: none; }
+        .toc a:hover { color: #42b883; }
+        .badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 600;
+            margin-left: 8px;
+        }
+        .badge-vue3 { background: #42b883; color: white; }
+        .badge-ts { background: #3178c6; color: white; }
+        .file-tree {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 16px;
+            font-family: monospace;
+            font-size: 13px;
+            white-space: pre;
+        }
+        .file-tree .folder { color: #42b883; }
+        .file-tree .file { color: #666; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🟢 Vue 集成指南</h1>
+            <p>LED Calculator API 在 Vue 3 项目中的完整集成教程</p>
+            <div class="header-links">
+                <a href="/">🧪 测试页面</a>
+                <a href="/docs">📚 API文档</a>
+            </div>
+        </div>
+
+        <!-- 目录 -->
+        <div class="toc">
+            <h3>📋 目录</h3>
+            <ul>
+                <li>1. <a href="#overview">概述与准备</a></li>
+                <li>2. <a href="#step1">Step 1: 创建 API 服务层</a></li>
+                <li>3. <a href="#step2">Step 2: 创建类型定义</a></li>
+                <li>4. <a href="#step3">Step 3: 创建 Composable Hook</a></li>
+                <li>5. <a href="#step4">Step 4: 创建计算器组件</a></li>
+                <li>6. <a href="#step5">Step 5: 创建预览组件</a></li>
+                <li>7. <a href="#complete">完整示例页面</a></li>
+                <li>8. <a href="#tips">最佳实践与注意事项</a></li>
+            </ul>
+        </div>
+
+        <!-- 概述 -->
+        <div class="card" id="overview">
+            <h2><span class="step-number">0</span> 概述与准备</h2>
+            <p>本指南将帮助你在 Vue 3 + TypeScript 项目中集成 LED Calculator API，实现LED显示屏配置计算和预览功能。</p>
+            
+            <h3>技术栈要求</h3>
+            <ul style="margin-left: 20px; margin-bottom: 16px;">
+                <li>Vue 3.x <span class="badge badge-vue3">Composition API</span></li>
+                <li>TypeScript 5.x <span class="badge badge-ts">推荐</span></li>
+                <li>Vite 或 Vue CLI</li>
+            </ul>
+
+            <h3>API 基础信息</h3>
+            <div class="code-block">
+<span class="comment">// API 基础地址</span>
+<span class="keyword">const</span> <span class="variable">API_BASE</span> = <span class="string">'https://led-api.unilumin-gtm.com'</span>;
+
+<span class="comment">// 主要接口</span>
+<span class="comment">// POST /api/calculate/optimal-layout          - 单箱体最优布局</span>
+<span class="comment">// POST /api/calculate/smart-combination       - 多箱体智能组合</span>
+<span class="comment">// POST /api/calculate/optimal-layout-with-preview    - 单箱体一键计算+预览</span>
+<span class="comment">// POST /api/calculate/smart-combination-with-preview - 多箱体一键计算+预览</span>
+<span class="comment">// POST /api/preview/svg                       - SVG预览生成</span>
+            </div>
+
+            <h3>项目结构建议</h3>
+            <div class="file-tree">
+<span class="folder">src/</span>
+├── <span class="folder">api/</span>
+│   └── <span class="file">ledCalculator.ts</span>        <span class="comment">// API 服务层</span>
+├── <span class="folder">types/</span>
+│   └── <span class="file">ledCalculator.ts</span>        <span class="comment">// TypeScript 类型定义</span>
+├── <span class="folder">composables/</span>
+│   └── <span class="file">useLedCalculator.ts</span>    <span class="comment">// Vue Composable Hook</span>
+├── <span class="folder">components/</span>
+│   ├── <span class="file">LedCalculator.vue</span>       <span class="comment">// 计算器组件</span>
+│   └── <span class="file">LedPreview.vue</span>          <span class="comment">// 预览组件</span>
+└── <span class="folder">views/</span>
+    └── <span class="file">LedConfigPage.vue</span>       <span class="comment">// 完整页面</span>
+            </div>
+        </div>
+
+        <!-- Step 1: API 服务层 -->
+        <div class="card" id="step1">
+            <h2><span class="step-number">1</span> 创建 API 服务层</h2>
+            <p>首先创建一个统一的 API 服务文件，封装所有与 LED Calculator API 的交互逻辑。</p>
+            
+            <div class="code-block">
+                <span class="code-filename">src/api/ledCalculator.ts</span>
+                <button class="copy-btn" onclick="copyCode(this)">复制</button>
+<span class="comment">/**
+ * LED Calculator API 服务层
+ * 封装所有 API 调用逻辑
+ */</span>
+
+<span class="keyword">const</span> <span class="variable">API_BASE</span> = <span class="string">'https://led-api.unilumin-gtm.com'</span>;
+
+<span class="comment">// 通用请求方法</span>
+<span class="keyword">async function</span> <span class="function">request</span>&lt;<span class="type">T</span>&gt;(
+  <span class="variable">endpoint</span>: <span class="type">string</span>,
+  <span class="variable">data</span>: <span class="type">unknown</span>
+): <span class="type">Promise</span>&lt;<span class="type">T</span>&gt; {
+  <span class="keyword">const</span> <span class="variable">response</span> = <span class="keyword">await</span> <span class="function">fetch</span>(<span class="string">`<span class="variable">${API_BASE}${endpoint}</span>`</span>, {
+    <span class="variable">method</span>: <span class="string">'POST'</span>,
+    <span class="variable">headers</span>: {
+      <span class="string">'Content-Type'</span>: <span class="string">'application/json'</span>,
+    },
+    <span class="variable">body</span>: <span class="type">JSON</span>.<span class="function">stringify</span>(<span class="variable">data</span>),
+  });
+
+  <span class="keyword">if</span> (!<span class="variable">response</span>.<span class="variable">ok</span>) {
+    <span class="keyword">const</span> <span class="variable">error</span> = <span class="keyword">await</span> <span class="variable">response</span>.<span class="function">json</span>();
+    <span class="keyword">throw new</span> <span class="type">Error</span>(<span class="variable">error</span>.<span class="variable">error</span>?.<span class="variable">message</span> || <span class="string">'API请求失败'</span>);
+  }
+
+  <span class="keyword">return</span> <span class="variable">response</span>.<span class="function">json</span>();
+}
+
+<span class="comment">/**
+ * 单箱体最优布局计算
+ */</span>
+<span class="keyword">export async function</span> <span class="function">calculateOptimalLayout</span>(
+  <span class="variable">cabinetSpecs</span>: <span class="type">CabinetSpecs</span>,
+  <span class="variable">roomConfig</span>: <span class="type">RoomConfig</span>
+): <span class="type">Promise</span>&lt;<span class="type">OptimalLayoutResponse</span>&gt; {
+  <span class="keyword">return</span> <span class="function">request</span>(<span class="string">'/api/calculate/optimal-layout'</span>, {
+    <span class="variable">cabinetSpecs</span>,
+    <span class="variable">roomConfig</span>,
+  });
+}
+
+<span class="comment">/**
+ * 单箱体一键计算+预览（推荐）
+ */</span>
+<span class="keyword">export async function</span> <span class="function">calculateOptimalLayoutWithPreview</span>(
+  <span class="variable">cabinetSpecs</span>: <span class="type">CabinetSpecs</span>,
+  <span class="variable">roomConfig</span>: <span class="type">RoomConfig</span>,
+  <span class="variable">previewOptions</span>?: <span class="type">PreviewOptions</span>
+): <span class="type">Promise</span>&lt;<span class="type">OptimalLayoutWithPreviewResponse</span>&gt; {
+  <span class="keyword">return</span> <span class="function">request</span>(<span class="string">'/api/calculate/optimal-layout-with-preview'</span>, {
+    <span class="variable">cabinetSpecs</span>,
+    <span class="variable">roomConfig</span>,
+    <span class="variable">previewOptions</span>: <span class="variable">previewOptions</span> || {
+      <span class="variable">showDimensions</span>: <span class="keyword">true</span>,
+      <span class="variable">showPerson</span>: <span class="keyword">true</span>,
+      <span class="variable">canvasWidth</span>: <span class="number">800</span>,
+      <span class="variable">canvasHeight</span>: <span class="number">500</span>,
+      <span class="variable">language</span>: <span class="string">'zh'</span>,
+    },
+  });
+}
+
+<span class="comment">/**
+ * 多箱体智能组合计算
+ */</span>
+<span class="keyword">export async function</span> <span class="function">calculateSmartCombination</span>(
+  <span class="variable">mainCabinet</span>: <span class="type">CabinetWithId</span>,
+  <span class="variable">auxiliaryCabinets</span>: <span class="type">CabinetWithId</span>[],
+  <span class="variable">wallWidthMm</span>: <span class="type">number</span>,
+  <span class="variable">wallHeightMm</span>: <span class="type">number</span>
+): <span class="type">Promise</span>&lt;<span class="type">SmartCombinationResponse</span>&gt; {
+  <span class="keyword">return</span> <span class="function">request</span>(<span class="string">'/api/calculate/smart-combination'</span>, {
+    <span class="variable">mainCabinet</span>,
+    <span class="variable">auxiliaryCabinets</span>,
+    <span class="variable">wallWidthMm</span>,
+    <span class="variable">wallHeightMm</span>,
+  });
+}
+
+<span class="comment">/**
+ * 多箱体一键计算+预览（推荐）
+ */</span>
+<span class="keyword">export async function</span> <span class="function">calculateSmartCombinationWithPreview</span>(
+  <span class="variable">mainCabinet</span>: <span class="type">CabinetWithId</span>,
+  <span class="variable">auxiliaryCabinets</span>: <span class="type">CabinetWithId</span>[],
+  <span class="variable">wallWidthMm</span>: <span class="type">number</span>,
+  <span class="variable">wallHeightMm</span>: <span class="type">number</span>,
+  <span class="variable">previewOptions</span>?: <span class="type">PreviewOptions</span>
+): <span class="type">Promise</span>&lt;<span class="type">SmartCombinationWithPreviewResponse</span>&gt; {
+  <span class="keyword">return</span> <span class="function">request</span>(<span class="string">'/api/calculate/smart-combination-with-preview'</span>, {
+    <span class="variable">mainCabinet</span>,
+    <span class="variable">auxiliaryCabinets</span>,
+    <span class="variable">wallWidthMm</span>,
+    <span class="variable">wallHeightMm</span>,
+    <span class="variable">previewOptions</span>: <span class="variable">previewOptions</span> || {
+      <span class="variable">showDimensions</span>: <span class="keyword">true</span>,
+      <span class="variable">showPerson</span>: <span class="keyword">true</span>,
+      <span class="variable">canvasWidth</span>: <span class="number">800</span>,
+      <span class="variable">canvasHeight</span>: <span class="number">500</span>,
+      <span class="variable">language</span>: <span class="string">'zh'</span>,
+    },
+  });
+}
+
+<span class="comment">/**
+ * 生成SVG预览图
+ */</span>
+<span class="keyword">export async function</span> <span class="function">generatePreview</span>(
+  <span class="variable">calculationResult</span>: <span class="type">CalculationResult</span>,
+  <span class="variable">roomConfig</span>: <span class="type">RoomConfig</span>,
+  <span class="variable">options</span>?: <span class="type">PreviewOptions</span>
+): <span class="type">Promise</span>&lt;<span class="type">PreviewResponse</span>&gt; {
+  <span class="keyword">return</span> <span class="function">request</span>(<span class="string">'/api/preview/svg'</span>, {
+    <span class="variable">calculationResult</span>,
+    <span class="variable">roomConfig</span>,
+    <span class="variable">options</span>,
+  });
+}
+            </div>
+
+            <div class="note">
+                <div class="note-title">💡 提示</div>
+                <p>推荐使用 <code>*WithPreview</code> 接口，一次请求同时获取计算结果和预览图，减少网络请求次数。</p>
+            </div>
+        </div>
+
+        <!-- Step 2: 类型定义 -->
+        <div class="card" id="step2">
+            <h2><span class="step-number">2</span> 创建类型定义</h2>
+            <p>定义 TypeScript 接口，确保类型安全和代码提示。</p>
+            
+            <div class="code-block">
+                <span class="code-filename">src/types/ledCalculator.ts</span>
+                <button class="copy-btn" onclick="copyCode(this)">复制</button>
+<span class="comment">/**
+ * LED Calculator API 类型定义
+ */</span>
+
+<span class="comment">// ========== 箱体规格 ==========</span>
+<span class="keyword">export interface</span> <span class="type">CabinetSpecs</span> {
+  <span class="variable">dimensions</span>: {
+    <span class="variable">width</span>: <span class="type">number</span>;   <span class="comment">// 箱体宽度 (mm)</span>
+    <span class="variable">height</span>: <span class="type">number</span>;  <span class="comment">// 箱体高度 (mm)</span>
+    <span class="variable">depth</span>?: <span class="type">number</span>;  <span class="comment">// 箱体深度 (mm)</span>
+  };
+  <span class="variable">display</span>: {
+    <span class="variable">pixelPitch</span>: <span class="type">number</span>;  <span class="comment">// 像素间距 (mm)</span>
+    <span class="variable">resolution</span>: {
+      <span class="variable">width</span>: <span class="type">number</span>;   <span class="comment">// 水平分辨率 (px)</span>
+      <span class="variable">height</span>: <span class="type">number</span>;  <span class="comment">// 垂直分辨率 (px)</span>
+    };
+    <span class="variable">brightness</span>?: <span class="type">number</span>;    <span class="comment">// 亮度 (nits)</span>
+    <span class="variable">refreshRate</span>?: <span class="type">number</span>;   <span class="comment">// 刷新率 (Hz)</span>
+    <span class="variable">colorDepth</span>?: <span class="type">number</span>;    <span class="comment">// 色深 (bit)</span>
+  };
+  <span class="variable">power</span>: {
+    <span class="variable">maxPower</span>: <span class="type">number</span>;      <span class="comment">// 最大功率 (W)</span>
+    <span class="variable">typicalPower</span>: <span class="type">number</span>;  <span class="comment">// 典型功率 (W)</span>
+    <span class="variable">standbyPower</span>?: <span class="type">number</span>; <span class="comment">// 待机功率 (W)</span>
+  };
+  <span class="variable">physical</span>: {
+    <span class="variable">weight</span>: <span class="type">number</span>;  <span class="comment">// 重量 (kg)</span>
+    <span class="variable">operatingTemp</span>?: { <span class="variable">min</span>: <span class="type">number</span>; <span class="variable">max</span>: <span class="type">number</span> };
+    <span class="variable">humidity</span>?: { <span class="variable">min</span>: <span class="type">number</span>; <span class="variable">max</span>: <span class="type">number</span> };
+    <span class="variable">ipRating</span>?: <span class="type">string</span>;
+  };
+  <span class="variable">installation</span>?: {
+    <span class="variable">mountingType</span>?: <span class="type">string</span>[];
+    <span class="variable">cableType</span>?: <span class="type">string</span>[];
+    <span class="variable">maintenanceAccess</span>?: <span class="type">string</span>;
+  };
+}
+
+<span class="comment">// 带ID的箱体（用于多箱体组合）</span>
+<span class="keyword">export interface</span> <span class="type">CabinetWithId</span> {
+  <span class="variable">id</span>: <span class="type">string</span>;
+  <span class="variable">specs</span>: <span class="type">CabinetSpecs</span>;
+}
+
+<span class="comment">// ========== 墙面配置 ==========</span>
+<span class="keyword">export interface</span> <span class="type">RoomConfig</span> {
+  <span class="variable">dimensions</span>: {
+    <span class="variable">width</span>: <span class="type">number</span>;
+    <span class="variable">height</span>: <span class="type">number</span>;
+  };
+  <span class="variable">unit</span>: <span class="string">'meters'</span> | <span class="string">'feet'</span>;
+  <span class="variable">wallType</span>?: <span class="string">'flat'</span>;
+}
+
+<span class="comment">// ========== 预览选项 ==========</span>
+<span class="keyword">export interface</span> <span class="type">PreviewOptions</span> {
+  <span class="variable">showDimensions</span>?: <span class="type">boolean</span>;  <span class="comment">// 显示尺寸标注</span>
+  <span class="variable">showPerson</span>?: <span class="type">boolean</span>;      <span class="comment">// 显示人物参照</span>
+  <span class="variable">canvasWidth</span>?: <span class="type">number</span>;      <span class="comment">// 画布宽度 (px)</span>
+  <span class="variable">canvasHeight</span>?: <span class="type">number</span>;     <span class="comment">// 画布高度 (px)</span>
+  <span class="variable">language</span>?: <span class="string">'zh'</span> | <span class="string">'en'</span>;   <span class="comment">// 语言</span>
+}
+
+<span class="comment">// ========== API 响应类型 ==========</span>
+<span class="keyword">export interface</span> <span class="type">ApiResponse</span>&lt;<span class="type">T</span>&gt; {
+  <span class="variable">success</span>: <span class="type">boolean</span>;
+  <span class="variable">data</span>: <span class="type">T</span>;
+  <span class="variable">timestamp</span>?: <span class="type">string</span>;
+}
+
+<span class="comment">// 单箱体布局响应</span>
+<span class="keyword">export interface</span> <span class="type">OptimalLayoutData</span> {
+  <span class="variable">columns</span>: <span class="type">number</span>;
+  <span class="variable">rows</span>: <span class="type">number</span>;
+  <span class="variable">totalCabinets</span>: <span class="type">number</span>;
+  <span class="variable">wallWidth</span>: <span class="type">number</span>;
+  <span class="variable">wallHeight</span>: <span class="type">number</span>;
+  <span class="variable">coverage</span>: <span class="type">number</span>;
+  <span class="variable">calculationResult</span>?: <span class="type">CalculationResult</span>;
+}
+
+<span class="keyword">export type</span> <span class="type">OptimalLayoutResponse</span> = <span class="type">ApiResponse</span>&lt;<span class="type">OptimalLayoutData</span>&gt;;
+
+<span class="comment">// 带预览的响应</span>
+<span class="keyword">export interface</span> <span class="type">OptimalLayoutWithPreviewData</span> <span class="keyword">extends</span> <span class="type">OptimalLayoutData</span> {
+  <span class="variable">preview</span>: {
+    <span class="variable">svg</span>: <span class="type">string</span>;
+    <span class="variable">width</span>: <span class="type">number</span>;
+    <span class="variable">height</span>: <span class="type">number</span>;
+  };
+}
+
+<span class="keyword">export type</span> <span class="type">OptimalLayoutWithPreviewResponse</span> = <span class="type">ApiResponse</span>&lt;<span class="type">OptimalLayoutWithPreviewData</span>&gt;;
+
+<span class="comment">// 多箱体组合响应</span>
+<span class="keyword">export interface</span> <span class="type">SmartCombinationData</span> {
+  <span class="variable">isFullyFilled</span>: <span class="type">boolean</span>;
+  <span class="variable">coveragePercentage</span>: <span class="type">string</span>;
+  <span class="variable">bestCombination</span>: { <span class="variable">id</span>: <span class="type">string</span>; <span class="variable">count</span>: <span class="type">number</span> }[];
+  <span class="variable">adjustedSize</span>: { <span class="variable">width</span>: <span class="type">number</span>; <span class="variable">height</span>: <span class="type">number</span> };
+  <span class="variable">calculationResult</span>: <span class="type">CalculationResult</span>;
+}
+
+<span class="keyword">export type</span> <span class="type">SmartCombinationResponse</span> = <span class="type">ApiResponse</span>&lt;<span class="type">SmartCombinationData</span>&gt;;
+
+<span class="keyword">export interface</span> <span class="type">SmartCombinationWithPreviewData</span> <span class="keyword">extends</span> <span class="type">SmartCombinationData</span> {
+  <span class="variable">preview</span>: {
+    <span class="variable">svg</span>: <span class="type">string</span>;
+    <span class="variable">width</span>: <span class="type">number</span>;
+    <span class="variable">height</span>: <span class="type">number</span>;
+  };
+}
+
+<span class="keyword">export type</span> <span class="type">SmartCombinationWithPreviewResponse</span> = <span class="type">ApiResponse</span>&lt;<span class="type">SmartCombinationWithPreviewData</span>&gt;;
+
+<span class="comment">// 计算结果详情</span>
+<span class="keyword">export interface</span> <span class="type">CalculationResult</span> {
+  <span class="variable">wallDimensions</span>: {
+    <span class="variable">width</span>: <span class="type">number</span>;
+    <span class="variable">height</span>: <span class="type">number</span>;
+    <span class="variable">area</span>: <span class="type">number</span>;
+  };
+  <span class="variable">arrangement</span>: {
+    <span class="variable">cabinets</span>: <span class="type">CabinetPosition</span>[];
+    <span class="variable">strategy</span>: <span class="type">string</span>;
+    <span class="variable">coverage</span>: <span class="type">number</span>;
+  };
+  <span class="variable">powerConsumption</span>?: {
+    <span class="variable">maximum</span>: <span class="type">number</span>;
+    <span class="variable">typical</span>: <span class="type">number</span>;
+  };
+  <span class="variable">physical</span>?: {
+    <span class="variable">totalWeight</span>: <span class="type">number</span>;
+  };
+}
+
+<span class="keyword">export interface</span> <span class="type">CabinetPosition</span> {
+  <span class="variable">cabinetId</span>: <span class="type">string</span>;
+  <span class="variable">position</span>: { <span class="variable">x</span>: <span class="type">number</span>; <span class="variable">y</span>: <span class="type">number</span> };
+  <span class="variable">size</span>: { <span class="variable">width</span>: <span class="type">number</span>; <span class="variable">height</span>: <span class="type">number</span> };
+}
+
+<span class="comment">// 预览响应</span>
+<span class="keyword">export interface</span> <span class="type">PreviewData</span> {
+  <span class="variable">svg</span>: <span class="type">string</span>;
+  <span class="variable">width</span>: <span class="type">number</span>;
+  <span class="variable">height</span>: <span class="type">number</span>;
+}
+
+<span class="keyword">export type</span> <span class="type">PreviewResponse</span> = <span class="type">ApiResponse</span>&lt;<span class="type">PreviewData</span>&gt;;
+            </div>
+        </div>
+
+        <!-- Step 3: Composable Hook -->
+        <div class="card" id="step3">
+            <h2><span class="step-number">3</span> 创建 Composable Hook</h2>
+            <p>创建 Vue 3 Composable，封装状态管理和 API 调用逻辑，方便在组件中复用。</p>
+            
+            <div class="code-block">
+                <span class="code-filename">src/composables/useLedCalculator.ts</span>
+                <button class="copy-btn" onclick="copyCode(this)">复制</button>
+<span class="keyword">import</span> { <span class="variable">ref</span>, <span class="variable">reactive</span>, <span class="variable">computed</span> } <span class="keyword">from</span> <span class="string">'vue'</span>;
+<span class="keyword">import</span> <span class="keyword">type</span> {
+  <span class="type">CabinetSpecs</span>,
+  <span class="type">RoomConfig</span>,
+  <span class="type">PreviewOptions</span>,
+  <span class="type">OptimalLayoutWithPreviewData</span>,
+  <span class="type">SmartCombinationWithPreviewData</span>,
+  <span class="type">CabinetWithId</span>,
+} <span class="keyword">from</span> <span class="string">'@/types/ledCalculator'</span>;
+<span class="keyword">import</span> {
+  <span class="variable">calculateOptimalLayoutWithPreview</span>,
+  <span class="variable">calculateSmartCombinationWithPreview</span>,
+} <span class="keyword">from</span> <span class="string">'@/api/ledCalculator'</span>;
+
+<span class="comment">/**
+ * LED 计算器 Composable
+ * 提供响应式状态和计算方法
+ */</span>
+<span class="keyword">export function</span> <span class="function">useLedCalculator</span>() {
+  <span class="comment">// ========== 状态 ==========</span>
+  <span class="keyword">const</span> <span class="variable">loading</span> = <span class="function">ref</span>(<span class="keyword">false</span>);
+  <span class="keyword">const</span> <span class="variable">error</span> = <span class="function">ref</span>&lt;<span class="type">string</span> | <span class="keyword">null</span>&gt;(<span class="keyword">null</span>);
+  
+  <span class="comment">// 单箱体计算结果</span>
+  <span class="keyword">const</span> <span class="variable">optimalLayoutResult</span> = <span class="function">ref</span>&lt;<span class="type">OptimalLayoutWithPreviewData</span> | <span class="keyword">null</span>&gt;(<span class="keyword">null</span>);
+  
+  <span class="comment">// 多箱体计算结果</span>
+  <span class="keyword">const</span> <span class="variable">smartCombinationResult</span> = <span class="function">ref</span>&lt;<span class="type">SmartCombinationWithPreviewData</span> | <span class="keyword">null</span>&gt;(<span class="keyword">null</span>);
+  
+  <span class="comment">// SVG 预览</span>
+  <span class="keyword">const</span> <span class="variable">previewSvg</span> = <span class="function">computed</span>(() => {
+    <span class="keyword">return</span> <span class="variable">optimalLayoutResult</span>.<span class="variable">value</span>?.<span class="variable">preview</span>?.<span class="variable">svg</span> 
+      || <span class="variable">smartCombinationResult</span>.<span class="variable">value</span>?.<span class="variable">preview</span>?.<span class="variable">svg</span> 
+      || <span class="keyword">null</span>;
+  });
+
+  <span class="comment">// 默认预览选项</span>
+  <span class="keyword">const</span> <span class="variable">defaultPreviewOptions</span>: <span class="type">PreviewOptions</span> = {
+    <span class="variable">showDimensions</span>: <span class="keyword">true</span>,
+    <span class="variable">showPerson</span>: <span class="keyword">true</span>,
+    <span class="variable">canvasWidth</span>: <span class="number">800</span>,
+    <span class="variable">canvasHeight</span>: <span class="number">500</span>,
+    <span class="variable">language</span>: <span class="string">'zh'</span>,
+  };
+
+  <span class="comment">// ========== 方法 ==========</span>
+  
+  <span class="comment">/**
+   * 单箱体最优布局计算
+   */</span>
+  <span class="keyword">async function</span> <span class="function">calculateOptimal</span>(
+    <span class="variable">cabinetSpecs</span>: <span class="type">CabinetSpecs</span>,
+    <span class="variable">roomConfig</span>: <span class="type">RoomConfig</span>,
+    <span class="variable">previewOptions</span>?: <span class="type">PreviewOptions</span>
+  ) {
+    <span class="variable">loading</span>.<span class="variable">value</span> = <span class="keyword">true</span>;
+    <span class="variable">error</span>.<span class="variable">value</span> = <span class="keyword">null</span>;
+    
+    <span class="keyword">try</span> {
+      <span class="keyword">const</span> <span class="variable">response</span> = <span class="keyword">await</span> <span class="function">calculateOptimalLayoutWithPreview</span>(
+        <span class="variable">cabinetSpecs</span>,
+        <span class="variable">roomConfig</span>,
+        <span class="variable">previewOptions</span> || <span class="variable">defaultPreviewOptions</span>
+      );
+      
+      <span class="keyword">if</span> (<span class="variable">response</span>.<span class="variable">success</span>) {
+        <span class="variable">optimalLayoutResult</span>.<span class="variable">value</span> = <span class="variable">response</span>.<span class="variable">data</span>;
+        <span class="keyword">return</span> <span class="variable">response</span>.<span class="variable">data</span>;
+      } <span class="keyword">else</span> {
+        <span class="keyword">throw new</span> <span class="type">Error</span>(<span class="string">'计算失败'</span>);
+      }
+    } <span class="keyword">catch</span> (<span class="variable">e</span>) {
+      <span class="variable">error</span>.<span class="variable">value</span> = <span class="variable">e</span> <span class="keyword">instanceof</span> <span class="type">Error</span> ? <span class="variable">e</span>.<span class="variable">message</span> : <span class="string">'未知错误'</span>;
+      <span class="keyword">throw</span> <span class="variable">e</span>;
+    } <span class="keyword">finally</span> {
+      <span class="variable">loading</span>.<span class="variable">value</span> = <span class="keyword">false</span>;
+    }
+  }
+
+  <span class="comment">/**
+   * 多箱体智能组合计算
+   */</span>
+  <span class="keyword">async function</span> <span class="function">calculateSmart</span>(
+    <span class="variable">mainCabinet</span>: <span class="type">CabinetWithId</span>,
+    <span class="variable">auxiliaryCabinets</span>: <span class="type">CabinetWithId</span>[],
+    <span class="variable">wallWidthMm</span>: <span class="type">number</span>,
+    <span class="variable">wallHeightMm</span>: <span class="type">number</span>,
+    <span class="variable">previewOptions</span>?: <span class="type">PreviewOptions</span>
+  ) {
+    <span class="variable">loading</span>.<span class="variable">value</span> = <span class="keyword">true</span>;
+    <span class="variable">error</span>.<span class="variable">value</span> = <span class="keyword">null</span>;
+    
+    <span class="keyword">try</span> {
+      <span class="keyword">const</span> <span class="variable">response</span> = <span class="keyword">await</span> <span class="function">calculateSmartCombinationWithPreview</span>(
+        <span class="variable">mainCabinet</span>,
+        <span class="variable">auxiliaryCabinets</span>,
+        <span class="variable">wallWidthMm</span>,
+        <span class="variable">wallHeightMm</span>,
+        <span class="variable">previewOptions</span> || <span class="variable">defaultPreviewOptions</span>
+      );
+      
+      <span class="keyword">if</span> (<span class="variable">response</span>.<span class="variable">success</span>) {
+        <span class="variable">smartCombinationResult</span>.<span class="variable">value</span> = <span class="variable">response</span>.<span class="variable">data</span>;
+        <span class="keyword">return</span> <span class="variable">response</span>.<span class="variable">data</span>;
+      } <span class="keyword">else</span> {
+        <span class="keyword">throw new</span> <span class="type">Error</span>(<span class="string">'计算失败'</span>);
+      }
+    } <span class="keyword">catch</span> (<span class="variable">e</span>) {
+      <span class="variable">error</span>.<span class="variable">value</span> = <span class="variable">e</span> <span class="keyword">instanceof</span> <span class="type">Error</span> ? <span class="variable">e</span>.<span class="variable">message</span> : <span class="string">'未知错误'</span>;
+      <span class="keyword">throw</span> <span class="variable">e</span>;
+    } <span class="keyword">finally</span> {
+      <span class="variable">loading</span>.<span class="variable">value</span> = <span class="keyword">false</span>;
+    }
+  }
+
+  <span class="comment">/**
+   * 清除结果
+   */</span>
+  <span class="keyword">function</span> <span class="function">clearResults</span>() {
+    <span class="variable">optimalLayoutResult</span>.<span class="variable">value</span> = <span class="keyword">null</span>;
+    <span class="variable">smartCombinationResult</span>.<span class="variable">value</span> = <span class="keyword">null</span>;
+    <span class="variable">error</span>.<span class="variable">value</span> = <span class="keyword">null</span>;
+  }
+
+  <span class="keyword">return</span> {
+    <span class="comment">// 状态</span>
+    <span class="variable">loading</span>,
+    <span class="variable">error</span>,
+    <span class="variable">optimalLayoutResult</span>,
+    <span class="variable">smartCombinationResult</span>,
+    <span class="variable">previewSvg</span>,
+    <span class="comment">// 方法</span>
+    <span class="variable">calculateOptimal</span>,
+    <span class="variable">calculateSmart</span>,
+    <span class="variable">clearResults</span>,
+  };
+}
+            </div>
+        </div>
+
+        <!-- Step 4: 计算器组件 -->
+        <div class="card" id="step4">
+            <h2><span class="step-number">4</span> 创建计算器组件</h2>
+            <p>创建一个完整的 LED 计算器表单组件，包含箱体参数输入和墙面尺寸配置。</p>
+            
+            <div class="code-block">
+                <span class="code-filename">src/components/LedCalculator.vue</span>
+                <button class="copy-btn" onclick="copyCode(this)">复制</button>
+&lt;<span class="keyword">script</span> <span class="variable">setup</span> <span class="variable">lang</span>=<span class="string">"ts"</span>&gt;
+<span class="keyword">import</span> { <span class="variable">reactive</span>, <span class="variable">ref</span> } <span class="keyword">from</span> <span class="string">'vue'</span>;
+<span class="keyword">import</span> { <span class="variable">useLedCalculator</span> } <span class="keyword">from</span> <span class="string">'@/composables/useLedCalculator'</span>;
+<span class="keyword">import</span> <span class="keyword">type</span> { <span class="type">CabinetSpecs</span>, <span class="type">RoomConfig</span> } <span class="keyword">from</span> <span class="string">'@/types/ledCalculator'</span>;
+
+<span class="comment">// 使用 composable</span>
+<span class="keyword">const</span> {
+  <span class="variable">loading</span>,
+  <span class="variable">error</span>,
+  <span class="variable">optimalLayoutResult</span>,
+  <span class="variable">previewSvg</span>,
+  <span class="variable">calculateOptimal</span>,
+} = <span class="function">useLedCalculator</span>();
+
+<span class="comment">// 表单数据</span>
+<span class="keyword">const</span> <span class="variable">cabinetForm</span> = <span class="function">reactive</span>({
+  <span class="variable">width</span>: <span class="number">500</span>,
+  <span class="variable">height</span>: <span class="number">1000</span>,
+  <span class="variable">depth</span>: <span class="number">40</span>,
+  <span class="variable">pixelPitch</span>: <span class="number">1.5625</span>,
+  <span class="variable">resolutionWidth</span>: <span class="number">320</span>,
+  <span class="variable">resolutionHeight</span>: <span class="number">640</span>,
+  <span class="variable">maxPower</span>: <span class="number">180</span>,
+  <span class="variable">typicalPower</span>: <span class="number">60</span>,
+  <span class="variable">weight</span>: <span class="number">10.5</span>,
+});
+
+<span class="keyword">const</span> <span class="variable">roomForm</span> = <span class="function">reactive</span>({
+  <span class="variable">width</span>: <span class="number">5</span>,
+  <span class="variable">height</span>: <span class="number">3</span>,
+  <span class="variable">unit</span>: <span class="string">'meters'</span> <span class="keyword">as</span> <span class="string">'meters'</span> | <span class="string">'feet'</span>,
+});
+
+<span class="comment">// 提交计算</span>
+<span class="keyword">async function</span> <span class="function">handleCalculate</span>() {
+  <span class="keyword">const</span> <span class="variable">cabinetSpecs</span>: <span class="type">CabinetSpecs</span> = {
+    <span class="variable">dimensions</span>: {
+      <span class="variable">width</span>: <span class="variable">cabinetForm</span>.<span class="variable">width</span>,
+      <span class="variable">height</span>: <span class="variable">cabinetForm</span>.<span class="variable">height</span>,
+      <span class="variable">depth</span>: <span class="variable">cabinetForm</span>.<span class="variable">depth</span>,
+    },
+    <span class="variable">display</span>: {
+      <span class="variable">pixelPitch</span>: <span class="variable">cabinetForm</span>.<span class="variable">pixelPitch</span>,
+      <span class="variable">resolution</span>: {
+        <span class="variable">width</span>: <span class="variable">cabinetForm</span>.<span class="variable">resolutionWidth</span>,
+        <span class="variable">height</span>: <span class="variable">cabinetForm</span>.<span class="variable">resolutionHeight</span>,
+      },
+    },
+    <span class="variable">power</span>: {
+      <span class="variable">maxPower</span>: <span class="variable">cabinetForm</span>.<span class="variable">maxPower</span>,
+      <span class="variable">typicalPower</span>: <span class="variable">cabinetForm</span>.<span class="variable">typicalPower</span>,
+    },
+    <span class="variable">physical</span>: {
+      <span class="variable">weight</span>: <span class="variable">cabinetForm</span>.<span class="variable">weight</span>,
+    },
+  };
+
+  <span class="keyword">const</span> <span class="variable">roomConfig</span>: <span class="type">RoomConfig</span> = {
+    <span class="variable">dimensions</span>: {
+      <span class="variable">width</span>: <span class="variable">roomForm</span>.<span class="variable">width</span>,
+      <span class="variable">height</span>: <span class="variable">roomForm</span>.<span class="variable">height</span>,
+    },
+    <span class="variable">unit</span>: <span class="variable">roomForm</span>.<span class="variable">unit</span>,
+  };
+
+  <span class="keyword">try</span> {
+    <span class="keyword">await</span> <span class="function">calculateOptimal</span>(<span class="variable">cabinetSpecs</span>, <span class="variable">roomConfig</span>);
+  } <span class="keyword">catch</span> (<span class="variable">e</span>) {
+    <span class="variable">console</span>.<span class="function">error</span>(<span class="string">'计算失败:'</span>, <span class="variable">e</span>);
+  }
+}
+&lt;/<span class="keyword">script</span>&gt;
+
+&lt;<span class="keyword">template</span>&gt;
+  &lt;<span class="variable">div</span> <span class="variable">class</span>=<span class="string">"led-calculator"</span>&gt;
+    <span class="comment">&lt;!-- 错误提示 --&gt;</span>
+    &lt;<span class="variable">div</span> <span class="variable">v-if</span>=<span class="string">"error"</span> <span class="variable">class</span>=<span class="string">"error-message"</span>&gt;
+      {{ error }}
+    &lt;/<span class="variable">div</span>&gt;
+
+    &lt;<span class="variable">div</span> <span class="variable">class</span>=<span class="string">"form-grid"</span>&gt;
+      <span class="comment">&lt;!-- 箱体参数 --&gt;</span>
+      &lt;<span class="variable">div</span> <span class="variable">class</span>=<span class="string">"form-section"</span>&gt;
+        &lt;<span class="variable">h3</span>&gt;📦 箱体参数&lt;/<span class="variable">h3</span>&gt;
+        &lt;<span class="variable">div</span> <span class="variable">class</span>=<span class="string">"form-group"</span>&gt;
+          &lt;<span class="variable">label</span>&gt;宽度 (mm)&lt;/<span class="variable">label</span>&gt;
+          &lt;<span class="variable">input</span> <span class="variable">v-model.number</span>=<span class="string">"cabinetForm.width"</span> <span class="variable">type</span>=<span class="string">"number"</span> /&gt;
+        &lt;/<span class="variable">div</span>&gt;
+        &lt;<span class="variable">div</span> <span class="variable">class</span>=<span class="string">"form-group"</span>&gt;
+          &lt;<span class="variable">label</span>&gt;高度 (mm)&lt;/<span class="variable">label</span>&gt;
+          &lt;<span class="variable">input</span> <span class="variable">v-model.number</span>=<span class="string">"cabinetForm.height"</span> <span class="variable">type</span>=<span class="string">"number"</span> /&gt;
+        &lt;/<span class="variable">div</span>&gt;
+        &lt;<span class="variable">div</span> <span class="variable">class</span>=<span class="string">"form-group"</span>&gt;
+          &lt;<span class="variable">label</span>&gt;像素间距 (mm)&lt;/<span class="variable">label</span>&gt;
+          &lt;<span class="variable">input</span> <span class="variable">v-model.number</span>=<span class="string">"cabinetForm.pixelPitch"</span> <span class="variable">type</span>=<span class="string">"number"</span> <span class="variable">step</span>=<span class="string">"0.01"</span> /&gt;
+        &lt;/<span class="variable">div</span>&gt;
+        &lt;<span class="variable">div</span> <span class="variable">class</span>=<span class="string">"form-group"</span>&gt;
+          &lt;<span class="variable">label</span>&gt;最大功率 (W)&lt;/<span class="variable">label</span>&gt;
+          &lt;<span class="variable">input</span> <span class="variable">v-model.number</span>=<span class="string">"cabinetForm.maxPower"</span> <span class="variable">type</span>=<span class="string">"number"</span> /&gt;
+        &lt;/<span class="variable">div</span>&gt;
+        &lt;<span class="variable">div</span> <span class="variable">class</span>=<span class="string">"form-group"</span>&gt;
+          &lt;<span class="variable">label</span>&gt;重量 (kg)&lt;/<span class="variable">label</span>&gt;
+          &lt;<span class="variable">input</span> <span class="variable">v-model.number</span>=<span class="string">"cabinetForm.weight"</span> <span class="variable">type</span>=<span class="string">"number"</span> <span class="variable">step</span>=<span class="string">"0.1"</span> /&gt;
+        &lt;/<span class="variable">div</span>&gt;
+      &lt;/<span class="variable">div</span>&gt;
+
+      <span class="comment">&lt;!-- 墙面尺寸 --&gt;</span>
+      &lt;<span class="variable">div</span> <span class="variable">class</span>=<span class="string">"form-section"</span>&gt;
+        &lt;<span class="variable">h3</span>&gt;📏 墙面尺寸&lt;/<span class="variable">h3</span>&gt;
+        &lt;<span class="variable">div</span> <span class="variable">class</span>=<span class="string">"form-group"</span>&gt;
+          &lt;<span class="variable">label</span>&gt;宽度&lt;/<span class="variable">label</span>&gt;
+          &lt;<span class="variable">input</span> <span class="variable">v-model.number</span>=<span class="string">"roomForm.width"</span> <span class="variable">type</span>=<span class="string">"number"</span> <span class="variable">step</span>=<span class="string">"0.1"</span> /&gt;
+        &lt;/<span class="variable">div</span>&gt;
+        &lt;<span class="variable">div</span> <span class="variable">class</span>=<span class="string">"form-group"</span>&gt;
+          &lt;<span class="variable">label</span>&gt;高度&lt;/<span class="variable">label</span>&gt;
+          &lt;<span class="variable">input</span> <span class="variable">v-model.number</span>=<span class="string">"roomForm.height"</span> <span class="variable">type</span>=<span class="string">"number"</span> <span class="variable">step</span>=<span class="string">"0.1"</span> /&gt;
+        &lt;/<span class="variable">div</span>&gt;
+        &lt;<span class="variable">div</span> <span class="variable">class</span>=<span class="string">"form-group"</span>&gt;
+          &lt;<span class="variable">label</span>&gt;单位&lt;/<span class="variable">label</span>&gt;
+          &lt;<span class="variable">select</span> <span class="variable">v-model</span>=<span class="string">"roomForm.unit"</span>&gt;
+            &lt;<span class="variable">option</span> <span class="variable">value</span>=<span class="string">"meters"</span>&gt;米 (Meters)&lt;/<span class="variable">option</span>&gt;
+            &lt;<span class="variable">option</span> <span class="variable">value</span>=<span class="string">"feet"</span>&gt;英尺 (Feet)&lt;/<span class="variable">option</span>&gt;
+          &lt;/<span class="variable">select</span>&gt;
+        &lt;/<span class="variable">div</span>&gt;
+      &lt;/<span class="variable">div</span>&gt;
+    &lt;/<span class="variable">div</span>&gt;
+
+    <span class="comment">&lt;!-- 计算按钮 --&gt;</span>
+    &lt;<span class="variable">button</span> 
+      <span class="variable">class</span>=<span class="string">"calculate-btn"</span> 
+      @<span class="variable">click</span>=<span class="string">"handleCalculate"</span>
+      :<span class="variable">disabled</span>=<span class="string">"loading"</span>
+    &gt;
+      &lt;<span class="variable">span</span> <span class="variable">v-if</span>=<span class="string">"loading"</span> <span class="variable">class</span>=<span class="string">"loading-spinner"</span>&gt;&lt;/<span class="variable">span</span>&gt;
+      {{ loading ? '计算中...' : '🚀 计算最优布局' }}
+    &lt;/<span class="variable">button</span>&gt;
+
+    <span class="comment">&lt;!-- 计算结果 --&gt;</span>
+    &lt;<span class="variable">div</span> <span class="variable">v-if</span>=<span class="string">"optimalLayoutResult"</span> <span class="variable">class</span>=<span class="string">"result-section"</span>&gt;
+      &lt;<span class="variable">h3</span>&gt;📊 计算结果&lt;/<span class="variable">h3</span>&gt;
+      &lt;<span class="variable">div</span> <span class="variable">class</span>=<span class="string">"result-grid"</span>&gt;
+        &lt;<span class="variable">div</span> <span class="variable">class</span>=<span class="string">"result-item"</span>&gt;
+          &lt;<span class="variable">span</span> <span class="variable">class</span>=<span class="string">"label"</span>&gt;列数&lt;/<span class="variable">span</span>&gt;
+          &lt;<span class="variable">span</span> <span class="variable">class</span>=<span class="string">"value"</span>&gt;{{ optimalLayoutResult.columns }}&lt;/<span class="variable">span</span>&gt;
+        &lt;/<span class="variable">div</span>&gt;
+        &lt;<span class="variable">div</span> <span class="variable">class</span>=<span class="string">"result-item"</span>&gt;
+          &lt;<span class="variable">span</span> <span class="variable">class</span>=<span class="string">"label"</span>&gt;行数&lt;/<span class="variable">span</span>&gt;
+          &lt;<span class="variable">span</span> <span class="variable">class</span>=<span class="string">"value"</span>&gt;{{ optimalLayoutResult.rows }}&lt;/<span class="variable">span</span>&gt;
+        &lt;/<span class="variable">div</span>&gt;
+        &lt;<span class="variable">div</span> <span class="variable">class</span>=<span class="string">"result-item"</span>&gt;
+          &lt;<span class="variable">span</span> <span class="variable">class</span>=<span class="string">"label"</span>&gt;箱体总数&lt;/<span class="variable">span</span>&gt;
+          &lt;<span class="variable">span</span> <span class="variable">class</span>=<span class="string">"value"</span>&gt;{{ optimalLayoutResult.totalCabinets }}&lt;/<span class="variable">span</span>&gt;
+        &lt;/<span class="variable">div</span>&gt;
+        &lt;<span class="variable">div</span> <span class="variable">class</span>=<span class="string">"result-item"</span>&gt;
+          &lt;<span class="variable">span</span> <span class="variable">class</span>=<span class="string">"label"</span>&gt;覆盖率&lt;/<span class="variable">span</span>&gt;
+          &lt;<span class="variable">span</span> <span class="variable">class</span>=<span class="string">"value"</span>&gt;{{ (optimalLayoutResult.coverage * 100).toFixed(1) }}%&lt;/<span class="variable">span</span>&gt;
+        &lt;/<span class="variable">div</span>&gt;
+      &lt;/<span class="variable">div</span>&gt;
+
+      <span class="comment">&lt;!-- SVG 预览 --&gt;</span>
+      &lt;<span class="variable">div</span> <span class="variable">v-if</span>=<span class="string">"previewSvg"</span> <span class="variable">class</span>=<span class="string">"preview-container"</span> <span class="variable">v-html</span>=<span class="string">"previewSvg"</span>&gt;&lt;/<span class="variable">div</span>&gt;
+    &lt;/<span class="variable">div</span>&gt;
+  &lt;/<span class="variable">div</span>&gt;
+&lt;/<span class="keyword">template</span>&gt;
+
+&lt;<span class="keyword">style</span> <span class="variable">scoped</span>&gt;
+.<span class="variable">led-calculator</span> { <span class="variable">padding</span>: <span class="number">20</span>px; }
+.<span class="variable">form-grid</span> { <span class="variable">display</span>: grid; <span class="variable">grid-template-columns</span>: <span class="number">1</span>fr <span class="number">1</span>fr; <span class="variable">gap</span>: <span class="number">24</span>px; <span class="variable">margin-bottom</span>: <span class="number">24</span>px; }
+.<span class="variable">form-section</span> { <span class="variable">background</span>: <span class="string">#f8f9fa</span>; <span class="variable">padding</span>: <span class="number">20</span>px; <span class="variable">border-radius</span>: <span class="number">12</span>px; }
+.<span class="variable">form-section</span> <span class="variable">h3</span> { <span class="variable">margin-bottom</span>: <span class="number">16</span>px; <span class="variable">color</span>: <span class="string">#42b883</span>; }
+.<span class="variable">form-group</span> { <span class="variable">margin-bottom</span>: <span class="number">12</span>px; }
+.<span class="variable">form-group</span> <span class="variable">label</span> { <span class="variable">display</span>: block; <span class="variable">margin-bottom</span>: <span class="number">4</span>px; <span class="variable">font-weight</span>: <span class="number">500</span>; }
+.<span class="variable">form-group</span> <span class="variable">input</span>, .<span class="variable">form-group</span> <span class="variable">select</span> {
+  <span class="variable">width</span>: <span class="number">100</span>%; <span class="variable">padding</span>: <span class="number">10</span>px; <span class="variable">border</span>: <span class="number">2</span>px solid <span class="string">#e1e5e9</span>;
+  <span class="variable">border-radius</span>: <span class="number">8</span>px; <span class="variable">font-size</span>: <span class="number">14</span>px;
+}
+.<span class="variable">calculate-btn</span> {
+  <span class="variable">background</span>: linear-gradient(<span class="number">135</span>deg, <span class="string">#42b883</span>, <span class="string">#35495e</span>);
+  <span class="variable">color</span>: white; <span class="variable">border</span>: none; <span class="variable">padding</span>: <span class="number">14</span>px <span class="number">28</span>px;
+  <span class="variable">border-radius</span>: <span class="number">12</span>px; <span class="variable">cursor</span>: pointer; <span class="variable">font-size</span>: <span class="number">15</span>px; <span class="variable">font-weight</span>: <span class="number">600</span>;
+}
+.<span class="variable">calculate-btn</span>:<span class="variable">disabled</span> { <span class="variable">opacity</span>: <span class="number">0.6</span>; <span class="variable">cursor</span>: not-allowed; }
+.<span class="variable">result-section</span> { <span class="variable">margin-top</span>: <span class="number">24</span>px; }
+.<span class="variable">result-grid</span> { <span class="variable">display</span>: grid; <span class="variable">grid-template-columns</span>: repeat(<span class="number">4</span>, <span class="number">1</span>fr); <span class="variable">gap</span>: <span class="number">12</span>px; <span class="variable">margin-bottom</span>: <span class="number">20</span>px; }
+.<span class="variable">result-item</span> { <span class="variable">background</span>: <span class="string">#f8f9fa</span>; <span class="variable">padding</span>: <span class="number">16</span>px; <span class="variable">border-radius</span>: <span class="number">8</span>px; <span class="variable">text-align</span>: center; }
+.<span class="variable">result-item</span> .<span class="variable">label</span> { <span class="variable">display</span>: block; <span class="variable">font-size</span>: <span class="number">12</span>px; <span class="variable">color</span>: <span class="string">#666</span>; }
+.<span class="variable">result-item</span> .<span class="variable">value</span> { <span class="variable">font-size</span>: <span class="number">24</span>px; <span class="variable">font-weight</span>: bold; <span class="variable">color</span>: <span class="string">#42b883</span>; }
+.<span class="variable">preview-container</span> { <span class="variable">background</span>: <span class="string">#f8f9fa</span>; <span class="variable">padding</span>: <span class="number">20</span>px; <span class="variable">border-radius</span>: <span class="number">12</span>px; <span class="variable">text-align</span>: center; }
+.<span class="variable">error-message</span> { <span class="variable">background</span>: <span class="string">#f8d7da</span>; <span class="variable">color</span>: <span class="string">#721c24</span>; <span class="variable">padding</span>: <span class="number">12</span>px; <span class="variable">border-radius</span>: <span class="number">8</span>px; <span class="variable">margin-bottom</span>: <span class="number">16</span>px; }
+.<span class="variable">loading-spinner</span> {
+  <span class="variable">display</span>: inline-block; <span class="variable">width</span>: <span class="number">16</span>px; <span class="variable">height</span>: <span class="number">16</span>px;
+  <span class="variable">border</span>: <span class="number">2</span>px solid <span class="string">#fff</span>; <span class="variable">border-top-color</span>: transparent;
+  <span class="variable">border-radius</span>: <span class="number">50</span>%; <span class="variable">animation</span>: spin <span class="number">0.8</span>s linear infinite; <span class="variable">margin-right</span>: <span class="number">8</span>px;
+}
+@<span class="variable">keyframes</span> spin { to { <span class="variable">transform</span>: rotate(<span class="number">360</span>deg); } }
+&lt;/<span class="keyword">style</span>&gt;
+            </div>
+        </div>
+
+        <!-- Step 5: 预览组件 -->
+        <div class="card" id="step5">
+            <h2><span class="step-number">5</span> 创建预览组件</h2>
+            <p>创建一个独立的 SVG 预览组件，可以复用在不同场景。</p>
+            
+            <div class="code-block">
+                <span class="code-filename">src/components/LedPreview.vue</span>
+                <button class="copy-btn" onclick="copyCode(this)">复制</button>
+&lt;<span class="keyword">script</span> <span class="variable">setup</span> <span class="variable">lang</span>=<span class="string">"ts"</span>&gt;
+<span class="keyword">import</span> { <span class="variable">computed</span> } <span class="keyword">from</span> <span class="string">'vue'</span>;
+
+<span class="keyword">interface</span> <span class="type">Props</span> {
+  <span class="variable">svg</span>: <span class="type">string</span> | <span class="keyword">null</span>;
+  <span class="variable">width</span>?: <span class="type">number</span>;
+  <span class="variable">height</span>?: <span class="type">number</span>;
+  <span class="variable">loading</span>?: <span class="type">boolean</span>;
+}
+
+<span class="keyword">const</span> <span class="variable">props</span> = <span class="function">withDefaults</span>(<span class="function">defineProps</span>&lt;<span class="type">Props</span>&gt;(), {
+  <span class="variable">width</span>: <span class="number">800</span>,
+  <span class="variable">height</span>: <span class="number">500</span>,
+  <span class="variable">loading</span>: <span class="keyword">false</span>,
+});
+
+<span class="keyword">const</span> <span class="variable">containerStyle</span> = <span class="function">computed</span>(() => ({
+  <span class="variable">minHeight</span>: <span class="string">`<span class="variable">${props.height}</span>px`</span>,
+}));
+
+<span class="comment">// 下载 SVG</span>
+<span class="keyword">function</span> <span class="function">downloadSvg</span>() {
+  <span class="keyword">if</span> (!<span class="variable">props</span>.<span class="variable">svg</span>) <span class="keyword">return</span>;
+  
+  <span class="keyword">const</span> <span class="variable">blob</span> = <span class="keyword">new</span> <span class="type">Blob</span>([<span class="variable">props</span>.<span class="variable">svg</span>], { <span class="variable">type</span>: <span class="string">'image/svg+xml'</span> });
+  <span class="keyword">const</span> <span class="variable">url</span> = <span class="type">URL</span>.<span class="function">createObjectURL</span>(<span class="variable">blob</span>);
+  <span class="keyword">const</span> <span class="variable">a</span> = <span class="variable">document</span>.<span class="function">createElement</span>(<span class="string">'a'</span>);
+  <span class="variable">a</span>.<span class="variable">href</span> = <span class="variable">url</span>;
+  <span class="variable">a</span>.<span class="variable">download</span> = <span class="string">'led-preview.svg'</span>;
+  <span class="variable">a</span>.<span class="function">click</span>();
+  <span class="type">URL</span>.<span class="function">revokeObjectURL</span>(<span class="variable">url</span>);
+}
+&lt;/<span class="keyword">script</span>&gt;
+
+&lt;<span class="keyword">template</span>&gt;
+  &lt;<span class="variable">div</span> <span class="variable">class</span>=<span class="string">"led-preview"</span>&gt;
+    &lt;<span class="variable">div</span> <span class="variable">class</span>=<span class="string">"preview-header"</span>&gt;
+      &lt;<span class="variable">h3</span>&gt;🖼️ 预览图&lt;/<span class="variable">h3</span>&gt;
+      &lt;<span class="variable">button</span> 
+        <span class="variable">v-if</span>=<span class="string">"svg"</span> 
+        <span class="variable">class</span>=<span class="string">"download-btn"</span>
+        @<span class="variable">click</span>=<span class="string">"downloadSvg"</span>
+      &gt;
+        ⬇️ 下载 SVG
+      &lt;/<span class="variable">button</span>&gt;
+    &lt;/<span class="variable">div</span>&gt;
+    
+    &lt;<span class="variable">div</span> 
+      <span class="variable">class</span>=<span class="string">"preview-container"</span>
+      :<span class="variable">class</span>=<span class="string">"{ 'has-content': svg }"</span>
+      :<span class="variable">style</span>=<span class="string">"containerStyle"</span>
+    &gt;
+      <span class="comment">&lt;!-- 加载状态 --&gt;</span>
+      &lt;<span class="variable">div</span> <span class="variable">v-if</span>=<span class="string">"loading"</span> <span class="variable">class</span>=<span class="string">"loading-state"</span>&gt;
+        &lt;<span class="variable">div</span> <span class="variable">class</span>=<span class="string">"spinner"</span>&gt;&lt;/<span class="variable">div</span>&gt;
+        &lt;<span class="variable">p</span>&gt;生成预览中...&lt;/<span class="variable">p</span>&gt;
+      &lt;/<span class="variable">div</span>&gt;
+      
+      <span class="comment">&lt;!-- SVG 内容 --&gt;</span>
+      &lt;<span class="variable">div</span> <span class="variable">v-else-if</span>=<span class="string">"svg"</span> <span class="variable">class</span>=<span class="string">"svg-content"</span> <span class="variable">v-html</span>=<span class="string">"svg"</span>&gt;&lt;/<span class="variable">div</span>&gt;
+      
+      <span class="comment">&lt;!-- 空状态 --&gt;</span>
+      &lt;<span class="variable">div</span> <span class="variable">v-else</span> <span class="variable">class</span>=<span class="string">"empty-state"</span>&gt;
+        &lt;<span class="variable">div</span> <span class="variable">class</span>=<span class="string">"empty-icon"</span>&gt;🖼️&lt;/<span class="variable">div</span>&gt;
+        &lt;<span class="variable">p</span>&gt;完成计算后将在此显示预览图&lt;/<span class="variable">p</span>&gt;
+      &lt;/<span class="variable">div</span>&gt;
+    &lt;/<span class="variable">div</span>&gt;
+  &lt;/<span class="variable">div</span>&gt;
+&lt;/<span class="keyword">template</span>&gt;
+
+&lt;<span class="keyword">style</span> <span class="variable">scoped</span>&gt;
+.<span class="variable">led-preview</span> { <span class="variable">margin-top</span>: <span class="number">20</span>px; }
+.<span class="variable">preview-header</span> {
+  <span class="variable">display</span>: flex; <span class="variable">justify-content</span>: space-between; <span class="variable">align-items</span>: center;
+  <span class="variable">margin-bottom</span>: <span class="number">12</span>px;
+}
+.<span class="variable">preview-header</span> <span class="variable">h3</span> { <span class="variable">margin</span>: <span class="number">0</span>; <span class="variable">color</span>: <span class="string">#333</span>; }
+.<span class="variable">download-btn</span> {
+  <span class="variable">background</span>: <span class="string">#42b883</span>; <span class="variable">color</span>: white; <span class="variable">border</span>: none;
+  <span class="variable">padding</span>: <span class="number">8</span>px <span class="number">16</span>px; <span class="variable">border-radius</span>: <span class="number">8</span>px; <span class="variable">cursor</span>: pointer;
+  <span class="variable">font-size</span>: <span class="number">13</span>px; <span class="variable">font-weight</span>: <span class="number">500</span>;
+}
+.<span class="variable">preview-container</span> {
+  <span class="variable">background</span>: <span class="string">#f8f9fa</span>; <span class="variable">border</span>: <span class="number">2</span>px dashed <span class="string">#dee2e6</span>;
+  <span class="variable">border-radius</span>: <span class="number">12</span>px; <span class="variable">padding</span>: <span class="number">20</span>px;
+  <span class="variable">display</span>: flex; <span class="variable">align-items</span>: center; <span class="variable">justify-content</span>: center;
+}
+.<span class="variable">preview-container</span>.<span class="variable">has-content</span> { <span class="variable">border-style</span>: solid; <span class="variable">border-color</span>: <span class="string">#42b883</span>; }
+.<span class="variable">svg-content</span> :deep(<span class="variable">svg</span>) { <span class="variable">max-width</span>: <span class="number">100</span>%; <span class="variable">height</span>: auto; }
+.<span class="variable">empty-state</span> { <span class="variable">text-align</span>: center; <span class="variable">color</span>: <span class="string">#6c757d</span>; }
+.<span class="variable">empty-icon</span> { <span class="variable">font-size</span>: <span class="number">48</span>px; <span class="variable">margin-bottom</span>: <span class="number">12</span>px; <span class="variable">opacity</span>: <span class="number">0.5</span>; }
+.<span class="variable">loading-state</span> { <span class="variable">text-align</span>: center; <span class="variable">color</span>: <span class="string">#42b883</span>; }
+.<span class="variable">spinner</span> {
+  <span class="variable">width</span>: <span class="number">40</span>px; <span class="variable">height</span>: <span class="number">40</span>px; <span class="variable">border</span>: <span class="number">3</span>px solid <span class="string">#e9ecef</span>;
+  <span class="variable">border-top-color</span>: <span class="string">#42b883</span>; <span class="variable">border-radius</span>: <span class="number">50</span>%;
+  <span class="variable">animation</span>: spin <span class="number">0.8</span>s linear infinite; <span class="variable">margin</span>: <span class="number">0</span> auto <span class="number">12</span>px;
+}
+@<span class="variable">keyframes</span> spin { to { <span class="variable">transform</span>: rotate(<span class="number">360</span>deg); } }
+&lt;/<span class="keyword">style</span>&gt;
+            </div>
+        </div>
+
+        <!-- 完整示例页面 -->
+        <div class="card" id="complete">
+            <h2><span class="step-number">6</span> 完整示例页面</h2>
+            <p>将所有组件组合成一个完整的 LED 配置页面。</p>
+            
+            <div class="code-block">
+                <span class="code-filename">src/views/LedConfigPage.vue</span>
+                <button class="copy-btn" onclick="copyCode(this)">复制</button>
+&lt;<span class="keyword">script</span> <span class="variable">setup</span> <span class="variable">lang</span>=<span class="string">"ts"</span>&gt;
+<span class="keyword">import</span> { <span class="variable">ref</span> } <span class="keyword">from</span> <span class="string">'vue'</span>;
+<span class="keyword">import</span> <span class="variable">LedCalculator</span> <span class="keyword">from</span> <span class="string">'@/components/LedCalculator.vue'</span>;
+<span class="keyword">import</span> <span class="variable">LedPreview</span> <span class="keyword">from</span> <span class="string">'@/components/LedPreview.vue'</span>;
+<span class="keyword">import</span> { <span class="variable">useLedCalculator</span> } <span class="keyword">from</span> <span class="string">'@/composables/useLedCalculator'</span>;
+
+<span class="keyword">const</span> <span class="variable">activeTab</span> = <span class="function">ref</span>(<span class="string">'single'</span>); <span class="comment">// 'single' | 'multi'</span>
+
+<span class="keyword">const</span> {
+  <span class="variable">loading</span>,
+  <span class="variable">previewSvg</span>,
+  <span class="variable">optimalLayoutResult</span>,
+  <span class="variable">smartCombinationResult</span>,
+} = <span class="function">useLedCalculator</span>();
+&lt;/<span class="keyword">script</span>&gt;
+
+&lt;<span class="keyword">template</span>&gt;
+  &lt;<span class="variable">div</span> <span class="variable">class</span>=<span class="string">"led-config-page"</span>&gt;
+    &lt;<span class="variable">header</span> <span class="variable">class</span>=<span class="string">"page-header"</span>&gt;
+      &lt;<span class="variable">h1</span>&gt;🖥️ LED 显示屏配置计算器&lt;/<span class="variable">h1</span>&gt;
+      &lt;<span class="variable">p</span>&gt;智能计算最优布局，生成可视化预览&lt;/<span class="variable">p</span>&gt;
+    &lt;/<span class="variable">header</span>&gt;
+
+    <span class="comment">&lt;!-- 标签切换 --&gt;</span>
+    &lt;<span class="variable">div</span> <span class="variable">class</span>=<span class="string">"tabs"</span>&gt;
+      &lt;<span class="variable">button</span> 
+        <span class="variable">class</span>=<span class="string">"tab"</span>
+        :<span class="variable">class</span>=<span class="string">"{ active: activeTab === 'single' }"</span>
+        @<span class="variable">click</span>=<span class="string">"activeTab = 'single'"</span>
+      &gt;
+        📐 单箱体布局
+      &lt;/<span class="variable">button</span>&gt;
+      &lt;<span class="variable">button</span> 
+        <span class="variable">class</span>=<span class="string">"tab"</span>
+        :<span class="variable">class</span>=<span class="string">"{ active: activeTab === 'multi' }"</span>
+        @<span class="variable">click</span>=<span class="string">"activeTab = 'multi'"</span>
+      &gt;
+        🧩 多箱体组合
+      &lt;/<span class="variable">button</span>&gt;
+    &lt;/<span class="variable">div</span>&gt;
+
+    <span class="comment">&lt;!-- 内容区域 --&gt;</span>
+    &lt;<span class="variable">div</span> <span class="variable">class</span>=<span class="string">"content"</span>&gt;
+      <span class="comment">&lt;!-- 单箱体计算器 --&gt;</span>
+      &lt;<span class="variable">LedCalculator</span> <span class="variable">v-if</span>=<span class="string">"activeTab === 'single'"</span> /&gt;
+      
+      <span class="comment">&lt;!-- 多箱体计算器（可自行扩展） --&gt;</span>
+      &lt;<span class="variable">div</span> <span class="variable">v-else</span> <span class="variable">class</span>=<span class="string">"coming-soon"</span>&gt;
+        &lt;<span class="variable">p</span>&gt;🚧 多箱体组合功能开发中...&lt;/<span class="variable">p</span>&gt;
+        &lt;<span class="variable">p</span>&gt;参考 API 文档实现多箱体智能组合&lt;/<span class="variable">p</span>&gt;
+      &lt;/<span class="variable">div</span>&gt;
+    &lt;/<span class="variable">div</span>&gt;
+  &lt;/<span class="variable">div</span>&gt;
+&lt;/<span class="keyword">template</span>&gt;
+
+&lt;<span class="keyword">style</span> <span class="variable">scoped</span>&gt;
+.<span class="variable">led-config-page</span> {
+  <span class="variable">max-width</span>: <span class="number">1200</span>px; <span class="variable">margin</span>: <span class="number">0</span> auto; <span class="variable">padding</span>: <span class="number">20</span>px;
+}
+.<span class="variable">page-header</span> {
+  <span class="variable">background</span>: linear-gradient(<span class="number">135</span>deg, <span class="string">#42b883</span>, <span class="string">#35495e</span>);
+  <span class="variable">color</span>: white; <span class="variable">padding</span>: <span class="number">40</span>px; <span class="variable">border-radius</span>: <span class="number">16</span>px;
+  <span class="variable">text-align</span>: center; <span class="variable">margin-bottom</span>: <span class="number">24</span>px;
+}
+.<span class="variable">page-header</span> <span class="variable">h1</span> { <span class="variable">margin</span>: <span class="number">0</span> <span class="number">0</span> <span class="number">8</span>px; <span class="variable">font-size</span>: <span class="number">2</span>rem; }
+.<span class="variable">page-header</span> <span class="variable">p</span> { <span class="variable">margin</span>: <span class="number">0</span>; <span class="variable">opacity</span>: <span class="number">0.9</span>; }
+.<span class="variable">tabs</span> {
+  <span class="variable">display</span>: flex; <span class="variable">gap</span>: <span class="number">8</span>px; <span class="variable">background</span>: white;
+  <span class="variable">padding</span>: <span class="number">8</span>px; <span class="variable">border-radius</span>: <span class="number">12</span>px; <span class="variable">margin-bottom</span>: <span class="number">24</span>px;
+  <span class="variable">box-shadow</span>: <span class="number">0</span> <span class="number">2</span>px <span class="number">10</span>px rgba(<span class="number">0</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">0.05</span>);
+}
+.<span class="variable">tab</span> {
+  <span class="variable">flex</span>: <span class="number">1</span>; <span class="variable">padding</span>: <span class="number">12</span>px; <span class="variable">border</span>: none; <span class="variable">background</span>: transparent;
+  <span class="variable">border-radius</span>: <span class="number">8</span>px; <span class="variable">cursor</span>: pointer; <span class="variable">font-weight</span>: <span class="number">600</span>;
+  <span class="variable">transition</span>: all <span class="number">0.3</span>s;
+}
+.<span class="variable">tab</span>.<span class="variable">active</span> {
+  <span class="variable">background</span>: linear-gradient(<span class="number">135</span>deg, <span class="string">#42b883</span>, <span class="string">#35495e</span>);
+  <span class="variable">color</span>: white;
+}
+.<span class="variable">content</span> {
+  <span class="variable">background</span>: white; <span class="variable">border-radius</span>: <span class="number">16</span>px;
+  <span class="variable">box-shadow</span>: <span class="number">0</span> <span class="number">4</span>px <span class="number">20</span>px rgba(<span class="number">0</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">0.08</span>);
+}
+.<span class="variable">coming-soon</span> {
+  <span class="variable">text-align</span>: center; <span class="variable">padding</span>: <span class="number">60</span>px; <span class="variable">color</span>: <span class="string">#6c757d</span>;
+}
+&lt;/<span class="keyword">style</span>&gt;
+            </div>
+        </div>
+
+        <!-- 最佳实践 -->
+        <div class="card" id="tips">
+            <h2><span class="step-number">7</span> 最佳实践与注意事项</h2>
+            
+            <h3>🔧 错误处理</h3>
+            <p>建议在 API 服务层统一处理错误，并提供友好的错误提示：</p>
+            <div class="code-block">
+<span class="comment">// 在 api/ledCalculator.ts 中添加错误处理</span>
+<span class="keyword">export class</span> <span class="type">ApiError</span> <span class="keyword">extends</span> <span class="type">Error</span> {
+  <span class="variable">code</span>: <span class="type">string</span>;
+  <span class="variable">details</span>?: <span class="type">unknown</span>;
+
+  <span class="keyword">constructor</span>(<span class="variable">code</span>: <span class="type">string</span>, <span class="variable">message</span>: <span class="type">string</span>, <span class="variable">details</span>?: <span class="type">unknown</span>) {
+    <span class="keyword">super</span>(<span class="variable">message</span>);
+    <span class="keyword">this</span>.<span class="variable">code</span> = <span class="variable">code</span>;
+    <span class="keyword">this</span>.<span class="variable">details</span> = <span class="variable">details</span>;
+  }
+}
+
+<span class="comment">// 错误码映射</span>
+<span class="keyword">const</span> <span class="variable">errorMessages</span>: <span class="type">Record</span>&lt;<span class="type">string</span>, <span class="type">string</span>&gt; = {
+  <span class="string">'VALIDATION_ERROR'</span>: <span class="string">'参数验证失败，请检查输入'</span>,
+  <span class="string">'CABINET_LIMIT_EXCEEDED'</span>: <span class="string">'箱体数量超过限制（最大1000个）'</span>,
+  <span class="string">'SCREEN_SIZE_EXCEEDED'</span>: <span class="string">'屏幕尺寸超过限制（最大50米）'</span>,
+  <span class="string">'CALCULATION_ERROR'</span>: <span class="string">'计算出错，请稍后重试'</span>,
+};
+            </div>
+
+            <h3>⚡ 性能优化</h3>
+            <div class="note">
+                <div class="note-title">💡 推荐做法</div>
+                <ul style="margin-left: 20px;">
+                    <li>使用 <code>*WithPreview</code> 一键接口，减少网络请求</li>
+                    <li>对计算结果进行缓存，避免重复计算</li>
+                    <li>使用防抖处理用户输入，避免频繁请求</li>
+                    <li>SVG 预览图可以使用 <code>v-once</code> 指令优化渲染</li>
+                </ul>
+            </div>
+
+            <h3>🔒 安全建议</h3>
+            <div class="warning">
+                <div class="warning-title">⚠️ 注意事项</div>
+                <ul style="margin-left: 20px;">
+                    <li>API 返回的 SVG 使用 <code>v-html</code> 渲染时，确保来源可信</li>
+                    <li>对用户输入进行验证，避免传入非法参数</li>
+                    <li>生产环境建议配置 CORS 白名单</li>
+                </ul>
+            </div>
+
+            <h3>📱 响应式适配</h3>
+            <div class="code-block">
+<span class="comment">/* 移动端适配样式 */</span>
+@<span class="variable">media</span> (<span class="variable">max-width</span>: <span class="number">768</span>px) {
+  .<span class="variable">form-grid</span> {
+    <span class="variable">grid-template-columns</span>: <span class="number">1</span>fr;
+  }
+  .<span class="variable">result-grid</span> {
+    <span class="variable">grid-template-columns</span>: repeat(<span class="number">2</span>, <span class="number">1</span>fr);
+  }
+  .<span class="variable">preview-container</span> {
+    <span class="variable">min-height</span>: <span class="number">300</span>px;
+  }
+}
+            </div>
+
+            <h3>🌐 国际化支持</h3>
+            <p>API 支持中英文预览图，通过 <code>previewOptions.language</code> 参数控制：</p>
+            <div class="code-block">
+<span class="comment">// 根据用户语言设置预览选项</span>
+<span class="keyword">const</span> <span class="variable">previewOptions</span> = {
+  <span class="variable">showDimensions</span>: <span class="keyword">true</span>,
+  <span class="variable">showPerson</span>: <span class="keyword">true</span>,
+  <span class="variable">language</span>: <span class="variable">locale</span>.<span class="variable">value</span> === <span class="string">'en'</span> ? <span class="string">'en'</span> : <span class="string">'zh'</span>,  <span class="comment">// 根据当前语言设置</span>
+};
+            </div>
+
+            <h3>📦 示例箱体数据</h3>
+            <p>以下是常用的箱体规格数据，可用于测试：</p>
+            <div class="code-block">
+<span class="comment">// 示例箱体数据</span>
+<span class="keyword">export const</span> <span class="variable">sampleCabinets</span> = [
+  {
+    <span class="variable">id</span>: <span class="string">'uslimiii-mip-15-500x1000'</span>,
+    <span class="variable">name</span>: <span class="string">'UslimIII MIP 1.5 (500×1000)'</span>,
+    <span class="variable">specs</span>: {
+      <span class="variable">dimensions</span>: { <span class="variable">width</span>: <span class="number">500</span>, <span class="variable">height</span>: <span class="number">1000</span>, <span class="variable">depth</span>: <span class="number">40</span> },
+      <span class="variable">display</span>: {
+        <span class="variable">pixelPitch</span>: <span class="number">1.5625</span>,
+        <span class="variable">resolution</span>: { <span class="variable">width</span>: <span class="number">320</span>, <span class="variable">height</span>: <span class="number">640</span> },
+      },
+      <span class="variable">power</span>: { <span class="variable">maxPower</span>: <span class="number">180</span>, <span class="variable">typicalPower</span>: <span class="number">60</span> },
+      <span class="variable">physical</span>: { <span class="variable">weight</span>: <span class="number">10.5</span> },
+    },
+  },
+  {
+    <span class="variable">id</span>: <span class="string">'uminiw-09-600x337'</span>,
+    <span class="variable">name</span>: <span class="string">'UMiniW 0.9 (600×337.5)'</span>,
+    <span class="variable">specs</span>: {
+      <span class="variable">dimensions</span>: { <span class="variable">width</span>: <span class="number">600</span>, <span class="variable">height</span>: <span class="number">337.5</span>, <span class="variable">depth</span>: <span class="number">29.8</span> },
+      <span class="variable">display</span>: {
+        <span class="variable">pixelPitch</span>: <span class="number">0.9375</span>,
+        <span class="variable">resolution</span>: { <span class="variable">width</span>: <span class="number">640</span>, <span class="variable">height</span>: <span class="number">360</span> },
+      },
+      <span class="variable">power</span>: { <span class="variable">maxPower</span>: <span class="number">60</span>, <span class="variable">typicalPower</span>: <span class="number">42</span> },
+      <span class="variable">physical</span>: { <span class="variable">weight</span>: <span class="number">4.3</span> },
+    },
+  },
+];
+            </div>
+        </div>
+
+        <!-- 页脚 -->
+        <div style="text-align:center;padding:40px;color:#6c757d;">
+            <p>🟢 LED Calculator API - Vue 集成指南</p>
+            <p style="margin-top:8px;">API地址: <code>https://led-api.unilumin-gtm.com</code></p>
+            <p style="margin-top:8px;">
+                <a href="/" style="color:#42b883;">测试页面</a> · 
+                <a href="/docs" style="color:#42b883;">API文档</a>
+            </p>
+        </div>
+    </div>
+
+    <script>
+    // 复制代码功能
+    function copyCode(btn) {
+        const codeBlock = btn.parentElement;
+        const code = codeBlock.innerText
+            .replace('复制', '')
+            .replace(/src\/.*\.vue|src\/.*\.ts/g, '')
+            .trim();
+        
+        navigator.clipboard.writeText(code).then(() => {
+            const originalText = btn.innerText;
+            btn.innerText = '已复制!';
+            btn.style.color = '#42b883';
+            setTimeout(() => {
+                btn.innerText = originalText;
+                btn.style.color = '';
+            }, 2000);
+        });
+    }
+    </script>
+</body>
+</html>
