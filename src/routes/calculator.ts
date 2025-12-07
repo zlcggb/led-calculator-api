@@ -411,6 +411,7 @@ router.post(
       }
 
       // Build calculation result for SVG generator
+      // powerConsumption and physical are only included if the input data provides them
       const calculationResult: CalculationResult = {
         wallDimensions: {
           width: screenWidthM,
@@ -437,19 +438,25 @@ router.post(
           totalPixels: (cabinetSpecs.display.resolution?.width || 320) * columns * (cabinetSpecs.display.resolution?.height || 640) * rows,
           pixelDensity: ((cabinetSpecs.display.resolution?.width || 320) * columns * (cabinetSpecs.display.resolution?.height || 640) * rows) / screenArea
         },
-        powerConsumption: {
-          maximum: (cabinetSpecs.power?.maxPower || 180) * totalCabinets,
-          typical: (cabinetSpecs.power?.typicalPower || 60) * totalCabinets,
-          standby: (cabinetSpecs.power?.standbyPower || 5) * totalCabinets,
-          heatGeneration: {
-            maxBTU: (cabinetSpecs.power?.maxPower || 180) * totalCabinets * 3.412,
-            typicalBTU: (cabinetSpecs.power?.typicalPower || 60) * totalCabinets * 3.412
+        // Only include powerConsumption if power data is provided
+        ...(cabinetSpecs.power?.maxPower !== undefined && {
+          powerConsumption: {
+            maximum: cabinetSpecs.power.maxPower * totalCabinets,
+            typical: (cabinetSpecs.power.typicalPower || cabinetSpecs.power.maxPower / 3) * totalCabinets,
+            standby: (cabinetSpecs.power.standbyPower || 5) * totalCabinets,
+            heatGeneration: {
+              maxBTU: cabinetSpecs.power.maxPower * totalCabinets * 3.412,
+              typicalBTU: (cabinetSpecs.power.typicalPower || cabinetSpecs.power.maxPower / 3) * totalCabinets * 3.412
+            }
           }
-        },
-        physical: {
-          totalWeight: (cabinetSpecs.physical?.weight || 10) * totalCabinets,
-          structuralLoad: ((cabinetSpecs.physical?.weight || 10) * totalCabinets) / screenArea
-        },
+        }),
+        // Only include physical if weight data is provided
+        ...(cabinetSpecs.physical?.weight !== undefined && {
+          physical: {
+            totalWeight: cabinetSpecs.physical.weight * totalCabinets,
+            structuralLoad: (cabinetSpecs.physical.weight * totalCabinets) / screenArea
+          }
+        }),
         controlSystem: {
           controllers4K: Math.ceil(totalCabinets / 16),
           sendingCards: Math.ceil(totalCabinets / 8),

@@ -6,6 +6,22 @@
 // Logger middleware
 export { loggerMiddleware } from './logger';
 
+// i18n middleware - Requirements: 4.1, 4.2
+export {
+  i18nMiddleware,
+  parseAcceptLanguage,
+  SupportedLanguage,
+  DEFAULT_LANGUAGE,
+  SUPPORTED_LANGUAGES,
+} from './i18n';
+
+// Error message translations - Requirements: 4.1, 4.2
+export {
+  getLocalizedError,
+  getLocalizedErrorWithParams,
+  errorMessages,
+} from './errorMessages';
+
 // Error handling middleware
 export {
   errorHandler,

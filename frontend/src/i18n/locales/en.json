@@ -1,0 +1,295 @@
+{
+  "nav": {
+    "home": "Home",
+    "test": "API Test",
+    "docs": "API Docs",
+    "vue": "Vue Integration"
+  },
+  "header": {
+    "title": "LED Calculator API",
+    "subtitle": "Professional LED Display Wall Calculation & Preview API",
+    "checkingStatus": "Checking API status...",
+    "online": "API Online",
+    "offline": "API Offline"
+  },
+  "home": {
+    "hero": {
+      "title": "LED Display Wall Calculator API",
+      "subtitle": "Professional LED Screen Configuration Calculation & Visualization Preview Service",
+      "description": "Provides intelligent layout calculation, multi-cabinet combination optimization, and real-time SVG preview for LED display wall projects",
+      "tryNow": "Try Now",
+      "viewDocs": "View Docs"
+    },
+    "features": {
+      "title": "Core Features",
+      "subtitle": "Powerful API capabilities, simple integration",
+      "singleLayout": {
+        "title": "Single Cabinet Optimal Layout",
+        "description": "Automatically calculate the optimal row and column layout using a single cabinet model within specified wall dimensions"
+      },
+      "multiCombination": {
+        "title": "Multi-Cabinet Smart Combination",
+        "description": "Intelligently analyze the best combination of multiple cabinet sizes to achieve perfect wall coverage"
+      },
+      "svgPreview": {
+        "title": "Real-time SVG Preview",
+        "description": "Generate high-quality visualization previews with dimension annotations and person reference display"
+      },
+      "oneClick": {
+        "title": "One-Click Calculate + Preview",
+        "description": "Get calculation results and preview in a single request, reducing network calls and improving efficiency"
+      }
+    },
+    "apiEndpoints": {
+      "title": "API Endpoints",
+      "subtitle": "RESTful API design, simple and easy to use"
+    },
+    "quickStart": {
+      "title": "Quick Start",
+      "subtitle": "Integrate with just a few lines of code",
+      "step1": "Send POST request to calculation endpoint",
+      "step2": "Get calculation results and SVG preview"
+    }
+  },
+  "test": {
+    "title": "API Testing Tool",
+    "subtitle": "Test LED Calculator API features in real-time",
+    "tabs": {
+      "layout": "📐 Single Cabinet",
+      "smart": "🧩 Multi-Cabinet",
+      "preview": "🖼️ SVG Preview",
+      "oneclick": "⚡ One-Click"
+    },
+    "layout": {
+      "title": "Single Cabinet Optimal Layout",
+      "subtitle": "Calculate optimal LED screen layout using a single cabinet model within specified wall dimensions",
+      "cabinetSelection": "📦 Cabinet Selection",
+      "cabinetModel": "Cabinet Model",
+      "selectCabinet": "Please select cabinet...",
+      "wallDimensions": "📏 Available Wall Dimensions",
+      "wallWidth": "Wall Width",
+      "wallHeight": "Wall Height",
+      "unit": "Unit",
+      "meters": "Meters",
+      "feet": "Feet",
+      "calculate": "🚀 Calculate Optimal Layout"
+    },
+    "smart": {
+      "title": "Multi-Cabinet Smart Combination",
+      "subtitle": "Use multiple cabinet sizes to create LED screen, intelligently calculate best filling solution",
+      "mainCabinet": "🎯 Main Cabinet",
+      "auxiliaryCabinets": "➕ Auxiliary Cabinets",
+      "addAuxiliary": "Add Auxiliary Cabinet",
+      "wallDimensionsMm": "📐 Available Wall Dimensions (mm)",
+      "calculate": "🔍 Calculate Optimal Combination"
+    },
+    "oneclick": {
+      "title": "One-Click Calculate + Preview",
+      "subtitle": "Get calculation results and SVG preview in one request",
+      "modeSingle": "📐 Single Cabinet Mode",
+      "modeMulti": "🧩 Multi-Cabinet Mode",
+      "autoAux": "Auto-add same series auxiliary cabinets",
+      "calculate": "⚡ One-Click Calculate & Preview"
+    },
+    "preview": {
+      "title": "SVG Preview Generator",
+      "subtitle": "Generate visual preview of LED screen based on calculation results",
+      "previewOptions": "⚙️ Preview Options",
+      "canvasWidth": "Canvas Width (px)",
+      "canvasHeight": "Canvas Height (px)",
+      "showDimensions": "Show Dimensions",
+      "showPerson": "Show Person Reference",
+      "dataSource": "📊 Data Source",
+      "selectResult": "Select Calculation Result",
+      "noResults": "No calculation results available",
+      "generate": "🎨 Generate SVG Preview"
+    },
+    "results": {
+      "columns": "Columns",
+      "rows": "Rows",
+      "totalCabinets": "Total Cabinets",
+      "screenWidth": "Width",
+      "screenHeight": "Height",
+      "screenArea": "Area",
+      "coverage": "Coverage",
+      "fullyFilled": "Fully Filled",
+      "yes": "Yes",
+      "no": "No",
+      "maxPower": "Max Power",
+      "typicalPower": "Typical Power",
+      "totalWeight": "Total Weight",
+      "powerAndWeight": "Power & Weight",
+      "success": "Calculation successful!",
+      "error": "Calculation failed"
+    },
+    "cabinet": {
+      "dimensions": "Dimensions",
+      "pixelPitch": "Pixel Pitch",
+      "resolution": "Resolution",
+      "brightness": "Brightness",
+      "weight": "Weight",
+      "maxPower": "Max Power"
+    },
+    "options": {
+      "powerWeight": "Optional Parameters",
+      "includePower": "Include Power Consumption",
+      "includeWeight": "Include Weight Data",
+      "hint": "Uncheck to calculate layout only, without power/weight stats"
+    }
+  },
+  "docs": {
+    "title": "API Data Definition",
+    "subtitle": "Understand API input/output data structures for quick LED display wall calculation integration",
+    "toc": {
+      "title": "📋 Table of Contents",
+      "overview": "Overview",
+      "cabinetSpecs": "Cabinet Specifications Data Structure",
+      "roomConfig": "Room Configuration Data Structure",
+      "optimalLayout": "Single Cabinet Optimal Layout API",
+      "smartCombination": "Multi-Cabinet Smart Combination API",
+      "oneclickApis": "One-Click Calculate + Preview APIs",
+      "preview": "SVG Preview Generation API",
+      "examples": "Complete Examples"
+    },
+    "overview": {
+      "title": "Overview",
+      "description": "LED Calculator API provides LED display wall calculation and preview functionality. Main core interfaces include:",
+      "apiBase": "API Base URL",
+      "production": "Production"
+    },
+    "tables": {
+      "field": "Field",
+      "type": "Type",
+      "required": "Required",
+      "optional": "Optional",
+      "unit": "Unit",
+      "description": "Description",
+      "example": "Example"
+    }
+  },
+  "vue": {
+    "title": "Vue Integration Guide",
+    "subtitle": "Complete integration tutorial for LED Calculator API in Vue 3 projects",
+    "toc": {
+      "title": "📋 Table of Contents",
+      "overview": "Overview & Preparation",
+      "step1": "Create API Service Layer",
+      "step2": "Create Type Definitions",
+      "step3": "Create Composable Hook",
+      "step4": "Create Calculator Component",
+      "step5": "Create Preview Component",
+      "usageModes": "Usage Modes Comparison",
+      "complete": "Complete Example Page",
+      "tips": "Best Practices"
+    },
+    "overview": {
+      "title": "Overview & Preparation",
+      "description": "This guide will help you integrate LED Calculator API in Vue 3 + TypeScript projects",
+      "techStack": "Technology Stack Requirements",
+      "recommended": "Recommended",
+      "projectStructure": "Suggested Project Structure"
+    },
+    "usageModes": {
+      "title": "Usage Modes Comparison",
+      "layoutOnly": {
+        "title": "Layout-Only Mode",
+        "subtitle": "Calculate screen layout only, no power/weight data required",
+        "minData": "Minimal request data",
+        "fastResponse": "Fast response",
+        "returnLayout": "Returns: Layout + Preview",
+        "noPower": "No power statistics",
+        "noWeight": "No weight statistics",
+        "hint": "Don't send power/physical fields"
+      },
+      "fullMode": {
+        "title": "Full Mode",
+        "subtitle": "Complete calculation with power and weight statistics",
+        "fullData": "Complete data input",
+        "returnLayout": "Returns: Layout + Preview",
+        "returnPower": "Returns: Max/Typical Power",
+        "returnWeight": "Returns: Total Weight",
+        "hint": "Send power + physical fields"
+      },
+      "layoutOnlyMode": "Layout-Only Mode",
+      "fullModeTitle": "Full Mode",
+      "responseComparison": "Response Comparison",
+      "keyPoints": "Key Points",
+      "keyPoint1": "power and physical are optional parameters, send as needed",
+      "keyPoint2": "No power → No powerConsumption in response",
+      "keyPoint3": "No physical → No physical in response",
+      "keyPoint4": "Layout calculation (columns, rows, coverage) always returned",
+      "completeExample": "Complete Example: LED Calculator with Optional Parameter Toggle",
+      "features": "Features",
+      "feature1": "Users can toggle power/weight data inclusion",
+      "feature2": "Dynamically build request params based on user selection",
+      "feature3": "Display results based on provided parameters",
+      "feature4": "Full TypeScript type support"
+    },
+    "tips": {
+      "title": "Best Practices & Notes",
+      "errorHandling": "🔧 Error Handling",
+      "performance": "⚡ Performance Optimization",
+      "security": "🔒 Security Recommendations",
+      "i18n": "🌐 Internationalization Support"
+    }
+  },
+  "common": {
+    "loading": "Loading...",
+    "error": "Error",
+    "retry": "Retry",
+    "copy": "Copy",
+    "copied": "Copied!",
+    "viewJson": "View Raw JSON",
+    "download": "Download",
+    "close": "Close",
+    "remove": "Remove"
+  },
+  "footer": {
+    "description": "Professional LED display wall calculation and preview API service to help you quickly configure LED screen projects.",
+    "quickLinks": "Quick Links",
+    "apiInfo": "API Info",
+    "apiStatus": "API Running",
+    "copyright": "Designed by Zora",
+    "contactTitle": "Contact & License",
+    "nonCommercial": "This project is for non-commercial use only",
+    "contactEmail": "For commercial licensing, please contact",
+    "email": "u0015098{'@'}unilumin.com"
+  },
+  "code": {
+    "comments": {
+      "apiBase": "// API Base URL",
+      "mainEndpoints": "// Main Endpoints",
+      "singleOptimal": "// Single cabinet optimal layout",
+      "multiSmart": "// Multi-cabinet smart combination",
+      "singlePreview": "// Single cabinet one-click calculation + preview",
+      "multiPreview": "// Multi-cabinet one-click calculation + preview",
+      "svgPreview": "// SVG preview generation",
+      "cabinetWidth": "// Cabinet width (mm)",
+      "cabinetHeight": "// Cabinet height (mm)",
+      "cabinetDepth": "// Cabinet depth (mm)",
+      "pixelPitch": "// Pixel pitch (mm)",
+      "horizontalRes": "// Horizontal resolution (px)",
+      "verticalRes": "// Vertical resolution (px)",
+      "brightness": "// Brightness (nits)",
+      "refreshRate": "// Refresh rate (Hz)",
+      "colorDepth": "// Color depth (bit)",
+      "maxPower": "// Max power (W)",
+      "typicalPower": "// Typical power (W)",
+      "standbyPower": "// Standby power (W)",
+      "weight": "// Weight (kg)",
+      "showDimensions": "// Show dimension annotations",
+      "showPerson": "// Show person reference",
+      "canvasWidth": "// Canvas width (px)",
+      "canvasHeight": "// Canvas height (px)",
+      "language": "// Language",
+      "columns": "// Recommended columns",
+      "rows": "// Recommended rows",
+      "totalCabinets": "// Total cabinets",
+      "screenWidth": "// Screen width (mm)",
+      "screenHeight": "// Screen height (mm)",
+      "coverage": "// Wall coverage"
+    }
+  }
+}
+
+

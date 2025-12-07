@@ -164,70 +164,107 @@
         .badge { display: inline-block; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; }
         .badge-success { background: #d4edda; color: #155724; }
         .badge-warning { background: #fff3cd; color: #856404; }
+        .lang-switcher {
+            display: inline-flex;
+            gap: 8px;
+            margin-top: 16px;
+            background: rgba(255,255,255,0.15);
+            padding: 6px;
+            border-radius: 30px;
+        }
+        .lang-btn {
+            background: transparent;
+            border: none;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 24px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .lang-btn:hover {
+            background: rgba(255,255,255,0.2);
+        }
+        .lang-btn.active {
+            background: rgba(255,255,255,0.3);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <h1>🖥️ LED Calculator API</h1>
-            <p>LED显示墙计算与预览测试工具</p>
+            <h1 data-i18n="header.title">🖥️ LED Calculator API</h1>
+            <p data-i18n="header.subtitle">LED显示墙计算与预览测试工具</p>
             <div class="header-links">
-                <a href="/docs">📚 查看API文档</a>
-                <a href="/vue-integration" style="margin-left: 8px;">🟢 Vue集成代码</a>
+                <a href="/docs" data-i18n="header.viewDocs">📚 查看API文档</a>
+                <a href="/vue-integration" style="margin-left: 8px;" data-i18n="header.vueIntegration">🟢 Vue集成代码</a>
+            </div>
+            <div class="lang-switcher">
+                <button class="lang-btn" data-lang="zh" onclick="i18n.setLanguage('zh')">
+                    🇨🇳 中文
+                </button>
+                <button class="lang-btn" data-lang="en" onclick="i18n.setLanguage('en')">
+                    🇺🇸 EN
+                </button>
             </div>
             <div class="api-status">
                 <span class="status-indicator" id="statusIndicator"></span>
-                <span id="statusText">检查API状态...</span>
+                <span id="statusText" data-i18n="header.checkingStatus">检查API状态...</span>
             </div>
         </div>
 
         <div class="tabs">
-            <button class="tab active" onclick="switchTab('layout')">📐 单箱体布局</button>
-            <button class="tab" onclick="switchTab('smart')">🧩 多箱体组合</button>
-            <button class="tab" onclick="switchTab('preview')">🖼️ SVG预览</button>
-            <button class="tab" onclick="switchTab('oneclick')">⚡ 一键计算预览</button>
+            <button class="tab active" onclick="switchTab('layout')" data-i18n="tabs.layout">📐 单箱体布局</button>
+            <button class="tab" onclick="switchTab('smart')" data-i18n="tabs.smart">🧩 多箱体组合</button>
+            <button class="tab" onclick="switchTab('preview')" data-i18n="tabs.preview">🖼️ SVG预览</button>
+            <button class="tab" onclick="switchTab('oneclick')" data-i18n="tabs.oneclick">⚡ 一键计算预览</button>
             
         </div>
 
         <!-- Optimal Layout Tab -->
         <div id="layout" class="tab-content active">
             <div class="card">
-                <h2>📐 单箱体最优布局计算</h2>
-                <p class="card-subtitle">在指定墙面尺寸内，使用单一箱体型号拼接LED屏幕，自动计算最优的行列布局</p>
+                <h2 data-i18n="layout.title">📐 单箱体最优布局计算</h2>
+                <p class="card-subtitle" data-i18n="layout.subtitle">在指定墙面尺寸内，使用单一箱体型号拼接LED屏幕，自动计算最优的行列布局</p>
                 <div class="api-endpoint">POST /api/calculate/optimal-layout</div>
                 <div class="form-grid">
                     <div class="form-section">
-                        <h3>📦 箱体选择</h3>
+                        <h3 data-i18n="layout.cabinetSelection">📦 箱体选择</h3>
                         <div class="form-group">
-                            <label>箱体型号</label>
-                            <select id="layoutCabinetSelect" onchange="updateLayoutCabinetInfo()">
-                                <option value="">请选择箱体...</option>
+                            <label data-i18n="layout.cabinetModel">箱体型号</label>
+                            <select id="layoutCabinetSelect" onchange="updateLayoutCabinetInfo()" data-i18n-placeholder="layout.selectCabinet">
+                                <option value="" data-i18n="layout.selectCabinet">请选择箱体...</option>
                             </select>
                         </div>
                         <div id="layoutCabinetInfo"></div>
                     </div>
                     <div class="form-section">
-                        <h3>📏 可用墙面尺寸</h3>
+                        <h3 data-i18n="layout.wallDimensions">📏 可用墙面尺寸</h3>
                         <div class="form-group">
-                            <label>墙面宽度</label>
+                            <label data-i18n="layout.wallWidth">墙面宽度</label>
                             <input type="number" id="layoutRoomWidth" value="5" step="0.1" min="0.1">
                         </div>
                         <div class="form-group">
-                            <label>墙面高度</label>
+                            <label data-i18n="layout.wallHeight">墙面高度</label>
                             <input type="number" id="layoutRoomHeight" value="3" step="0.1" min="0.1">
                         </div>
                         <div class="form-group">
-                            <label>单位</label>
+                            <label data-i18n="layout.unit">单位</label>
                             <select id="layoutUnit">
-                                <option value="meters">米 (Meters)</option>
-                                <option value="feet">英尺 (Feet)</option>
+                                <option value="meters" data-i18n="layout.meters">米 (Meters)</option>
+                                <option value="feet" data-i18n="layout.feet">英尺 (Feet)</option>
                             </select>
                         </div>
                     </div>
                 </div>
                 <button class="btn" onclick="calculateLayout()" id="layoutCalculateBtn">
                     <span class="loading" style="display: none;"></span>
-                    🚀 计算最优布局
+                    <span data-i18n="layout.calculate">🚀 计算最优布局</span>
                 </button>
                 <div id="layoutResult" class="result-section"></div>
             </div>
@@ -236,40 +273,40 @@
         <!-- Smart Combination Tab -->
         <div id="smart" class="tab-content">
             <div class="card">
-                <h2>🧩 多箱体智能组合</h2>
-                <p class="card-subtitle">在指定墙面尺寸内，使用多种尺寸箱体组合拼接LED屏幕，智能计算最佳填充方案</p>
+                <h2 data-i18n="smart.title">🧩 多箱体智能组合</h2>
+                <p class="card-subtitle" data-i18n="smart.subtitle">在指定墙面尺寸内，使用多种尺寸箱体组合拼接LED屏幕，智能计算最佳填充方案</p>
                 <div class="api-endpoint">POST /api/calculate/smart-combination</div>
                 <div class="form-grid">
                     <div class="form-section">
-                        <h3>🎯 主箱体</h3>
+                        <h3 data-i18n="smart.mainCabinet">🎯 主箱体</h3>
                         <div class="form-group">
-                            <label>主箱体型号</label>
+                            <label data-i18n="smart.mainCabinetModel">主箱体型号</label>
                             <select id="smartMainCabinet" onchange="updateSmartMainInfo()">
-                                <option value="">请选择主箱体...</option>
+                                <option value="" data-i18n="smart.selectMainCabinet">请选择主箱体...</option>
                             </select>
                         </div>
                         <div id="smartMainCabinetInfo"></div>
                     </div>
                     <div class="form-section">
-                        <h3>📐 可用墙面尺寸 (毫米)</h3>
+                        <h3 data-i18n="smart.wallDimensionsMm">📐 可用墙面尺寸 (毫米)</h3>
                         <div class="form-group">
-                            <label>墙面宽度 (mm)</label>
+                            <label data-i18n="smart.wallWidthMm">墙面宽度 (mm)</label>
                             <input type="number" id="smartWallWidth" value="4300" min="100">
                         </div>
                         <div class="form-group">
-                            <label>墙面高度 (mm)</label>
+                            <label data-i18n="smart.wallHeightMm">墙面高度 (mm)</label>
                             <input type="number" id="smartWallHeight" value="3300" min="100">
                         </div>
                     </div>
                 </div>
                 <div class="form-section" style="margin-bottom: 24px;">
-                    <h3>➕ 辅助箱体</h3>
+                    <h3 data-i18n="smart.auxiliaryCabinets">➕ 辅助箱体</h3>
                     <div id="smartAuxiliaryList"></div>
-                    <button class="btn btn-secondary btn-sm" onclick="addAuxiliaryCabinet()" style="margin-top:12px;">+ 添加辅助箱体</button>
+                    <button class="btn btn-secondary btn-sm" onclick="addAuxiliaryCabinet()" style="margin-top:12px;" data-i18n="smart.addAuxiliary">+ 添加辅助箱体</button>
                 </div>
                 <button class="btn" onclick="calculateSmart()" id="smartCalculateBtn">
                     <span class="loading" style="display: none;"></span>
-                    🔍 计算最优组合
+                    <span data-i18n="smart.calculate">🔍 计算最优组合</span>
                 </button>
                 <div id="smartResult" class="result-section"></div>
             </div>
@@ -280,38 +317,38 @@
         <!-- Preview Tab -->
         <div id="preview" class="tab-content">
             <div class="card">
-                <h2>🖼️ SVG预览生成器</h2>
-                <p class="card-subtitle">基于计算结果生成LED屏幕的可视化预览图，展示箱体排列效果</p>
+                <h2 data-i18n="preview.title">🖼️ SVG预览生成器</h2>
+                <p class="card-subtitle" data-i18n="preview.subtitle">基于计算结果生成LED屏幕的可视化预览图，展示箱体排列效果</p>
                 <div class="api-endpoint">POST /api/preview/svg</div>
                 <div class="form-grid">
                     <div class="form-section">
-                        <h3>⚙️ 预览选项</h3>
+                        <h3 data-i18n="preview.previewOptions">⚙️ 预览选项</h3>
                         <div class="form-group">
-                            <label>画布宽度 (px)</label>
+                            <label data-i18n="preview.canvasWidth">画布宽度 (px)</label>
                             <input type="number" id="previewWidth" value="800" min="100">
                         </div>
                         <div class="form-group">
-                            <label>画布高度 (px)</label>
+                            <label data-i18n="preview.canvasHeight">画布高度 (px)</label>
                             <input type="number" id="previewHeight" value="500" min="100">
                         </div>
                         <div class="checkbox-group">
                             <label class="checkbox-item">
                                 <input type="checkbox" id="previewShowDimensions" checked>
-                                显示尺寸标注
+                                <span data-i18n="preview.showDimensions">显示尺寸标注</span>
                             </label>
                             <label class="checkbox-item">
                                 <input type="checkbox" id="previewShowPerson" checked>
-                                显示人物参照
+                                <span data-i18n="preview.showPerson">显示人物参照</span>
                             </label>
                         </div>
                     </div>
                     <div class="form-section">
-                        <h3>📊 数据来源</h3>
-                        <p style="color:#6c757d;font-size:13px;margin-bottom:12px;">请先完成计算，然后选择数据来源生成预览</p>
+                        <h3 data-i18n="preview.dataSource">📊 数据来源</h3>
+                        <p style="color:#6c757d;font-size:13px;margin-bottom:12px;" data-i18n="preview.dataSourceHint">请先完成计算，然后选择数据来源生成预览</p>
                         <div class="form-group">
-                            <label>选择计算结果</label>
+                            <label data-i18n="preview.selectResult">选择计算结果</label>
                             <select id="previewSource">
-                                <option value="">暂无可用的计算结果</option>
+                                <option value="" data-i18n="preview.noResults">暂无可用的计算结果</option>
                             </select>
                         </div>
                         <div id="previewSourceInfo" style="margin-top:12px;"></div>
@@ -319,14 +356,14 @@
                 </div>
                 <button class="btn" onclick="generatePreview()" id="previewGenerateBtn" disabled>
                     <span class="loading" style="display: none;"></span>
-                    🎨 生成SVG预览
+                    <span data-i18n="preview.generate">🎨 生成SVG预览</span>
                 </button>
                 <div id="previewResult" class="result-section">
                     <div class="preview-container" id="previewContainer">
                         <div class="empty-state">
                             <div class="empty-state-icon">🖼️</div>
-                            <p>暂无预览图</p>
-                            <p style="font-size:13px;margin-top:8px;">请先完成计算，然后生成预览</p>
+                            <p data-i18n="preview.noPreview">暂无预览图</p>
+                            <p style="font-size:13px;margin-top:8px;" data-i18n="preview.noPreviewHint">请先完成计算，然后生成预览</p>
                         </div>
                     </div>
                 </div>
@@ -336,72 +373,72 @@
         <!-- One-Click Calculate + Preview Tab -->
         <div id="oneclick" class="tab-content">
             <div class="card">
-                <h2>⚡ 一键计算 + 预览</h2>
-                <p class="card-subtitle">输入箱体和墙面信息，一次请求同时返回计算结果和SVG预览图</p>
+                <h2 data-i18n="oneclick.title">⚡ 一键计算 + 预览</h2>
+                <p class="card-subtitle" data-i18n="oneclick.subtitle">输入箱体和墙面信息，一次请求同时返回计算结果和SVG预览图</p>
                 
                 <!-- 模式切换 -->
                 <div style="display:flex;gap:12px;margin-bottom:20px;">
                     <button class="btn" id="oneclickModeSingle" onclick="switchOneclickMode('single')" style="flex:1;">
-                        📐 单箱体模式
+                        <span data-i18n="oneclick.modeSingle">📐 单箱体模式</span>
                     </button>
                     <button class="btn btn-secondary" id="oneclickModeMulti" onclick="switchOneclickMode('multi')" style="flex:1;">
-                        🧩 多箱体模式
+                        <span data-i18n="oneclick.modeMulti">🧩 多箱体模式</span>
                     </button>
                 </div>
                 <div class="api-endpoint" id="oneclickApiEndpoint">POST /api/calculate/optimal-layout-with-preview</div>
                 
                 <div class="form-grid">
                     <div class="form-section">
-                        <h3>📦 箱体选择</h3>
+                        <h3 data-i18n="oneclick.cabinetSelection">📦 箱体选择</h3>
                         <div class="form-group">
-                            <label>箱体型号</label>
+                            <label data-i18n="oneclick.cabinetModel">箱体型号</label>
                             <select id="oneclickMainCabinet" onchange="updateOneclickMainInfo()">
-                                <option value="">请选择箱体...</option>
+                                <option value="" data-i18n="oneclick.selectCabinet">请选择箱体...</option>
                             </select>
                         </div>
                         <div id="oneclickMainCabinetInfo"></div>
                         <div class="form-group" style="margin-top:16px;" id="oneclickAutoAuxGroup">
                             <label>
                                 <input type="checkbox" id="oneclickAutoAux" checked style="width:auto;margin-right:8px;">
-                                自动添加同系列辅助箱体 (多箱体模式)
+                                <span data-i18n="oneclick.autoAux">自动添加同系列辅助箱体 (多箱体模式)</span>
                             </label>
                         </div>
                     </div>
                     <div class="form-section">
-                        <h3>📐 可用墙面尺寸</h3>
+                        <h3 data-i18n="oneclick.wallDimensions">📐 可用墙面尺寸</h3>
                         <div class="form-group">
-                            <label>墙面宽度</label>
+                            <label data-i18n="oneclick.wallWidth">墙面宽度</label>
                             <input type="number" id="oneclickWallWidth" value="5" step="0.1" min="0.1">
                         </div>
                         <div class="form-group">
-                            <label>墙面高度</label>
+                            <label data-i18n="oneclick.wallHeight">墙面高度</label>
                             <input type="number" id="oneclickWallHeight" value="3" step="0.1" min="0.1">
                         </div>
                         <div class="form-group">
-                            <label>单位</label>
+                            <label data-i18n="oneclick.unit">单位</label>
                             <select id="oneclickUnit">
-                                <option value="meters">米 (Meters)</option>
-                                <option value="feet">英尺 (Feet)</option>
+                                <option value="meters" data-i18n="oneclick.meters">米 (Meters)</option>
+                                <option value="feet" data-i18n="oneclick.feet">英尺 (Feet)</option>
                             </select>
                         </div>
                     </div>
                 </div>
                 <div class="form-section" style="margin-bottom: 24px;">
-                    <h3>⚙️ 预览选项</h3>
+                    <h3 data-i18n="oneclick.previewOptions">⚙️ 预览选项</h3>
                     <div class="checkbox-group">
                         <label class="checkbox-item">
                             <input type="checkbox" id="oneclickShowDimensions" checked>
-                            显示尺寸标注
+                            <span data-i18n="oneclick.showDimensions">显示尺寸标注</span>
                         </label>
                         <label class="checkbox-item">
                             <input type="checkbox" id="oneclickShowPerson" checked>
-                            显示人物参照
+                            <span data-i18n="oneclick.showPerson">显示人物参照</span>
                         </label>
                     </div>
                 </div>
                 <button class="btn" onclick="calculateOneClick()" id="oneclickCalculateBtn">
                     <span class="loading" style="display: none;"></span>
-                    ⚡ 一键计算并生成预览
+                    <span data-i18n="oneclick.calculate">⚡ 一键计算并生成预览</span>
                 </button>
                 <div id="oneclickResult" class="result-section"></div>
             </div>
@@ -409,6 +446,394 @@
     </div>
 
     <script data-cfasync="false">
+        // ==================== i18n 国际化模块 ====================
+        const i18n = {
+            currentLang: 'zh',
+            
+            translations: {
+                zh: {
+                    header: {
+                        title: 'LED Calculator API',
+                        subtitle: 'LED显示墙计算与预览测试工具',
+                        viewDocs: '📚 查看API文档',
+                        vueIntegration: '🟢 Vue集成代码',
+                        apiStatus: 'API状态',
+                        checkingStatus: '检查API状态...',
+                        online: 'API 在线',
+                        offline: 'API 离线 - 请启动: npm run dev',
+                        error: 'API 错误'
+                    },
+                    tabs: {
+                        layout: '📐 单箱体布局',
+                        smart: '🧩 多箱体组合',
+                        preview: '🖼️ SVG预览',
+                        oneclick: '⚡ 一键计算预览'
+                    },
+                    layout: {
+                        title: '📐 单箱体最优布局计算',
+                        subtitle: '在指定墙面尺寸内，使用单一箱体型号拼接LED屏幕，自动计算最优的行列布局',
+                        cabinetSelection: '📦 箱体选择',
+                        cabinetModel: '箱体型号',
+                        selectCabinet: '请选择箱体...',
+                        wallDimensions: '📏 可用墙面尺寸',
+                        wallWidth: '墙面宽度',
+                        wallHeight: '墙面高度',
+                        unit: '单位',
+                        meters: '米 (Meters)',
+                        feet: '英尺 (Feet)',
+                        calculate: '🚀 计算最优布局',
+                        calculating: '计算中...'
+                    },
+                    smart: {
+                        title: '🧩 多箱体智能组合',
+                        subtitle: '在指定墙面尺寸内，使用多种尺寸箱体组合拼接LED屏幕，智能计算最佳填充方案',
+                        mainCabinet: '🎯 主箱体',
+                        mainCabinetModel: '主箱体型号',
+                        selectMainCabinet: '请选择主箱体...',
+                        wallDimensionsMm: '📐 可用墙面尺寸 (毫米)',
+                        wallWidthMm: '墙面宽度 (mm)',
+                        wallHeightMm: '墙面高度 (mm)',
+                        auxiliaryCabinets: '➕ 辅助箱体',
+                        addAuxiliary: '+ 添加辅助箱体',
+                        auxiliaryCabinet: '辅助箱体',
+                        remove: '移除',
+                        calculate: '🔍 计算最优组合',
+                        autoAdded: '✅ 已自动添加'
+                    },
+                    preview: {
+                        title: '🖼️ SVG预览生成器',
+                        subtitle: '基于计算结果生成LED屏幕的可视化预览图，展示箱体排列效果',
+                        previewOptions: '⚙️ 预览选项',
+                        canvasWidth: '画布宽度 (px)',
+                        canvasHeight: '画布高度 (px)',
+                        showDimensions: '显示尺寸标注',
+                        showPerson: '显示人物参照',
+                        dataSource: '📊 数据来源',
+                        dataSourceHint: '请先完成计算，然后选择数据来源生成预览',
+                        selectResult: '选择计算结果',
+                        noResults: '暂无可用的计算结果',
+                        generate: '🎨 生成SVG预览',
+                        noPreview: '暂无预览图',
+                        noPreviewHint: '请先完成计算，然后生成预览'
+                    },
+                    oneclick: {
+                        title: '⚡ 一键计算 + 预览',
+                        subtitle: '输入箱体和墙面信息，一次请求同时返回计算结果和SVG预览图',
+                        modeSingle: '📐 单箱体模式',
+                        modeMulti: '🧩 多箱体模式',
+                        cabinetSelection: '📦 箱体选择',
+                        cabinetModel: '箱体型号',
+                        selectCabinet: '请选择箱体...',
+                        autoAux: '自动添加同系列辅助箱体 (多箱体模式)',
+                        wallDimensions: '📐 可用墙面尺寸',
+                        wallWidth: '墙面宽度',
+                        wallHeight: '墙面高度',
+                        unit: '单位',
+                        meters: '米 (Meters)',
+                        feet: '英尺 (Feet)',
+                        previewOptions: '⚙️ 预览选项',
+                        showDimensions: '显示尺寸标注',
+                        showPerson: '显示人物参照',
+                        calculate: '⚡ 一键计算并生成预览',
+                        calculating: '⏳ 正在计算并生成预览...'
+                    },
+                    results: {
+                        columns: '列数',
+                        rows: '行数',
+                        totalCabinets: '箱体总数',
+                        screenWidth: '宽度',
+                        screenHeight: '高度',
+                        screenArea: '面积',
+                        coverage: '覆盖率',
+                        fullyFilled: '完全填充',
+                        yes: '是',
+                        no: '否',
+                        testCombinations: '测试组合数',
+                        cabinetDetails: '📦 箱体数量明细',
+                        pieces: '个',
+                        layoutRecommendation: '📐 推荐布局',
+                        screenDimensions: '📺 屏幕尺寸',
+                        resolutionInfo: '🖥️ 分辨率信息',
+                        totalWidth: '总宽度',
+                        totalHeight: '总高度',
+                        totalPixels: '总像素',
+                        physicalParams: '⚡ 物理参数',
+                        totalWeight: '总重量',
+                        maxPower: '最大功率',
+                        typicalPower: '典型功率',
+                        structuralLoad: '结构负载',
+                        availableWall: '📐 可用墙面',
+                        optimalCombination: '🎯 最优组合方案',
+                        powerConsumption: '⚡ 功耗与物理参数',
+                        svgPreview: '🖼️ SVG预览',
+                        viewJson: '查看原始JSON响应',
+                        success: '计算完成！',
+                        layoutSuccess: '最优布局计算完成！',
+                        smartSuccess: '智能组合分析完成！',
+                        singleSuccess: '单箱体一键计算完成！',
+                        multiSuccess: '多箱体一键计算完成！',
+                        previewFailed: '预览生成失败',
+                        generationFailed: '生成失败',
+                        networkError: '网络错误',
+                        selectCabinetError: '请选择箱体型号',
+                        selectMainCabinetError: '请选择主箱体',
+                        selectAuxiliaryError: '请至少选择一个辅助箱体',
+                        noAuxiliaryError: '没有可用的辅助箱体，请选择有同系列箱体的产品',
+                        selectResultError: '请先选择计算结果',
+                        calculationFailed: '计算失败',
+                        hasResults: '✅ 已有',
+                        resultsAvailable: '个计算结果可用',
+                        pleaseCalculate: '⚠️ 请先完成计算以获取数据'
+                    },
+                    cabinet: {
+                        dimensions: '尺寸',
+                        pixelPitch: '像素间距',
+                        resolution: '分辨率',
+                        brightness: '亮度',
+                        weight: '重量',
+                        maxPower: '最大功率',
+                        uslimSeries: '🔥 UslimIII MIP 1.5 系列',
+                        uminiSeries: '✨ UMiniW 0.9 系列'
+                    }
+                },
+                en: {
+                    header: {
+                        title: 'LED Calculator API',
+                        subtitle: 'LED Display Wall Calculation & Preview Testing Tool',
+                        viewDocs: '📚 View API Docs',
+                        vueIntegration: '🟢 Vue Integration',
+                        apiStatus: 'API Status',
+                        checkingStatus: 'Checking API status...',
+                        online: 'API Online',
+                        offline: 'API Offline - Please start: npm run dev',
+                        error: 'API Error'
+                    },
+                    tabs: {
+                        layout: '📐 Single Cabinet Layout',
+                        smart: '🧩 Multi-Cabinet Combination',
+                        preview: '🖼️ SVG Preview',
+                        oneclick: '⚡ One-Click Calculate'
+                    },
+                    layout: {
+                        title: '📐 Optimal Single Cabinet Layout',
+                        subtitle: 'Calculate the optimal row and column layout for LED screen assembly using a single cabinet model within specified wall dimensions',
+                        cabinetSelection: '📦 Cabinet Selection',
+                        cabinetModel: 'Cabinet Model',
+                        selectCabinet: 'Please select cabinet...',
+                        wallDimensions: '📏 Available Wall Dimensions',
+                        wallWidth: 'Wall Width',
+                        wallHeight: 'Wall Height',
+                        unit: 'Unit',
+                        meters: 'Meters',
+                        feet: 'Feet',
+                        calculate: '🚀 Calculate Optimal Layout',
+                        calculating: 'Calculating...'
+                    },
+                    smart: {
+                        title: '🧩 Smart Multi-Cabinet Combination',
+                        subtitle: 'Intelligently calculate the best filling solution using multiple cabinet sizes within specified wall dimensions',
+                        mainCabinet: '🎯 Main Cabinet',
+                        mainCabinetModel: 'Main Cabinet Model',
+                        selectMainCabinet: 'Please select main cabinet...',
+                        wallDimensionsMm: '📐 Available Wall Dimensions (mm)',
+                        wallWidthMm: 'Wall Width (mm)',
+                        wallHeightMm: 'Wall Height (mm)',
+                        auxiliaryCabinets: '➕ Auxiliary Cabinets',
+                        addAuxiliary: '+ Add Auxiliary Cabinet',
+                        auxiliaryCabinet: 'Auxiliary Cabinet',
+                        remove: 'Remove',
+                        calculate: '🔍 Calculate Optimal Combination',
+                        autoAdded: '✅ Auto-added'
+                    },
+                    preview: {
+                        title: '🖼️ SVG Preview Generator',
+                        subtitle: 'Generate visual preview of LED screen based on calculation results, showing cabinet arrangement',
+                        previewOptions: '⚙️ Preview Options',
+                        canvasWidth: 'Canvas Width (px)',
+                        canvasHeight: 'Canvas Height (px)',
+                        showDimensions: 'Show Dimensions',
+                        showPerson: 'Show Person Reference',
+                        dataSource: '📊 Data Source',
+                        dataSourceHint: 'Please complete calculation first, then select data source to generate preview',
+                        selectResult: 'Select Calculation Result',
+                        noResults: 'No calculation results available',
+                        generate: '🎨 Generate SVG Preview',
+                        noPreview: 'No Preview Available',
+                        noPreviewHint: 'Please complete calculation first, then generate preview'
+                    },
+                    oneclick: {
+                        title: '⚡ One-Click Calculate + Preview',
+                        subtitle: 'Enter cabinet and wall information, get calculation results and SVG preview in one request',
+                        modeSingle: '📐 Single Cabinet Mode',
+                        modeMulti: '🧩 Multi-Cabinet Mode',
+                        cabinetSelection: '📦 Cabinet Selection',
+                        cabinetModel: 'Cabinet Model',
+                        selectCabinet: 'Please select cabinet...',
+                        autoAux: 'Auto-add same series auxiliary cabinets (Multi-cabinet mode)',
+                        wallDimensions: '📐 Available Wall Dimensions',
+                        wallWidth: 'Wall Width',
+                        wallHeight: 'Wall Height',
+                        unit: 'Unit',
+                        meters: 'Meters',
+                        feet: 'Feet',
+                        previewOptions: '⚙️ Preview Options',
+                        showDimensions: 'Show Dimensions',
+                        showPerson: 'Show Person Reference',
+                        calculate: '⚡ One-Click Calculate & Preview',
+                        calculating: '⏳ Calculating and generating preview...'
+                    },
+                    results: {
+                        columns: 'Columns',
+                        rows: 'Rows',
+                        totalCabinets: 'Total Cabinets',
+                        screenWidth: 'Width',
+                        screenHeight: 'Height',
+                        screenArea: 'Area',
+                        coverage: 'Coverage',
+                        fullyFilled: 'Fully Filled',
+                        yes: 'Yes',
+                        no: 'No',
+                        testCombinations: 'Test Combinations',
+                        cabinetDetails: '📦 Cabinet Quantity Details',
+                        pieces: 'pcs',
+                        layoutRecommendation: '📐 Recommended Layout',
+                        screenDimensions: '📺 Screen Dimensions',
+                        resolutionInfo: '🖥️ Resolution Info',
+                        totalWidth: 'Total Width',
+                        totalHeight: 'Total Height',
+                        totalPixels: 'Total Pixels',
+                        physicalParams: '⚡ Physical Parameters',
+                        totalWeight: 'Total Weight',
+                        maxPower: 'Max Power',
+                        typicalPower: 'Typical Power',
+                        structuralLoad: 'Structural Load',
+                        availableWall: '📐 Available Wall',
+                        optimalCombination: '🎯 Optimal Combination',
+                        powerConsumption: '⚡ Power & Physical Parameters',
+                        svgPreview: '🖼️ SVG Preview',
+                        viewJson: 'View Raw JSON Response',
+                        success: 'Calculation Complete!',
+                        layoutSuccess: 'Optimal layout calculation complete!',
+                        smartSuccess: 'Smart combination analysis complete!',
+                        singleSuccess: 'Single cabinet one-click calculation complete!',
+                        multiSuccess: 'Multi-cabinet one-click calculation complete!',
+                        previewFailed: 'Preview generation failed',
+                        generationFailed: 'Generation failed',
+                        networkError: 'Network error',
+                        selectCabinetError: 'Please select cabinet model',
+                        selectMainCabinetError: 'Please select main cabinet',
+                        selectAuxiliaryError: 'Please select at least one auxiliary cabinet',
+                        noAuxiliaryError: 'No auxiliary cabinets available, please select a product with same series cabinets',
+                        selectResultError: 'Please select calculation result first',
+                        calculationFailed: 'Calculation failed',
+                        hasResults: '✅ Available:',
+                        resultsAvailable: 'calculation result(s)',
+                        pleaseCalculate: '⚠️ Please complete calculation first to get data'
+                    },
+                    cabinet: {
+                        dimensions: 'Dimensions',
+                        pixelPitch: 'Pixel Pitch',
+                        resolution: 'Resolution',
+                        brightness: 'Brightness',
+                        weight: 'Weight',
+                        maxPower: 'Max Power',
+                        uslimSeries: '🔥 UslimIII MIP 1.5 Series',
+                        uminiSeries: '✨ UMiniW 0.9 Series'
+                    }
+                }
+            },
+            
+            // Get translation by key path (e.g., 'header.title')
+            t(key, params = {}) {
+                const keys = key.split('.');
+                let value = this.translations[this.currentLang];
+                for (const k of keys) {
+                    value = value?.[k];
+                    if (value === undefined) break;
+                }
+                
+                // If translation not found, return key
+                if (value === undefined) {
+                    console.warn(`Translation missing for key: ${key} (${this.currentLang})`);
+                    return key;
+                }
+                
+                // Replace parameters in template strings
+                if (typeof value === 'string' && Object.keys(params).length > 0) {
+                    return value.replace(/\{\{(\w+)\}\}/g, (match, param) => {
+                        return params[param] !== undefined ? params[param] : match;
+                    });
+                }
+                
+                return value;
+            },
+            
+            // Set language and update DOM
+            setLanguage(lang) {
+                if (lang !== 'zh' && lang !== 'en') {
+                    console.warn(`Invalid language: ${lang}, defaulting to zh`);
+                    lang = 'zh';
+                }
+                this.currentLang = lang;
+                localStorage.setItem('led-calculator-lang', lang);
+                this.updateDOM();
+                this.updateLanguageSwitcher();
+            },
+            
+            // Update all translatable elements in DOM
+            updateDOM() {
+                // Update elements with data-i18n attribute
+                document.querySelectorAll('[data-i18n]').forEach(el => {
+                    const key = el.getAttribute('data-i18n');
+                    el.textContent = this.t(key);
+                });
+                
+                // Update elements with data-i18n-placeholder attribute
+                document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+                    const key = el.getAttribute('data-i18n-placeholder');
+                    el.placeholder = this.t(key);
+                });
+                
+                // Update elements with data-i18n-title attribute
+                document.querySelectorAll('[data-i18n-title]').forEach(el => {
+                    const key = el.getAttribute('data-i18n-title');
+                    el.title = this.t(key);
+                });
+                
+                // Update page title and lang attribute
+                document.title = `LED Calculator API - ${this.currentLang === 'zh' ? '测试页面' : 'Test Page'}`;
+                document.documentElement.lang = this.currentLang === 'zh' ? 'zh-CN' : 'en';
+            },
+            
+            // Update language switcher button states
+            updateLanguageSwitcher() {
+                document.querySelectorAll('.lang-btn').forEach(btn => {
+                    const btnLang = btn.getAttribute('data-lang');
+                    if (btnLang === this.currentLang) {
+                        btn.classList.add('active');
+                    } else {
+                        btn.classList.remove('active');
+                    }
+                });
+            },
+            
+            // Initialize i18n on page load
+            init() {
+                // Try to get language from localStorage
+                const savedLang = localStorage.getItem('led-calculator-lang');
+                if (savedLang) {
+                    this.currentLang = savedLang;
+                } else {
+                    // Detect browser language
+                    const browserLang = navigator.language || navigator.userLanguage;
+                    this.currentLang = browserLang.startsWith('zh') ? 'zh' : 'en';
+                }
+                
+                this.updateDOM();
+                this.updateLanguageSwitcher();
+            }
+        };
+        
         // 全局变量
         // 自动检测当前域名，如果是 localhost 则使用 localhost:3001，否则使用当前域名
         let apiBaseUrl = window.location.hostname === 'localhost' 
@@ -496,6 +921,7 @@
 
         // 页面初始化
         document.addEventListener('DOMContentLoaded', function() {
+            i18n.init();
             checkApiStatus();
             populateCabinetSelects();
             // 初始化一键计算模式为单箱体
@@ -509,12 +935,12 @@
                 const response = await fetch(`${apiBaseUrl}/health`);
                 if (response.ok) {
                     statusIndicator.classList.add('online');
-                    statusText.textContent = 'API 在线';
+                    statusText.textContent = i18n.t('header.online');
                 } else {
-                    statusText.textContent = 'API 错误';
+                    statusText.textContent = i18n.t('header.error');
                 }
             } catch (error) {
-                statusText.textContent = 'API 离线 - 请启动: npm run dev';
+                statusText.textContent = i18n.t('header.offline');
             }
         }
 
@@ -523,13 +949,15 @@
             selects.forEach(selectId => {
                 const select = document.getElementById(selectId);
                 if (select) {
-                    select.innerHTML = '<option value="">请选择箱体...</option>';
+                    const placeholderKey = selectId === 'smartMainCabinet' ? 'smart.selectMainCabinet' : 
+                                          selectId === 'oneclickMainCabinet' ? 'oneclick.selectCabinet' : 'layout.selectCabinet';
+                    select.innerHTML = `<option value="">${i18n.t(placeholderKey)}</option>`;
                     
                     // UslimIII 系列
                     const uslimGroup = cabinetData.filter(c => c.family === 'UslimIII');
                     if (uslimGroup.length > 0) {
                         const optgroup = document.createElement('optgroup');
-                        optgroup.label = '🔥 UslimIII MIP 1.5 系列';
+                        optgroup.label = i18n.t('cabinet.uslimSeries');
                         uslimGroup.forEach(cabinet => {
                             const option = document.createElement('option');
                             option.value = cabinet.id;
@@ -543,7 +971,7 @@
                     const uminiGroup = cabinetData.filter(c => c.family === 'UMiniW');
                     if (uminiGroup.length > 0) {
                         const optgroup = document.createElement('optgroup');
-                        optgroup.label = '✨ UMiniW 0.9 系列';
+                        optgroup.label = i18n.t('cabinet.uminiSeries');
                         uminiGroup.forEach(cabinet => {
                             const option = document.createElement('option');
                             option.value = cabinet.id;
@@ -577,12 +1005,12 @@
             if (!cabinet) return '';
             return `
                 <div class="cabinet-info">
-                    <div><strong>尺寸:</strong> ${cabinet.dimensions.width}×${cabinet.dimensions.height}mm</div>
-                    <div><strong>像素间距:</strong> ${cabinet.display.pixelPitch}mm</div>
-                    <div><strong>分辨率:</strong> ${cabinet.display.resolution.width}×${cabinet.display.resolution.height}</div>
-                    <div><strong>亮度:</strong> ${cabinet.display.brightness} nits</div>
-                    <div><strong>重量:</strong> ${cabinet.physical.weight} kg</div>
-                    <div><strong>最大功率:</strong> ${cabinet.power.maxPower}W</div>
+                    <div><strong>${i18n.t('cabinet.dimensions')}:</strong> ${cabinet.dimensions.width}×${cabinet.dimensions.height}mm</div>
+                    <div><strong>${i18n.t('cabinet.pixelPitch')}:</strong> ${cabinet.display.pixelPitch}mm</div>
+                    <div><strong>${i18n.t('cabinet.resolution')}:</strong> ${cabinet.display.resolution.width}×${cabinet.display.resolution.height}</div>
+                    <div><strong>${i18n.t('cabinet.brightness')}:</strong> ${cabinet.display.brightness} nits</div>
+                    <div><strong>${i18n.t('cabinet.weight')}:</strong> ${cabinet.physical.weight} kg</div>
+                    <div><strong>${i18n.t('cabinet.maxPower')}:</strong> ${cabinet.power.maxPower}W</div>
                 </div>
             `;
         }
@@ -605,9 +1033,12 @@
                     sameFamilyCabinets.forEach((auxCabinet) => {
                         addAuxiliaryCabinetWithValue(auxCabinet.id);
                     });
+                    const autoAddedMsg = i18n.currentLang === 'zh' ? 
+                        `${i18n.t('smart.autoAdded')} ${sameFamilyCabinets.length} 个同系列辅助箱体` :
+                        `${i18n.t('smart.autoAdded')} ${sameFamilyCabinets.length} same series auxiliary cabinets`;
                     document.getElementById('smartMainCabinetInfo').innerHTML += `
                         <div style="margin-top:12px;padding:10px;background:#e8f5e9;border-radius:8px;color:#2e7d32;font-size:12px;">
-                            ✅ 已自动添加 ${sameFamilyCabinets.length} 个同系列辅助箱体
+                            ${autoAddedMsg}
                         </div>
                     `;
                 }
@@ -623,17 +1054,17 @@
             div.className = 'multi-cabinet-section';
             div.innerHTML = `
                 <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
-                    <strong>辅助箱体 ${index + 1}</strong>
-                    <button class="btn btn-secondary btn-sm" onclick="this.parentElement.parentElement.remove()">移除</button>
+                    <strong>${i18n.t('smart.auxiliaryCabinet')} ${index + 1}</strong>
+                    <button class="btn btn-secondary btn-sm" onclick="this.parentElement.parentElement.remove()">${i18n.t('smart.remove')}</button>
                 </div>
                 <div class="form-group" style="margin-bottom:0;">
-                    <label>箱体型号</label>
+                    <label>${i18n.t('smart.mainCabinetModel')}</label>
                     <select class="auxiliary-cabinet-select">
-                        <option value="">请选择箱体...</option>
+                        <option value="">${i18n.t('smart.selectMainCabinet')}</option>
                         ${cabinetData.map(c => `<option value="${c.id}" ${c.id === cabinetId ? 'selected' : ''}>${c.name}</option>`).join('')}
                     </select>
                 </div>
-                ${cabinet ? `<div style="margin-top:8px;font-size:12px;color:#6c757d;">尺寸: ${cabinet.dimensions.width}×${cabinet.dimensions.height}mm</div>` : ''}
+                ${cabinet ? `<div style="margin-top:8px;font-size:12px;color:#6c757d;">${i18n.t('cabinet.dimensions')}: ${cabinet.dimensions.width}×${cabinet.dimensions.height}mm</div>` : ''}
             `;
             container.appendChild(div);
         }
@@ -645,13 +1076,13 @@
             div.className = 'multi-cabinet-section';
             div.innerHTML = `
                 <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
-                    <strong>辅助箱体 ${index + 1}</strong>
-                    <button class="btn btn-secondary btn-sm" onclick="this.parentElement.parentElement.remove()">移除</button>
+                    <strong>${i18n.t('smart.auxiliaryCabinet')} ${index + 1}</strong>
+                    <button class="btn btn-secondary btn-sm" onclick="this.parentElement.parentElement.remove()">${i18n.t('smart.remove')}</button>
                 </div>
                 <div class="form-group" style="margin-bottom:0;">
-                    <label>箱体型号</label>
+                    <label>${i18n.t('smart.mainCabinetModel')}</label>
                     <select class="auxiliary-cabinet-select">
-                        <option value="">请选择箱体...</option>
+                        <option value="">${i18n.t('smart.selectMainCabinet')}</option>
                         ${cabinetData.map(c => `<option value="${c.id}">${c.name}</option>`).join('')}
                     </select>
                 </div>
@@ -704,7 +1135,7 @@
 
             const cabinetId = document.getElementById('layoutCabinetSelect').value;
             if (!cabinetId) {
-                showError(resultDiv, '请选择箱体型号');
+                showError(resultDiv, i18n.t('results.selectCabinetError'));
                 return;
             }
 
@@ -742,10 +1173,10 @@
                     displayLayoutResult(result.data, resultDiv, cabinet);
                     updatePreviewSources();
                 } else {
-                    showError(resultDiv, result.error?.message || '计算失败');
+                    showError(resultDiv, result.error?.message || i18n.t('results.calculationFailed'));
                 }
             } catch (error) {
-                showError(resultDiv, `网络错误: ${error.message}`);
+                showError(resultDiv, `${i18n.t('results.networkError')}: ${error.message}`);
             } finally {
                 btn.disabled = false;
                 loading.style.display = 'none';
@@ -1028,7 +1459,7 @@
                             showPerson: showPerson,
                             canvasWidth: 800,
                             canvasHeight: 500,
-                            language: 'zh'
+                            language: i18n.currentLang
                         }
                     };
 
@@ -1084,7 +1515,7 @@
                             showPerson: showPerson,
                             canvasWidth: 800,
                             canvasHeight: 500,
-                            language: 'zh'
+                            language: i18n.currentLang
                         }
                     };
 
@@ -1353,13 +1784,13 @@
                             }
                         },
                         roomConfig: calcResult.roomConfig,
-                        options: { showDimensions, showPerson, canvasWidth: width, canvasHeight: height, format: 'json' }
+                        options: { showDimensions, showPerson, canvasWidth: width, canvasHeight: height, format: 'json', language: i18n.currentLang }
                     };
                 } else {
                     requestData = {
                         calculationResult: calcResult.result,
                         roomConfig: calcResult.roomConfig,
-                        options: { showDimensions, showPerson, canvasWidth: width, canvasHeight: height, format: 'json' }
+                        options: { showDimensions, showPerson, canvasWidth: width, canvasHeight: height, format: 'json', language: i18n.currentLang }
                     };
                 }
 

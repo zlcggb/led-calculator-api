@@ -161,81 +161,118 @@
             margin-left: 20px;
         }
         .sub-table th { background: #f0f0f0; }
+        .lang-switcher {
+            display: inline-flex;
+            gap: 8px;
+            margin-top: 16px;
+            background: rgba(255,255,255,0.15);
+            padding: 6px;
+            border-radius: 30px;
+        }
+        .lang-btn {
+            background: transparent;
+            border: none;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 24px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .lang-btn:hover {
+            background: rgba(255,255,255,0.2);
+        }
+        .lang-btn.active {
+            background: rgba(255,255,255,0.3);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <h1>📚 LED Calculator API 数据定义文档</h1>
-            <p>了解API的输入输出数据结构，快速集成LED显示墙计算功能</p>
+            <h1 data-i18n="header.title">📚 LED Calculator API 数据定义文档</h1>
+            <p data-i18n="header.subtitle">了解API的输入输出数据结构，快速集成LED显示墙计算功能</p>
             <div class="nav-links">
-                <a href="/">🧪 测试页面</a>
-                <a href="#optimal-layout">📐 单箱体布局</a>
-                <a href="#smart-combination">🧩 多箱体组合</a>
-                <a href="#preview">🖼️ SVG预览</a>
+                <a href="/" data-i18n="header.testPage">🧪 测试页面</a>
+                <a href="#optimal-layout" data-i18n="header.singleLayout">📐 单箱体布局</a>
+                <a href="#smart-combination" data-i18n="header.multiCombination">🧩 多箱体组合</a>
+                <a href="#preview" data-i18n="header.svgPreview">🖼️ SVG预览</a>
+            </div>
+            <div class="lang-switcher">
+                <button class="lang-btn" data-lang="zh" onclick="i18n.setLanguage('zh')">
+                    🇨🇳 中文
+                </button>
+                <button class="lang-btn" data-lang="en" onclick="i18n.setLanguage('en')">
+                    🇺🇸 EN
+                </button>
             </div>
         </div>
 
         <!-- 目录 -->
         <div class="toc">
-            <h3>📋 目录</h3>
+            <h3 data-i18n="toc.title">📋 目录</h3>
             <ul>
-                <li>1. <a href="#overview">概述</a></li>
-                <li>2. <a href="#cabinet-specs">箱体规格数据结构 (CabinetSpecs)</a></li>
-                <li>3. <a href="#room-config">可用墙面配置数据结构 (RoomConfig)</a></li>
-                <li>4. <a href="#optimal-layout">API: 单箱体最优布局 (/api/calculate/optimal-layout)</a></li>
-                <li>5. <a href="#smart-combination">API: 多箱体智能组合 (/api/calculate/smart-combination)</a></li>
-                <li>6. <a href="#oneclick-apis">API: 一键计算+预览 (推荐)</a>
+                <li>1. <a href="#overview" data-i18n="toc.overview">概述</a></li>
+                <li>2. <a href="#cabinet-specs" data-i18n="toc.cabinetSpecs">箱体规格数据结构 (CabinetSpecs)</a></li>
+                <li>3. <a href="#room-config" data-i18n="toc.roomConfig">可用墙面配置数据结构 (RoomConfig)</a></li>
+                <li>4. <a href="#optimal-layout" data-i18n="toc.optimalLayout">API: 单箱体最优布局 (/api/calculate/optimal-layout)</a></li>
+                <li>5. <a href="#smart-combination" data-i18n="toc.smartCombination">API: 多箱体智能组合 (/api/calculate/smart-combination)</a></li>
+                <li>6. <a href="#oneclick-apis" data-i18n="toc.oneclickApis">API: 一键计算+预览 (推荐)</a>
                     <ul style="margin-left:20px;margin-top:8px;">
-                        <li>6.1 <a href="#optimal-layout-with-preview">单箱体一键 (/api/calculate/optimal-layout-with-preview)</a></li>
-                        <li>6.2 <a href="#smart-combination-with-preview">多箱体一键 (/api/calculate/smart-combination-with-preview)</a></li>
+                        <li>6.1 <a href="#optimal-layout-with-preview" data-i18n="toc.oneclickSingle">单箱体一键 (/api/calculate/optimal-layout-with-preview)</a></li>
+                        <li>6.2 <a href="#smart-combination-with-preview" data-i18n="toc.oneclickMulti">多箱体一键 (/api/calculate/smart-combination-with-preview)</a></li>
                     </ul>
                 </li>
-                <li>7. <a href="#preview">API: SVG预览生成 (/api/preview/svg)</a></li>
-                <li>8. <a href="#examples">完整示例</a></li>
+                <li>7. <a href="#preview" data-i18n="toc.preview">API: SVG预览生成 (/api/preview/svg)</a></li>
+                <li>8. <a href="#examples" data-i18n="toc.examples">完整示例</a></li>
             </ul>
         </div>
 
         <!-- 概述 -->
         <div class="card" id="overview">
-            <h2>1. 概述</h2>
-            <p>LED Calculator API 提供LED显示墙的计算和预览功能。主要包含以下核心接口：</p>
+            <h2 data-i18n="overview.title">1. 概述</h2>
+            <p data-i18n="overview.description">LED Calculator API 提供LED显示墙的计算和预览功能。主要包含以下核心接口：</p>
             <table>
                 <tr>
-                    <th>接口</th>
-                    <th>功能</th>
-                    <th>使用场景</th>
+                    <th data-i18n="overview.tableInterface">接口</th>
+                    <th data-i18n="overview.tableFunction">功能</th>
+                    <th data-i18n="overview.tableUseCase">使用场景</th>
                 </tr>
                 <tr>
                     <td><code>/api/calculate/optimal-layout</code></td>
-                    <td>单箱体最优布局计算</td>
-                    <td>在指定墙面尺寸内，使用单一箱体型号拼接LED屏幕，自动计算最优的行列布局</td>
+                    <td data-i18n="overview.optimalLayoutFunc">单箱体最优布局计算</td>
+                    <td data-i18n="overview.optimalLayoutUse">在指定墙面尺寸内，使用单一箱体型号拼接LED屏幕，自动计算最优的行列布局</td>
                 </tr>
                 <tr>
                     <td><code>/api/calculate/smart-combination</code></td>
-                    <td>多箱体智能组合</td>
-                    <td>在指定墙面尺寸内，使用多种尺寸箱体组合拼接LED屏幕，智能计算最佳填充方案</td>
+                    <td data-i18n="overview.smartCombinationFunc">多箱体智能组合</td>
+                    <td data-i18n="overview.smartCombinationUse">在指定墙面尺寸内，使用多种尺寸箱体组合拼接LED屏幕，智能计算最佳填充方案</td>
                 </tr>
                 <tr>
                     <td><code>/api/calculate/optimal-layout-with-preview</code></td>
-                    <td>⚡ 单箱体一键计算+预览</td>
-                    <td>一次请求同时返回单箱体最优布局计算结果和SVG预览图，推荐使用</td>
+                    <td data-i18n="overview.oneclickSingleFunc">⚡ 单箱体一键计算+预览</td>
+                    <td data-i18n="overview.oneclickSingleUse">一次请求同时返回单箱体最优布局计算结果和SVG预览图，推荐使用</td>
                 </tr>
                 <tr>
                     <td><code>/api/calculate/smart-combination-with-preview</code></td>
-                    <td>⚡ 多箱体一键计算+预览</td>
-                    <td>一次请求同时返回多箱体智能组合计算结果和SVG预览图，推荐使用</td>
+                    <td data-i18n="overview.oneclickMultiFunc">⚡ 多箱体一键计算+预览</td>
+                    <td data-i18n="overview.oneclickMultiUse">一次请求同时返回多箱体智能组合计算结果和SVG预览图，推荐使用</td>
                 </tr>
                 <tr>
                     <td><code>/api/preview/svg</code></td>
-                    <td>SVG预览图生成</td>
-                    <td>基于计算结果生成LED屏幕的可视化预览图，展示箱体排列效果</td>
+                    <td data-i18n="overview.previewFunc">SVG预览图生成</td>
+                    <td data-i18n="overview.previewUse">基于计算结果生成LED屏幕的可视化预览图，展示箱体排列效果</td>
                 </tr>
             </table>
             <div class="note-success">
-                <div class="note-title">🚀 API 基础地址</div>
-                <p><strong>生产环境:</strong> <code>https://led-api.unilumin-gtm.com</code></p>
-                <p style="margin-top: 8px; font-size: 13px; color: #6c757d;">
+                <div class="note-title" data-i18n="overview.apiBaseTitle">🚀 API 基础地址</div>
+                <p><strong data-i18n="overview.apiBaseProd">生产环境:</strong> <code>https://led-api.unilumin-gtm.com</code></p>
+                <p style="margin-top: 8px; font-size: 13px; color: #6c757d;" data-i18n="overview.apiBaseNote">
                     所有API请求都应使用此基础地址，例如：<code>https://led-api.unilumin-gtm.com/api/calculate/optimal-layout</code>
                 </p>
             </div>
@@ -243,132 +280,132 @@
 
         <!-- 箱体规格数据结构 -->
         <div class="card" id="cabinet-specs">
-            <h2>2. 箱体规格数据结构 (CabinetSpecs)</h2>
-            <p>所有计算接口都需要提供箱体规格数据，以下是完整的数据结构定义：</p>
+            <h2 data-i18n="cabinetSpecs.title">2. 箱体规格数据结构 (CabinetSpecs)</h2>
+            <p data-i18n="cabinetSpecs.description">所有计算接口都需要提供箱体规格数据，以下是完整的数据结构定义：</p>
             
-            <h3>2.1 完整结构</h3>
+            <h3 data-i18n="cabinetSpecs.completeStructure">2.1 完整结构</h3>
             <div class="code-block">{
   <span class="key">"dimensions"</span>: {
-    <span class="key">"width"</span>: <span class="number">500</span>,      <span class="comment">// 箱体宽度 (mm)</span>
-    <span class="key">"height"</span>: <span class="number">1000</span>,    <span class="comment">// 箱体高度 (mm)</span>
-    <span class="key">"depth"</span>: <span class="number">40</span>        <span class="comment">// 箱体深度 (mm)</span>
+    <span class="key">"width"</span>: <span class="number">500</span>,      <span class="comment" data-comment-key="cabinetSpecs.commentWidth">// 箱体宽度 (mm)</span>
+    <span class="key">"height"</span>: <span class="number">1000</span>,    <span class="comment" data-comment-key="cabinetSpecs.commentHeight">// 箱体高度 (mm)</span>
+    <span class="key">"depth"</span>: <span class="number">40</span>        <span class="comment" data-comment-key="cabinetSpecs.commentDepth">// 箱体深度 (mm)</span>
   },
   <span class="key">"display"</span>: {
-    <span class="key">"pixelPitch"</span>: <span class="number">1.5625</span>,           <span class="comment">// 像素间距 (mm)</span>
+    <span class="key">"pixelPitch"</span>: <span class="number">1.5625</span>,           <span class="comment" data-comment-key="cabinetSpecs.commentPixelPitch">// 像素间距 (mm)</span>
     <span class="key">"resolution"</span>: {
-      <span class="key">"width"</span>: <span class="number">320</span>,                  <span class="comment">// 水平分辨率 (px)</span>
-      <span class="key">"height"</span>: <span class="number">640</span>                  <span class="comment">// 垂直分辨率 (px)</span>
+      <span class="key">"width"</span>: <span class="number">320</span>,                  <span class="comment" data-comment-key="cabinetSpecs.commentResolutionWidth">// 水平分辨率 (px)</span>
+      <span class="key">"height"</span>: <span class="number">640</span>                  <span class="comment" data-comment-key="cabinetSpecs.commentResolutionHeight">// 垂直分辨率 (px)</span>
     },
-    <span class="key">"brightness"</span>: <span class="number">1000</span>,             <span class="comment">// 亮度 (nits)</span>
-    <span class="key">"refreshRate"</span>: <span class="number">5760</span>,            <span class="comment">// 刷新率 (Hz)</span>
-    <span class="key">"colorDepth"</span>: <span class="number">16</span>               <span class="comment">// 色深 (bit)</span>
+    <span class="key">"brightness"</span>: <span class="number">1000</span>,             <span class="comment" data-comment-key="cabinetSpecs.commentBrightness">// 亮度 (nits)</span>
+    <span class="key">"refreshRate"</span>: <span class="number">5760</span>,            <span class="comment" data-comment-key="cabinetSpecs.commentRefreshRate">// 刷新率 (Hz)</span>
+    <span class="key">"colorDepth"</span>: <span class="number">16</span>               <span class="comment" data-comment-key="cabinetSpecs.commentColorDepth">// 色深 (bit)</span>
   },
   <span class="key">"power"</span>: {
-    <span class="key">"maxPower"</span>: <span class="number">180</span>,               <span class="comment">// 最大功率 (W)</span>
-    <span class="key">"typicalPower"</span>: <span class="number">60</span>,           <span class="comment">// 典型功率 (W)=最大功率 (W) /3</span>
-    <span class="key">"standbyPower"</span>: <span class="number">5</span>            <span class="comment">// 待机功率 (W)</span>
+    <span class="key">"maxPower"</span>: <span class="number">180</span>,               <span class="comment" data-comment-key="cabinetSpecs.commentMaxPower">// 最大功率 (W)</span>
+    <span class="key">"typicalPower"</span>: <span class="number">60</span>,           <span class="comment" data-comment-key="cabinetSpecs.commentTypicalPower">// 典型功率 (W)=最大功率 (W) /3</span>
+    <span class="key">"standbyPower"</span>: <span class="number">5</span>            <span class="comment" data-comment-key="cabinetSpecs.commentStandbyPower">// 待机功率 (W)</span>
   },
   <span class="key">"physical"</span>: {
-    <span class="key">"weight"</span>: <span class="number">10.5</span>,               <span class="comment">// 重量 (kg)</span>
-    <span class="key">"operatingTemp"</span>: { <span class="key">"min"</span>: <span class="number">0</span>, <span class="key">"max"</span>: <span class="number">45</span> },   <span class="comment">// 工作温度范围 (°C)</span>
-    <span class="key">"humidity"</span>: { <span class="key">"min"</span>: <span class="number">10</span>, <span class="key">"max"</span>: <span class="number">90</span> },      <span class="comment">// 工作湿度范围 (%)</span>
-    <span class="key">"ipRating"</span>: <span class="string">"IP30"</span>            <span class="comment">// 防护等级</span>
+    <span class="key">"weight"</span>: <span class="number">10.5</span>,               <span class="comment" data-comment-key="cabinetSpecs.commentWeight">// 重量 (kg)</span>
+    <span class="key">"operatingTemp"</span>: { <span class="key">"min"</span>: <span class="number">0</span>, <span class="key">"max"</span>: <span class="number">45</span> },   <span class="comment" data-comment-key="cabinetSpecs.commentOperatingTemp">// 工作温度范围 (°C)</span>
+    <span class="key">"humidity"</span>: { <span class="key">"min"</span>: <span class="number">10</span>, <span class="key">"max"</span>: <span class="number">90</span> },      <span class="comment" data-comment-key="cabinetSpecs.commentHumidity">// 工作湿度范围 (%)</span>
+    <span class="key">"ipRating"</span>: <span class="string">"IP30"</span>            <span class="comment" data-comment-key="cabinetSpecs.commentIpRating">// 防护等级</span>
   },
   <span class="key">"installation"</span>: {
-    <span class="key">"mountingType"</span>: [<span class="string">"wall"</span>, <span class="string">"floor"</span>],       <span class="comment">// 安装方式</span>
-    <span class="key">"cableType"</span>: [<span class="string">"power"</span>, <span class="string">"data"</span>],          <span class="comment">// 线缆类型</span>
-    <span class="key">"maintenanceAccess"</span>: <span class="string">"front"</span>             <span class="comment">// 维护方式</span>
+    <span class="key">"mountingType"</span>: [<span class="string">"wall"</span>, <span class="string">"floor"</span>],       <span class="comment" data-comment-key="cabinetSpecs.commentMountingType">// 安装方式</span>
+    <span class="key">"cableType"</span>: [<span class="string">"power"</span>, <span class="string">"data"</span>],          <span class="comment" data-comment-key="cabinetSpecs.commentCableType">// 线缆类型</span>
+    <span class="key">"maintenanceAccess"</span>: <span class="string">"front"</span>             <span class="comment" data-comment-key="cabinetSpecs.commentMaintenanceAccess">// 维护方式</span>
   }
 }</div>
 
-            <h3>2.2 dimensions - 箱体尺寸</h3>
-            <p>定义箱体的物理尺寸，用于计算屏幕布局和排列。</p>
+            <h3 data-i18n="cabinetSpecs.dimensionsTitle">2.2 dimensions - 箱体尺寸</h3>
+            <p data-i18n="cabinetSpecs.dimensionsDesc">定义箱体的物理尺寸，用于计算屏幕布局和排列。</p>
             <table>
-                <tr><th>字段路径</th><th>类型</th><th>必填</th><th>单位</th><th>说明</th><th>示例值</th></tr>
+                <tr><th data-i18n="cabinetSpecs.tableFieldPath">字段路径</th><th data-i18n="cabinetSpecs.tableType">类型</th><th data-i18n="cabinetSpecs.tableRequired">必填</th><th data-i18n="cabinetSpecs.tableUnit">单位</th><th data-i18n="cabinetSpecs.tableDescription">说明</th><th data-i18n="cabinetSpecs.tableExample">示例值</th></tr>
                 <tr>
                     <td>dimensions.width</td>
                     <td><span class="type-badge">number</span></td>
-                    <td><span class="required">必填</span></td>
+                    <td><span class="required" data-i18n="cabinetSpecs.required">必填</span></td>
                     <td>毫米 (mm)</td>
-                    <td>箱体宽度，即水平方向的物理尺寸。用于计算水平方向可放置的箱体数量。</td>
+                    <td data-i18n="cabinetSpecs.widthDesc">箱体宽度，即水平方向的物理尺寸。用于计算水平方向可放置的箱体数量。</td>
                     <td>500</td>
                 </tr>
                 <tr>
                     <td>dimensions.height</td>
                     <td><span class="type-badge">number</span></td>
-                    <td><span class="required">必填</span></td>
+                    <td><span class="required" data-i18n="cabinetSpecs.required">必填</span></td>
                     <td>毫米 (mm)</td>
-                    <td>箱体高度，即垂直方向的物理尺寸。用于计算垂直方向可放置的箱体数量。</td>
+                    <td data-i18n="cabinetSpecs.heightDesc">箱体高度，即垂直方向的物理尺寸。用于计算垂直方向可放置的箱体数量。</td>
                     <td>1000</td>
                 </tr>
                 <tr>
                     <td>dimensions.depth</td>
                     <td><span class="type-badge">number</span></td>
-                    <td><span class="optional">可选</span></td>
+                    <td><span class="optional" data-i18n="cabinetSpecs.optional">可选</span></td>
                     <td>毫米 (mm)</td>
-                    <td>箱体深度/厚度。用于安装空间规划，不影响屏幕布局计算。</td>
+                    <td data-i18n="cabinetSpecs.depthDesc">箱体深度/厚度。用于安装空间规划，不影响屏幕布局计算。</td>
                     <td>40</td>
                 </tr>
             </table>
 
-            <h3>2.3 display - 显示参数</h3>
-            <p>定义LED显示屏的显示性能参数，用于计算分辨率和显示效果。</p>
+            <h3 data-i18n="cabinetSpecs.displayTitle">2.3 display - 显示参数</h3>
+            <p data-i18n="cabinetSpecs.displayDesc">定义LED显示屏的显示性能参数，用于计算分辨率和显示效果。</p>
             <table>
-                <tr><th>字段路径</th><th>类型</th><th>必填</th><th>单位</th><th>说明</th><th>示例值</th></tr>
+                <tr><th data-i18n="cabinetSpecs.tableFieldPath">字段路径</th><th data-i18n="cabinetSpecs.tableType">类型</th><th data-i18n="cabinetSpecs.tableRequired">必填</th><th data-i18n="cabinetSpecs.tableUnit">单位</th><th data-i18n="cabinetSpecs.tableDescription">说明</th><th data-i18n="cabinetSpecs.tableExample">示例值</th></tr>
                 <tr>
                     <td>display.pixelPitch</td>
                     <td><span class="type-badge">number</span></td>
-                    <td><span class="required">必填</span></td>
-                    <td>毫米 (mm)</td>
-                    <td>像素间距，即相邻两个LED灯珠中心点之间的距离。数值越小，显示越精细。常见值：0.9、1.2、1.5、1.9、2.5等。</td>
+                    <td><span class="required" data-i18n="cabinetSpecs.required">必填</span></td>
+                    <td data-i18n="cabinetSpecs.unitMm">毫米 (mm)</td>
+                    <td data-i18n="cabinetSpecs.pixelPitchDesc">像素间距，即相邻两个LED灯珠中心点之间的距离。数值越小，显示越精细。常见值：0.9、1.2、1.5、1.9、2.5等。</td>
                     <td>1.5625</td>
                 </tr>
                 <tr>
                     <td>display.resolution.width</td>
                     <td><span class="type-badge">number</span></td>
-                    <td><span class="required">必填</span></td>
-                    <td>像素 (px)</td>
-                    <td>单个箱体的水平分辨率，即水平方向的像素数量。计算公式：箱体宽度(mm) ÷ 像素间距(mm)。</td>
+                    <td><span class="required" data-i18n="cabinetSpecs.required">必填</span></td>
+                    <td data-i18n="cabinetSpecs.unitPx">像素 (px)</td>
+                    <td data-i18n="cabinetSpecs.resolutionWidthDesc">单个箱体的水平分辨率，即水平方向的像素数量。计算公式：箱体宽度(mm) ÷ 像素间距(mm)。</td>
                     <td>320</td>
                 </tr>
                 <tr>
                     <td>display.resolution.height</td>
                     <td><span class="type-badge">number</span></td>
-                    <td><span class="required">必填</span></td>
-                    <td>像素 (px)</td>
-                    <td>单个箱体的垂直分辨率，即垂直方向的像素数量。计算公式：箱体高度(mm) ÷ 像素间距(mm)。</td>
+                    <td><span class="required" data-i18n="cabinetSpecs.required">必填</span></td>
+                    <td data-i18n="cabinetSpecs.unitPx">像素 (px)</td>
+                    <td data-i18n="cabinetSpecs.resolutionHeightDesc">单个箱体的垂直分辨率，即垂直方向的像素数量。计算公式：箱体高度(mm) ÷ 像素间距(mm)。</td>
                     <td>640</td>
                 </tr>
                 <tr>
                     <td>display.brightness</td>
                     <td><span class="type-badge">number</span></td>
-                    <td><span class="optional">可选</span></td>
-                    <td>尼特 (nits)</td>
-                    <td>屏幕亮度，表示显示屏的发光强度。室内屏通常为600-1500nits，户外屏可达5000nits以上。</td>
+                    <td><span class="optional" data-i18n="cabinetSpecs.optional">可选</span></td>
+                    <td data-i18n="cabinetSpecs.unitNits">尼特 (nits)</td>
+                    <td data-i18n="cabinetSpecs.brightnessDesc">屏幕亮度，表示显示屏的发光强度。室内屏通常为600-1500nits，户外屏可达5000nits以上。</td>
                     <td>1000</td>
                 </tr>
                 <tr>
                     <td>display.refreshRate</td>
                     <td><span class="type-badge">number</span></td>
-                    <td><span class="optional">可选</span></td>
-                    <td>赫兹 (Hz)</td>
-                    <td>刷新率，表示屏幕每秒刷新的次数。高刷新率可减少闪烁，适合视频拍摄。常见值：1920、3840、5760Hz。</td>
+                    <td><span class="optional" data-i18n="cabinetSpecs.optional">可选</span></td>
+                    <td data-i18n="cabinetSpecs.unitHz">赫兹 (Hz)</td>
+                    <td data-i18n="cabinetSpecs.refreshRateDesc">刷新率，表示屏幕每秒刷新的次数。高刷新率可减少闪烁，适合视频拍摄。常见值：1920、3840、5760Hz。</td>
                     <td>5760</td>
                 </tr>
                 <tr>
                     <td>display.colorDepth</td>
                     <td><span class="type-badge">number</span></td>
-                    <td><span class="optional">可选</span></td>
-                    <td>位 (bit)</td>
-                    <td>色深/灰度等级，表示颜色的精细程度。常见值：14bit（16384级灰度）、16bit（65536级灰度）。</td>
+                    <td><span class="optional" data-i18n="cabinetSpecs.optional">可选</span></td>
+                    <td data-i18n="cabinetSpecs.unitBit">位 (bit)</td>
+                    <td data-i18n="cabinetSpecs.colorDepthDesc">色深/灰度等级，表示颜色的精细程度。常见值：14bit（16384级灰度）、16bit（65536级灰度）。</td>
                     <td>16</td>
                 </tr>
             </table>
 
-            <h3>2.4 power - 功率参数</h3>
-            <p>定义箱体的电力消耗参数，用于计算整屏的功率需求和电力规划。</p>
+            <h3 data-i18n="cabinetSpecs.powerTitle">2.4 power - 功率参数</h3>
+            <p data-i18n="cabinetSpecs.powerDesc">定义箱体的电力消耗参数，用于计算整屏的功率需求和电力规划。</p>
             <table>
-                <tr><th>字段路径</th><th>类型</th><th>必填</th><th>单位</th><th>说明</th><th>示例值</th></tr>
+                <tr><th data-i18n="cabinetSpecs.tableFieldPath">字段路径</th><th data-i18n="cabinetSpecs.tableType">类型</th><th data-i18n="cabinetSpecs.tableRequired">必填</th><th data-i18n="cabinetSpecs.tableUnit">单位</th><th data-i18n="cabinetSpecs.tableDescription">说明</th><th data-i18n="cabinetSpecs.tableExample">示例值</th></tr>
                 <tr>
                     <td>power.maxPower</td>
                     <td><span class="type-badge">number</span></td>
@@ -395,8 +432,8 @@
                 </tr>
             </table>
 
-            <h3>2.5 physical - 物理参数</h3>
-            <p>定义箱体的物理特性和环境要求，用于安装规划和环境适配。</p>
+            <h3 data-i18n="cabinetSpecs.physicalTitle">2.5 physical - 物理参数</h3>
+            <p data-i18n="cabinetSpecs.physicalDesc">定义箱体的物理特性和环境要求，用于安装规划和环境适配。</p>
             <table>
                 <tr><th>字段路径</th><th>类型</th><th>必填</th><th>单位</th><th>说明</th><th>示例值</th></tr>
                 <tr>
@@ -449,8 +486,8 @@
                 </tr>
             </table>
 
-            <h3>2.6 installation - 安装参数</h3>
-            <p>定义箱体的安装方式和维护要求，用于工程规划。</p>
+            <h3 data-i18n="cabinetSpecs.installationTitle">2.6 installation - 安装参数</h3>
+            <p data-i18n="cabinetSpecs.installationDesc">定义箱体的安装方式和维护要求，用于工程规划。</p>
             <table>
                 <tr><th>字段路径</th><th>类型</th><th>必填</th><th>说明</th><th>可选值</th><th>示例值</th></tr>
                 <tr>
@@ -1414,10 +1451,461 @@ curl -X POST https://led-api.unilumin-gtm.com/api/calculate/smart-combination \
         </div>
 
         <div style="text-align:center;padding:40px;color:#6c757d;">
-            <p>📚 LED Calculator API 数据定义文档</p>
-            <p style="margin-top:8px;">API地址: <code>https://led-api.unilumin-gtm.com</code></p>
-            <p style="margin-top:8px;"><a href="/" style="color:#667eea;">前往测试页面 →</a></p>
+            <p data-i18n="footer.title">📚 LED Calculator API 数据定义文档</p>
+            <p style="margin-top:8px;" data-i18n="footer.apiUrl">API地址: <code>https://led-api.unilumin-gtm.com</code></p>
+            <p style="margin-top:8px;"><a href="/" style="color:#667eea;" data-i18n="footer.testPage">前往测试页面 →</a></p>
         </div>
     </div>
+
+    <script>
+        // ==================== i18n 国际化模块 ====================
+        const i18n = {
+            currentLang: 'zh',
+            
+            translations: {
+                zh: {
+                    header: {
+                        title: '📚 LED Calculator API 数据定义文档',
+                        subtitle: '了解API的输入输出数据结构，快速集成LED显示墙计算功能',
+                        testPage: '🧪 测试页面',
+                        singleLayout: '📐 单箱体布局',
+                        multiCombination: '🧩 多箱体组合',
+                        svgPreview: '🖼️ SVG预览'
+                    },
+                    toc: {
+                        title: '📋 目录',
+                        overview: '概述',
+                        cabinetSpecs: '箱体规格数据结构 (CabinetSpecs)',
+                        roomConfig: '可用墙面配置数据结构 (RoomConfig)',
+                        optimalLayout: 'API: 单箱体最优布局 (/api/calculate/optimal-layout)',
+                        smartCombination: 'API: 多箱体智能组合 (/api/calculate/smart-combination)',
+                        oneclickApis: 'API: 一键计算+预览 (推荐)',
+                        oneclickSingle: '单箱体一键 (/api/calculate/optimal-layout-with-preview)',
+                        oneclickMulti: '多箱体一键 (/api/calculate/smart-combination-with-preview)',
+                        preview: 'API: SVG预览生成 (/api/preview/svg)',
+                        examples: '完整示例'
+                    },
+                    overview: {
+                        title: '1. 概述',
+                        description: 'LED Calculator API 提供LED显示墙的计算和预览功能。主要包含以下核心接口：',
+                        tableInterface: '接口',
+                        tableFunction: '功能',
+                        tableUseCase: '使用场景',
+                        optimalLayoutFunc: '单箱体最优布局计算',
+                        optimalLayoutUse: '在指定墙面尺寸内，使用单一箱体型号拼接LED屏幕，自动计算最优的行列布局',
+                        smartCombinationFunc: '多箱体智能组合',
+                        smartCombinationUse: '在指定墙面尺寸内，使用多种尺寸箱体组合拼接LED屏幕，智能计算最佳填充方案',
+                        oneclickSingleFunc: '⚡ 单箱体一键计算+预览',
+                        oneclickSingleUse: '一次请求同时返回单箱体最优布局计算结果和SVG预览图，推荐使用',
+                        oneclickMultiFunc: '⚡ 多箱体一键计算+预览',
+                        oneclickMultiUse: '一次请求同时返回多箱体智能组合计算结果和SVG预览图，推荐使用',
+                        previewFunc: 'SVG预览图生成',
+                        previewUse: '基于计算结果生成LED屏幕的可视化预览图，展示箱体排列效果',
+                        apiBaseTitle: '🚀 API 基础地址',
+                        apiBaseProd: '生产环境:',
+                        apiBaseNote: '所有API请求都应使用此基础地址，例如：'
+                    },
+                    cabinetSpecs: {
+                        title: '2. 箱体规格数据结构 (CabinetSpecs)',
+                        description: '所有计算接口都需要提供箱体规格数据，以下是完整的数据结构定义：',
+                        completeStructure: '2.1 完整结构',
+                        dimensionsTitle: '2.2 dimensions - 箱体尺寸',
+                        dimensionsDesc: '定义箱体的物理尺寸，用于计算屏幕布局和排列。',
+                        tableFieldPath: '字段路径',
+                        tableType: '类型',
+                        tableRequired: '必填',
+                        tableUnit: '单位',
+                        tableDescription: '说明',
+                        tableExample: '示例值',
+                        required: '必填',
+                        optional: '可选',
+                        // Code comments
+                        commentWidth: '// 箱体宽度 (mm)',
+                        commentHeight: '// 箱体高度 (mm)',
+                        commentDepth: '// 箱体深度 (mm)',
+                        commentPixelPitch: '// 像素间距 (mm)',
+                        commentResolutionWidth: '// 水平分辨率 (px)',
+                        commentResolutionHeight: '// 垂直分辨率 (px)',
+                        commentBrightness: '// 亮度 (nits)',
+                        commentRefreshRate: '// 刷新率 (Hz)',
+                        commentColorDepth: '// 色深 (bit)',
+                        commentMaxPower: '// 最大功率 (W)',
+                        commentTypicalPower: '// 典型功率 (W)=最大功率 (W) /3',
+                        commentStandbyPower: '// 待机功率 (W)',
+                        commentWeight: '// 重量 (kg)',
+                        commentOperatingTemp: '// 工作温度范围 (°C)',
+                        commentHumidity: '// 工作湿度范围 (%)',
+                        commentIpRating: '// 防护等级',
+                        commentMountingType: '// 安装方式',
+                        commentCableType: '// 线缆类型',
+                        commentMaintenanceAccess: '// 维护方式',
+                        // Table descriptions
+                        widthDesc: '箱体宽度，即水平方向的物理尺寸。用于计算水平方向可放置的箱体数量。',
+                        heightDesc: '箱体高度，即垂直方向的物理尺寸。用于计算垂直方向可放置的箱体数量。',
+                        depthDesc: '箱体深度/厚度。用于安装空间规划，不影响屏幕布局计算。',
+                        // Display section
+                        displayTitle: '2.3 display - 显示参数',
+                        displayDesc: '定义LED显示屏的显示性能参数，用于计算分辨率和显示效果。',
+                        pixelPitchDesc: '像素间距，即相邻两个LED灯珠中心点之间的距离。数值越小，显示越精细。常见值：0.9、1.2、1.5、1.9、2.5等。',
+                        resolutionWidthDesc: '单个箱体的水平分辨率，即水平方向的像素数量。计算公式：箱体宽度(mm) ÷ 像素间距(mm)。',
+                        resolutionHeightDesc: '单个箱体的垂直分辨率，即垂直方向的像素数量。计算公式：箱体高度(mm) ÷ 像素间距(mm)。',
+                        brightnessDesc: '屏幕亮度，表示显示屏的发光强度。室内屏通常为600-1500nits，户外屏可达5000nits以上。',
+                        refreshRateDesc: '刷新率，表示屏幕每秒刷新的次数。高刷新率可减少闪烁，适合视频拍摄。常见值：1920、3840、5760Hz。',
+                        colorDepthDesc: '色深/灰度等级，表示颜色的精细程度。常见值：14bit（16384级灰度）、16bit（65536级灰度）。',
+                        // Power section
+                        powerTitle: '2.4 power - 功率参数',
+                        powerDesc: '定义箱体的电力消耗参数，用于计算整屏的功率需求和电力规划。',
+                        maxPowerDesc: '单个箱体的最大功率消耗，即全白画面时的功率。用于计算电源容量和配电需求。整屏最大功率 = 箱体数量 × maxPower。',
+                        typicalPowerDesc: '单个箱体的典型功率消耗，即正常播放内容时的平均功率。通常为最大功率的30%-50%。用于估算日常运营电费。',
+                        standbyPowerDesc: '单个箱体的待机功率，即屏幕关闭但系统通电时的功率消耗。用于计算非工作时段的电力消耗。',
+                        // Physical section
+                        physicalTitle: '2.5 physical - 物理参数',
+                        physicalDesc: '定义箱体的物理特性和环境要求，用于安装规划和环境适配。',
+                        weightDesc: '单个箱体的重量。用于计算整屏总重量，评估墙体承重和安装结构需求。整屏重量 = 箱体数量 × weight。',
+                        tempMinDesc: '最低工作温度。低于此温度可能影响显示效果或损坏设备。室内屏通常为0°C，户外屏可达-20°C。',
+                        tempMaxDesc: '最高工作温度。超过此温度需要额外散热措施。室内屏通常为45°C，户外屏可达50°C以上。',
+                        humidityMinDesc: '最低工作湿度。过低的湿度可能产生静电问题。',
+                        humidityMaxDesc: '最高工作湿度（非凝结）。过高的湿度可能导致电路短路或腐蚀。',
+                        ipRatingDesc: '防护等级（IP等级）。第一位数字表示防尘等级(0-6)，第二位表示防水等级(0-8)。室内屏通常为IP30/IP40，户外屏为IP65/IP67。',
+                        // Installation section
+                        installationTitle: '2.6 installation - 安装参数',
+                        installationDesc: '定义箱体的安装方式和维护要求，用于工程规划。',
+                        mountingTypeDesc: '支持的安装方式列表。不同安装方式需要不同的结构支撑。',
+                        cableTypeDesc: '需要的线缆类型列表。用于布线规划。',
+                        maintenanceAccessDesc: '维护通道方向。决定了安装时需要预留的维护空间位置。',
+                        // Units
+                        unitMm: '毫米 (mm)',
+                        unitPx: '像素 (px)',
+                        unitNits: '尼特 (nits)',
+                        unitHz: '赫兹 (Hz)',
+                        unitBit: '位 (bit)',
+                        unitW: '瓦特 (W)',
+                        unitKg: '千克 (kg)',
+                        unitC: '摄氏度 (°C)',
+                        unitPercent: '百分比 (%)',
+                        // Notes
+                        fieldUsageTitle: '💡 字段使用说明',
+                        requiredFields: '必填字段',
+                        requiredFieldsDesc: 'dimensions（width, height）、display（pixelPitch, resolution）、power（maxPower, typicalPower）、physical（weight）是计算所必需的核心参数。',
+                        optionalFields: '可选字段',
+                        optionalFieldsDesc: '其他字段为辅助信息，用于生成更完整的项目报告，不影响核心计算结果。'
+                    },
+                    roomConfig: {
+                        title: '3. 可用墙面配置数据结构 (RoomConfig)',
+                        description: '定义LED屏幕的安装空间限制，API将在此范围内计算最优布局。',
+                        completeStructure: '3.1 完整结构',
+                        fieldDescription: '3.2 字段说明',
+                        commentWallWidth: '// 可用墙面宽度',
+                        commentWallHeight: '// 可用墙面高度',
+                        commentUnit: '// 单位: "meters" 或 "feet"',
+                        commentWallType: '// 墙面类型: "flat"',
+                        tableField: '字段',
+                        wallWidthDesc: '可用墙面的最大宽度。LED屏幕的实际宽度不会超过此值。单位由 unit 字段决定。',
+                        wallHeightDesc: '可用墙面的最大高度。LED屏幕的实际高度不会超过此值。单位由 unit 字段决定。',
+                        unitDesc: '尺寸单位。"meters" 表示米制单位，"feet" 表示英制单位。API内部会统一转换为毫米进行计算。',
+                        wallTypeDesc: '墙面类型。目前仅支持 "flat"（平面墙）。未来可能支持曲面墙等类型。默认值为 "flat"。'
+                    },
+                    optimalLayout: {
+                        title: '4. API: 单箱体最优布局',
+                        description: '在指定墙面尺寸内，使用单一箱体型号拼接LED屏幕，自动计算最优的行列布局。适用于使用统一规格箱体的标准项目。',
+                        requestParams: '4.1 请求参数',
+                        responseData: '4.2 响应数据',
+                        commentCabinetSpecs: '// 箱体规格 (见第2节)',
+                        commentRoomConfig: '// 可用墙面配置 (见第3节)'
+                    },
+                    footer: {
+                        title: '📚 LED Calculator API 数据定义文档',
+                        apiUrl: 'API地址: https://led-api.unilumin-gtm.com',
+                        testPage: '前往测试页面 →'
+                    }
+                },
+                en: {
+                    header: {
+                        title: '📚 LED Calculator API Data Definition',
+                        subtitle: 'Understand API input/output data structures for quick LED display wall calculation integration',
+                        testPage: '🧪 Test Page',
+                        singleLayout: '📐 Single Cabinet Layout',
+                        multiCombination: '🧩 Multi-Cabinet Combination',
+                        svgPreview: '🖼️ SVG Preview'
+                    },
+                    toc: {
+                        title: '📋 Table of Contents',
+                        overview: 'Overview',
+                        cabinetSpecs: 'Cabinet Specifications Data Structure (CabinetSpecs)',
+                        roomConfig: 'Room Configuration Data Structure (RoomConfig)',
+                        optimalLayout: 'API: Optimal Single Cabinet Layout (/api/calculate/optimal-layout)',
+                        smartCombination: 'API: Smart Multi-Cabinet Combination (/api/calculate/smart-combination)',
+                        oneclickApis: 'API: One-Click Calculate + Preview (Recommended)',
+                        oneclickSingle: 'Single Cabinet One-Click (/api/calculate/optimal-layout-with-preview)',
+                        oneclickMulti: 'Multi-Cabinet One-Click (/api/calculate/smart-combination-with-preview)',
+                        preview: 'API: SVG Preview Generation (/api/preview/svg)',
+                        examples: 'Complete Examples'
+                    },
+                    overview: {
+                        title: '1. Overview',
+                        description: 'LED Calculator API provides LED display wall calculation and preview functionality. Main core interfaces include:',
+                        tableInterface: 'Interface',
+                        tableFunction: 'Function',
+                        tableUseCase: 'Use Case',
+                        optimalLayoutFunc: 'Optimal Single Cabinet Layout',
+                        optimalLayoutUse: 'Calculate optimal row and column layout for LED screen assembly using a single cabinet model within specified wall dimensions',
+                        smartCombinationFunc: 'Smart Multi-Cabinet Combination',
+                        smartCombinationUse: 'Intelligently calculate the best filling solution using multiple cabinet sizes within specified wall dimensions',
+                        oneclickSingleFunc: '⚡ Single Cabinet One-Click Calculate+Preview',
+                        oneclickSingleUse: 'Get single cabinet optimal layout calculation results and SVG preview in one request, recommended',
+                        oneclickMultiFunc: '⚡ Multi-Cabinet One-Click Calculate+Preview',
+                        oneclickMultiUse: 'Get multi-cabinet smart combination calculation results and SVG preview in one request, recommended',
+                        previewFunc: 'SVG Preview Generation',
+                        previewUse: 'Generate visual preview of LED screen based on calculation results, showing cabinet arrangement',
+                        apiBaseTitle: '🚀 API Base URL',
+                        apiBaseProd: 'Production:',
+                        apiBaseNote: 'All API requests should use this base URL, for example:'
+                    },
+                    cabinetSpecs: {
+                        title: '2. Cabinet Specifications Data Structure (CabinetSpecs)',
+                        description: 'All calculation interfaces require cabinet specification data. Below is the complete data structure definition:',
+                        completeStructure: '2.1 Complete Structure',
+                        dimensionsTitle: '2.2 dimensions - Cabinet Dimensions',
+                        dimensionsDesc: 'Define the physical dimensions of the cabinet for screen layout and arrangement calculations.',
+                        tableFieldPath: 'Field Path',
+                        tableType: 'Type',
+                        tableRequired: 'Required',
+                        tableUnit: 'Unit',
+                        tableDescription: 'Description',
+                        tableExample: 'Example',
+                        required: 'Required',
+                        optional: 'Optional',
+                        // Code comments
+                        commentWidth: '// Cabinet width (mm)',
+                        commentHeight: '// Cabinet height (mm)',
+                        commentDepth: '// Cabinet depth (mm)',
+                        commentPixelPitch: '// Pixel pitch (mm)',
+                        commentResolutionWidth: '// Horizontal resolution (px)',
+                        commentResolutionHeight: '// Vertical resolution (px)',
+                        commentBrightness: '// Brightness (nits)',
+                        commentRefreshRate: '// Refresh rate (Hz)',
+                        commentColorDepth: '// Color depth (bit)',
+                        commentMaxPower: '// Maximum power (W)',
+                        commentTypicalPower: '// Typical power (W) = Max power (W) / 3',
+                        commentStandbyPower: '// Standby power (W)',
+                        commentWeight: '// Weight (kg)',
+                        commentOperatingTemp: '// Operating temperature range (°C)',
+                        commentHumidity: '// Operating humidity range (%)',
+                        commentIpRating: '// IP rating',
+                        commentMountingType: '// Mounting type',
+                        commentCableType: '// Cable type',
+                        commentMaintenanceAccess: '// Maintenance access',
+                        // Table descriptions
+                        widthDesc: 'Cabinet width, the physical dimension in horizontal direction. Used to calculate the number of cabinets that can be placed horizontally.',
+                        heightDesc: 'Cabinet height, the physical dimension in vertical direction. Used to calculate the number of cabinets that can be placed vertically.',
+                        depthDesc: 'Cabinet depth/thickness. Used for installation space planning, does not affect screen layout calculation.',
+                        // Display section
+                        displayTitle: '2.3 display - Display Parameters',
+                        displayDesc: 'Define LED display performance parameters for resolution and display effect calculations.',
+                        pixelPitchDesc: 'Pixel pitch, the distance between centers of adjacent LED beads. Smaller values provide finer display. Common values: 0.9, 1.2, 1.5, 1.9, 2.5, etc.',
+                        resolutionWidthDesc: 'Horizontal resolution of a single cabinet, i.e., number of pixels in horizontal direction. Formula: Cabinet width(mm) ÷ Pixel pitch(mm).',
+                        resolutionHeightDesc: 'Vertical resolution of a single cabinet, i.e., number of pixels in vertical direction. Formula: Cabinet height(mm) ÷ Pixel pitch(mm).',
+                        brightnessDesc: 'Screen brightness, indicating display luminous intensity. Indoor screens typically 600-1500nits, outdoor screens can reach 5000nits+.',
+                        refreshRateDesc: 'Refresh rate, indicating screen refreshes per second. High refresh rate reduces flicker, suitable for video shooting. Common values: 1920, 3840, 5760Hz.',
+                        colorDepthDesc: 'Color depth/grayscale level, indicating color fineness. Common values: 14bit (16384 grayscale levels), 16bit (65536 grayscale levels).',
+                        // Power section
+                        powerTitle: '2.4 power - Power Parameters',
+                        powerDesc: 'Define cabinet power consumption parameters for calculating total screen power requirements and electrical planning.',
+                        maxPowerDesc: 'Maximum power consumption of a single cabinet, i.e., power at full white screen. Used for power supply capacity and distribution planning. Total max power = Cabinet count × maxPower.',
+                        typicalPowerDesc: 'Typical power consumption of a single cabinet, i.e., average power during normal content playback. Usually 30%-50% of maximum power. Used for daily operating cost estimation.',
+                        standbyPowerDesc: 'Standby power of a single cabinet, i.e., power consumption when screen is off but system is powered. Used for calculating power consumption during non-working hours.',
+                        // Physical section
+                        physicalTitle: '2.5 physical - Physical Parameters',
+                        physicalDesc: 'Define cabinet physical characteristics and environmental requirements for installation planning and environmental adaptation.',
+                        weightDesc: 'Weight of a single cabinet. Used to calculate total screen weight, assess wall load-bearing and installation structure requirements. Total weight = Cabinet count × weight.',
+                        tempMinDesc: 'Minimum operating temperature. Below this temperature may affect display or damage equipment. Indoor screens typically 0°C, outdoor screens can reach -20°C.',
+                        tempMaxDesc: 'Maximum operating temperature. Above this temperature requires additional cooling measures. Indoor screens typically 45°C, outdoor screens can reach 50°C+.',
+                        humidityMinDesc: 'Minimum operating humidity. Too low humidity may cause static electricity problems.',
+                        humidityMaxDesc: 'Maximum operating humidity (non-condensing). Too high humidity may cause circuit short circuit or corrosion.',
+                        ipRatingDesc: 'IP rating. First digit indicates dust protection level (0-6), second digit indicates water protection level (0-8). Indoor screens typically IP30/IP40, outdoor screens IP65/IP67.',
+                        // Installation section
+                        installationTitle: '2.6 installation - Installation Parameters',
+                        installationDesc: 'Define cabinet installation methods and maintenance requirements for engineering planning.',
+                        mountingTypeDesc: 'List of supported installation methods. Different installation methods require different structural support.',
+                        cableTypeDesc: 'List of required cable types. Used for wiring planning.',
+                        maintenanceAccessDesc: 'Maintenance access direction. Determines the maintenance space position that needs to be reserved during installation.',
+                        // Units
+                        unitMm: 'millimeters (mm)',
+                        unitPx: 'pixels (px)',
+                        unitNits: 'nits',
+                        unitHz: 'hertz (Hz)',
+                        unitBit: 'bits',
+                        unitW: 'watts (W)',
+                        unitKg: 'kilograms (kg)',
+                        unitC: 'celsius (°C)',
+                        unitPercent: 'percentage (%)',
+                        // Notes
+                        fieldUsageTitle: '💡 Field Usage Instructions',
+                        requiredFields: 'Required Fields',
+                        requiredFieldsDesc: 'dimensions (width, height), display (pixelPitch, resolution), power (maxPower, typicalPower), physical (weight) are core parameters required for calculation.',
+                        optionalFields: 'Optional Fields',
+                        optionalFieldsDesc: 'Other fields are auxiliary information for generating more complete project reports and do not affect core calculation results.'
+                    },
+                    roomConfig: {
+                        title: '3. Room Configuration Data Structure (RoomConfig)',
+                        description: 'Define LED screen installation space constraints. API will calculate optimal layout within this range.',
+                        completeStructure: '3.1 Complete Structure',
+                        fieldDescription: '3.2 Field Description',
+                        commentWallWidth: '// Available wall width',
+                        commentWallHeight: '// Available wall height',
+                        commentUnit: '// Unit: "meters" or "feet"',
+                        commentWallType: '// Wall type: "flat"',
+                        tableField: 'Field',
+                        wallWidthDesc: 'Maximum width of available wall. Actual LED screen width will not exceed this value. Unit determined by unit field.',
+                        wallHeightDesc: 'Maximum height of available wall. Actual LED screen height will not exceed this value. Unit determined by unit field.',
+                        unitDesc: 'Size unit. "meters" indicates metric units, "feet" indicates imperial units. API internally converts to millimeters for calculation.',
+                        wallTypeDesc: 'Wall type. Currently only supports "flat" (flat wall). May support curved walls in the future. Default value is "flat".'
+                    },
+                    optimalLayout: {
+                        title: '4. API: Optimal Single Cabinet Layout',
+                        description: 'Calculate optimal row and column layout for LED screen assembly using a single cabinet model within specified wall dimensions. Suitable for standard projects using uniform cabinet specifications.',
+                        requestParams: '4.1 Request Parameters',
+                        responseData: '4.2 Response Data',
+                        commentCabinetSpecs: '// Cabinet specifications (see Section 2)',
+                        commentRoomConfig: '// Available wall configuration (see Section 3)'
+                    },
+                    footer: {
+                        title: '📚 LED Calculator API Data Definition',
+                        apiUrl: 'API URL: https://led-api.unilumin-gtm.com',
+                        testPage: 'Go to Test Page →'
+                    }
+                }
+            },
+            
+            // Get translation by key path (e.g., 'header.title')
+            t(key, params = {}) {
+                const keys = key.split('.');
+                let value = this.translations[this.currentLang];
+                for (const k of keys) {
+                    value = value?.[k];
+                    if (value === undefined) break;
+                }
+                
+                // If translation not found, return key
+                if (value === undefined) {
+                    console.warn(`Translation missing for key: ${key} (${this.currentLang})`);
+                    return key;
+                }
+                
+                // Replace parameters in template strings
+                if (typeof value === 'string' && Object.keys(params).length > 0) {
+                    return value.replace(/\{\{(\w+)\}\}/g, (match, param) => {
+                        return params[param] !== undefined ? params[param] : match;
+                    });
+                }
+                
+                return value;
+            },
+            
+            // Set language and update DOM
+            setLanguage(lang) {
+                if (lang !== 'zh' && lang !== 'en') {
+                    console.warn(`Invalid language: ${lang}, defaulting to zh`);
+                    lang = 'zh';
+                }
+                this.currentLang = lang;
+                localStorage.setItem('led-calculator-lang', lang);
+                this.updateDOM();
+                this.updateLanguageSwitcher();
+            },
+            
+            // Update all translatable elements in DOM
+            updateDOM() {
+                // Update elements with data-i18n attribute
+                document.querySelectorAll('[data-i18n]').forEach(el => {
+                    const key = el.getAttribute('data-i18n');
+                    const translation = this.t(key);
+                    
+                    // Special handling for elements with code tags
+                    if (el.querySelector('code')) {
+                        // Preserve code content, only update text nodes
+                        const codeContent = el.querySelector('code').textContent;
+                        el.textContent = translation;
+                        if (el.querySelector('code')) {
+                            el.querySelector('code').textContent = codeContent;
+                        } else {
+                            // Re-add code tag if translation doesn't have it
+                            const parts = translation.split('https://led-api.unilumin-gtm.com');
+                            if (parts.length > 1) {
+                                el.innerHTML = parts[0] + '<code>https://led-api.unilumin-gtm.com</code>' + parts[1];
+                            }
+                        }
+                    } else {
+                        el.textContent = translation;
+                    }
+                });
+                
+                // Update elements with data-i18n-placeholder attribute
+                document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+                    const key = el.getAttribute('data-i18n-placeholder');
+                    el.placeholder = this.t(key);
+                });
+                
+                // Update elements with data-i18n-title attribute
+                document.querySelectorAll('[data-i18n-title]').forEach(el => {
+                    const key = el.getAttribute('data-i18n-title');
+                    el.title = this.t(key);
+                });
+                
+                // Update code comments in code blocks
+                this.updateCodeComments();
+                
+                // Update page title and lang attribute
+                document.title = `LED Calculator API - ${this.currentLang === 'zh' ? '数据定义文档' : 'Data Definition'}`;
+                document.documentElement.lang = this.currentLang === 'zh' ? 'zh-CN' : 'en';
+            },
+            
+            // Update code comments in code blocks
+            updateCodeComments() {
+                document.querySelectorAll('.code-block').forEach(block => {
+                    const comments = block.querySelectorAll('.comment');
+                    comments.forEach(comment => {
+                        const commentKey = comment.getAttribute('data-comment-key');
+                        if (commentKey) {
+                            comment.textContent = this.t(commentKey);
+                        }
+                    });
+                });
+            },
+            
+            // Update language switcher button states
+            updateLanguageSwitcher() {
+                document.querySelectorAll('.lang-btn').forEach(btn => {
+                    const btnLang = btn.getAttribute('data-lang');
+                    if (btnLang === this.currentLang) {
+                        btn.classList.add('active');
+                    } else {
+                        btn.classList.remove('active');
+                    }
+                });
+            },
+            
+            // Initialize i18n on page load
+            init() {
+                // Try to get language from localStorage
+                const savedLang = localStorage.getItem('led-calculator-lang');
+                if (savedLang) {
+                    this.currentLang = savedLang;
+                } else {
+                    // Detect browser language
+                    const browserLang = navigator.language || navigator.userLanguage;
+                    this.currentLang = browserLang.startsWith('zh') ? 'zh' : 'en';
+                }
+                
+                this.updateDOM();
+                this.updateLanguageSwitcher();
+            }
+        };
+        
+        // Initialize i18n on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            i18n.init();
+        });
+    </script>
 </body>
 </html>

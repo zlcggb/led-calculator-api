@@ -62,21 +62,28 @@ const validateCabinetSpecs = (specs: unknown, fieldName = 'cabinetSpecs'): Valid
     }
   }
 
-  // Check power
-  if (!cabinet.power || typeof cabinet.power !== 'object') {
-    errors.push(`${fieldName}.power is required`);
-  } else {
-    if (typeof cabinet.power.maxPower !== 'number') {
-      errors.push(`${fieldName}.power.maxPower must be a number`);
+  // Check power (optional - only validate if provided)
+  if (cabinet.power !== undefined) {
+    if (typeof cabinet.power !== 'object' || cabinet.power === null) {
+      errors.push(`${fieldName}.power must be an object if provided`);
+    } else {
+      if (cabinet.power.maxPower !== undefined && typeof cabinet.power.maxPower !== 'number') {
+        errors.push(`${fieldName}.power.maxPower must be a number`);
+      }
+      if (cabinet.power.typicalPower !== undefined && typeof cabinet.power.typicalPower !== 'number') {
+        errors.push(`${fieldName}.power.typicalPower must be a number`);
+      }
     }
   }
 
-  // Check physical
-  if (!cabinet.physical || typeof cabinet.physical !== 'object') {
-    errors.push(`${fieldName}.physical is required`);
-  } else {
-    if (typeof cabinet.physical.weight !== 'number') {
-      errors.push(`${fieldName}.physical.weight must be a number`);
+  // Check physical (optional - only validate if provided)
+  if (cabinet.physical !== undefined) {
+    if (typeof cabinet.physical !== 'object' || cabinet.physical === null) {
+      errors.push(`${fieldName}.physical must be an object if provided`);
+    } else {
+      if (cabinet.physical.weight !== undefined && typeof cabinet.physical.weight !== 'number') {
+        errors.push(`${fieldName}.physical.weight must be a number`);
+      }
     }
   }
 

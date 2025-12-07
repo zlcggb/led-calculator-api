@@ -1,0 +1,295 @@
+{
+  "nav": {
+    "home": "首页",
+    "test": "API 测试",
+    "docs": "API 文档",
+    "vue": "Vue 集成"
+  },
+  "header": {
+    "title": "LED Calculator API",
+    "subtitle": "专业的 LED 显示墙计算与预览 API",
+    "checkingStatus": "检查 API 状态...",
+    "online": "API 在线",
+    "offline": "API 离线"
+  },
+  "home": {
+    "hero": {
+      "title": "LED 显示墙计算 API",
+      "subtitle": "专业的 LED 屏幕配置计算与可视化预览服务",
+      "description": "为 LED 显示墙项目提供智能布局计算、多箱体组合优化和实时 SVG 预览功能",
+      "tryNow": "立即测试",
+      "viewDocs": "查看文档"
+    },
+    "features": {
+      "title": "核心功能",
+      "subtitle": "强大的 API 能力，简单的集成方式",
+      "singleLayout": {
+        "title": "单箱体最优布局",
+        "description": "在指定墙面尺寸内，使用单一箱体型号自动计算最优的行列布局方案"
+      },
+      "multiCombination": {
+        "title": "多箱体智能组合",
+        "description": "智能分析多种尺寸箱体的最佳组合方案，实现墙面的完美填充"
+      },
+      "svgPreview": {
+        "title": "实时 SVG 预览",
+        "description": "生成高质量的可视化预览图，支持尺寸标注和人物参照显示"
+      },
+      "oneClick": {
+        "title": "一键计算+预览",
+        "description": "单次请求同时返回计算结果和预览图，减少网络请求，提升效率"
+      }
+    },
+    "apiEndpoints": {
+      "title": "API 端点",
+      "subtitle": "RESTful 风格的 API 设计，简单易用"
+    },
+    "quickStart": {
+      "title": "快速开始",
+      "subtitle": "只需几行代码即可集成",
+      "step1": "发送 POST 请求到计算端点",
+      "step2": "获取计算结果和 SVG 预览"
+    }
+  },
+  "test": {
+    "title": "API 测试工具",
+    "subtitle": "实时测试 LED Calculator API 的各项功能",
+    "tabs": {
+      "layout": "📐 单箱体布局",
+      "smart": "🧩 多箱体组合",
+      "preview": "🖼️ SVG 预览",
+      "oneclick": "⚡ 一键计算"
+    },
+    "layout": {
+      "title": "单箱体最优布局计算",
+      "subtitle": "在指定墙面尺寸内，使用单一箱体型号拼接 LED 屏幕",
+      "cabinetSelection": "📦 箱体选择",
+      "cabinetModel": "箱体型号",
+      "selectCabinet": "请选择箱体...",
+      "wallDimensions": "📏 可用墙面尺寸",
+      "wallWidth": "墙面宽度",
+      "wallHeight": "墙面高度",
+      "unit": "单位",
+      "meters": "米 (Meters)",
+      "feet": "英尺 (Feet)",
+      "calculate": "🚀 计算最优布局"
+    },
+    "smart": {
+      "title": "多箱体智能组合",
+      "subtitle": "使用多种尺寸箱体组合拼接 LED 屏幕，智能计算最佳填充方案",
+      "mainCabinet": "🎯 主箱体",
+      "auxiliaryCabinets": "➕ 辅助箱体",
+      "addAuxiliary": "添加辅助箱体",
+      "wallDimensionsMm": "📐 可用墙面尺寸 (毫米)",
+      "calculate": "🔍 计算最优组合"
+    },
+    "oneclick": {
+      "title": "一键计算 + 预览",
+      "subtitle": "一次请求同时返回计算结果和 SVG 预览图",
+      "modeSingle": "📐 单箱体模式",
+      "modeMulti": "🧩 多箱体模式",
+      "autoAux": "自动添加同系列辅助箱体",
+      "calculate": "⚡ 一键计算并生成预览"
+    },
+    "preview": {
+      "title": "SVG 预览生成器",
+      "subtitle": "基于计算结果生成 LED 屏幕的可视化预览图",
+      "previewOptions": "⚙️ 预览选项",
+      "canvasWidth": "画布宽度 (px)",
+      "canvasHeight": "画布高度 (px)",
+      "showDimensions": "显示尺寸标注",
+      "showPerson": "显示人物参照",
+      "dataSource": "📊 数据来源",
+      "selectResult": "选择计算结果",
+      "noResults": "暂无可用的计算结果",
+      "generate": "🎨 生成 SVG 预览"
+    },
+    "results": {
+      "columns": "列数",
+      "rows": "行数",
+      "totalCabinets": "箱体总数",
+      "screenWidth": "宽度",
+      "screenHeight": "高度",
+      "screenArea": "面积",
+      "coverage": "覆盖率",
+      "fullyFilled": "完全填充",
+      "yes": "是",
+      "no": "否",
+      "maxPower": "最大功率",
+      "typicalPower": "典型功率",
+      "totalWeight": "总重量",
+      "powerAndWeight": "功耗与重量",
+      "success": "计算成功！",
+      "error": "计算失败"
+    },
+    "cabinet": {
+      "dimensions": "尺寸",
+      "pixelPitch": "像素间距",
+      "resolution": "分辨率",
+      "brightness": "亮度",
+      "weight": "重量",
+      "maxPower": "最大功率"
+    },
+    "options": {
+      "powerWeight": "可选参数",
+      "includePower": "包含功耗数据",
+      "includeWeight": "包含重量数据",
+      "hint": "取消勾选可仅计算屏幕布局，不返回功耗/重量信息"
+    }
+  },
+  "docs": {
+    "title": "API 数据定义文档",
+    "subtitle": "了解 API 的输入输出数据结构，快速集成 LED 显示墙计算功能",
+    "toc": {
+      "title": "📋 目录",
+      "overview": "概述",
+      "cabinetSpecs": "箱体规格数据结构",
+      "roomConfig": "可用墙面配置数据结构",
+      "optimalLayout": "单箱体最优布局 API",
+      "smartCombination": "多箱体智能组合 API",
+      "oneclickApis": "一键计算+预览 API",
+      "preview": "SVG 预览生成 API",
+      "examples": "完整示例"
+    },
+    "overview": {
+      "title": "概述",
+      "description": "LED Calculator API 提供 LED 显示墙的计算和预览功能。主要包含以下核心接口：",
+      "apiBase": "API 基础地址",
+      "production": "生产环境"
+    },
+    "tables": {
+      "field": "字段",
+      "type": "类型",
+      "required": "必填",
+      "optional": "可选",
+      "unit": "单位",
+      "description": "说明",
+      "example": "示例值"
+    }
+  },
+  "vue": {
+    "title": "Vue 集成指南",
+    "subtitle": "LED Calculator API 在 Vue 3 项目中的完整集成教程",
+    "toc": {
+      "title": "📋 目录",
+      "overview": "概述与准备",
+      "step1": "创建 API 服务层",
+      "step2": "创建类型定义",
+      "step3": "创建 Composable Hook",
+      "step4": "创建计算器组件",
+      "step5": "创建预览组件",
+      "usageModes": "使用模式对比",
+      "complete": "完整示例页面",
+      "tips": "最佳实践"
+    },
+    "overview": {
+      "title": "概述与准备",
+      "description": "本指南将帮助你在 Vue 3 + TypeScript 项目中集成 LED Calculator API",
+      "techStack": "技术栈要求",
+      "recommended": "推荐",
+      "projectStructure": "项目结构建议"
+    },
+    "usageModes": {
+      "title": "使用模式对比",
+      "layoutOnly": {
+        "title": "仅布局模式",
+        "subtitle": "仅计算屏幕布局，不需要功耗/重量数据",
+        "minData": "最小化请求数据",
+        "fastResponse": "快速响应",
+        "returnLayout": "返回：布局 + 预览",
+        "noPower": "无功耗统计",
+        "noWeight": "无重量统计",
+        "hint": "不传 power/physical 字段"
+      },
+      "fullMode": {
+        "title": "完整模式",
+        "subtitle": "完整计算，包含功耗和重量统计",
+        "fullData": "完整数据输入",
+        "returnLayout": "返回：布局 + 预览",
+        "returnPower": "返回：最大功率/典型功率",
+        "returnWeight": "返回：总重量",
+        "hint": "传入 power + physical 字段"
+      },
+      "layoutOnlyMode": "仅布局模式",
+      "fullModeTitle": "完整模式",
+      "responseComparison": "响应对比",
+      "keyPoints": "关键要点",
+      "keyPoint1": "power 和 physical 是可选参数，按需传入",
+      "keyPoint2": "不传 power → 响应中没有 powerConsumption",
+      "keyPoint3": "不传 physical → 响应中没有 physical",
+      "keyPoint4": "布局计算（columns, rows, coverage）始终返回",
+      "completeExample": "完整示例：包含可选参数切换的 LED 计算器组件",
+      "features": "功能特性",
+      "feature1": "用户可切换是否包含功耗/重量数据",
+      "feature2": "根据用户选择动态构建请求参数",
+      "feature3": "响应中根据传入参数显示对应结果",
+      "feature4": "完整的 TypeScript 类型支持"
+    },
+    "tips": {
+      "title": "最佳实践与注意事项",
+      "errorHandling": "🔧 错误处理",
+      "performance": "⚡ 性能优化",
+      "security": "🔒 安全建议",
+      "i18n": "🌐 国际化支持"
+    }
+  },
+  "common": {
+    "loading": "加载中...",
+    "error": "出错了",
+    "retry": "重试",
+    "copy": "复制",
+    "copied": "已复制！",
+    "viewJson": "查看原始 JSON",
+    "download": "下载",
+    "close": "关闭",
+    "remove": "移除"
+  },
+  "footer": {
+    "description": "专业的 LED 显示墙计算与预览 API 服务，帮助您快速完成 LED 屏幕项目配置。",
+    "quickLinks": "快速链接",
+    "apiInfo": "API 信息",
+    "apiStatus": "API 在线运行中",
+    "copyright": "Designed by Zora",
+    "contactTitle": "联系方式与许可",
+    "nonCommercial": "本项目仅供非商业用途使用",
+    "contactEmail": "如需商业授权，请联系",
+    "email": "u0015098{'@'}unilumin.com"
+  },
+  "code": {
+    "comments": {
+      "apiBase": "// API 基础地址",
+      "mainEndpoints": "// 主要接口",
+      "singleOptimal": "// 单箱体最优布局",
+      "multiSmart": "// 多箱体智能组合",
+      "singlePreview": "// 单箱体一键计算+预览",
+      "multiPreview": "// 多箱体一键计算+预览",
+      "svgPreview": "// SVG预览生成",
+      "cabinetWidth": "// 箱体宽度 (mm)",
+      "cabinetHeight": "// 箱体高度 (mm)",
+      "cabinetDepth": "// 箱体深度 (mm)",
+      "pixelPitch": "// 像素间距 (mm)",
+      "horizontalRes": "// 水平分辨率 (px)",
+      "verticalRes": "// 垂直分辨率 (px)",
+      "brightness": "// 亮度 (nits)",
+      "refreshRate": "// 刷新率 (Hz)",
+      "colorDepth": "// 色深 (bit)",
+      "maxPower": "// 最大功率 (W)",
+      "typicalPower": "// 典型功率 (W)",
+      "standbyPower": "// 待机功率 (W)",
+      "weight": "// 重量 (kg)",
+      "showDimensions": "// 显示尺寸标注",
+      "showPerson": "// 显示人物参照",
+      "canvasWidth": "// 画布宽度 (px)",
+      "canvasHeight": "// 画布高度 (px)",
+      "language": "// 语言",
+      "columns": "// 推荐列数",
+      "rows": "// 推荐行数",
+      "totalCabinets": "// 箱体总数",
+      "screenWidth": "// 屏幕宽度 (mm)",
+      "screenHeight": "// 屏幕高度 (mm)",
+      "coverage": "// 墙面覆盖率"
+    }
+  }
+}
+
+

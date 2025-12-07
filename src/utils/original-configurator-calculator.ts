@@ -214,8 +214,17 @@ export function calculateOptimalLayout(
  * @returns 结构支撑建议
  */
 export function calculateStructuralRequirements(calculationResult: CalculationResult) {
-  const { totalWeight } = calculationResult.physical;
+  const totalWeight = calculationResult.physical?.totalWeight;
   const { area } = calculationResult.wallDimensions;
+  
+  // 如果没有重量数据，返回基本建议
+  if (!totalWeight) {
+    return {
+      loadPerSqm: 0,
+      structuralAdvice: '未提供重量数据，无法计算结构负荷',
+      recommendedBrackets: Math.ceil(calculationResult.cabinetCount.total / 4),
+    };
+  }
   
   // 每平方米的载荷
   const loadPerSqm = totalWeight / area;

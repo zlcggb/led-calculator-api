@@ -204,8 +204,8 @@ export interface CalculationResult {
     pixelDensity: number;       // 像素密度 (pixels/m²)
   };
   
-  // 功耗统计
-  powerConsumption: {
+  // 功耗统计 (可选 - 仅当输入数据包含 power 时返回)
+  powerConsumption?: {
     maximum: number;            // 最大功耗 (W)
     typical: number;            // 典型功耗 (W)
     standby: number;            // 待机功耗 (W)
@@ -215,8 +215,8 @@ export interface CalculationResult {
     };
   };
   
-  // 物理参数
-  physical: {
+  // 物理参数 (可选 - 仅当输入数据包含 physical.weight 时返回)
+  physical?: {
     totalWeight: number;        // 总重量 (kg)
     structuralLoad: number;     // 结构负荷 (kg/m²)
   };

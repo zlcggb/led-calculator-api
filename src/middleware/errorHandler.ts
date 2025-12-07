@@ -1,11 +1,13 @@
 /**
  * Error Handling Middleware
- * Returns structured error responses
- * Requirements: 5.1
+ * Returns structured error responses with i18n support
+ * Requirements: 4.1, 4.2, 4.4, 5.1
  */
 
 import { Request, Response, NextFunction } from 'express';
 import { ErrorResponse } from '../types';
+import { getLocalizedError } from './errorMessages';
+import { SupportedLanguage, DEFAULT_LANGUAGE } from './i18n';
 
 /**
  * Custom API Error class with error code support
@@ -79,6 +81,9 @@ export const createNotFoundError = (resource: string): ApiError => {
 
 /**
  * Format error response according to API specification
+ * @param code - Error code
+ * @param message - Error message (already localized)
+ * @param details - Optional error details
  */
 const formatErrorResponse = (
   code: string,
@@ -95,15 +100,25 @@ const formatErrorResponse = (
 });
 
 /**
+ * Get language from request, defaulting to zh for backward compatibility
+ * Requirements: 4.4
+ */
+const getRequestLanguage = (req: Request): SupportedLanguage => {
+  return req.language || DEFAULT_LANGUAGE;
+};
+
+/**
  * Global error handling middleware
- * Requirements: 5.1 - Return structured error responses
+ * Requirements: 4.1, 4.2, 4.4, 5.1 - Return structured error responses with i18n support
  */
 export const errorHandler = (
   err: Error | ApiError,
-  _req: Request,
+  req: Request,
   res: Response,
   _next: NextFunction
 ): void => {
+  const lang = getRequestLanguage(req);
+  
   // Log error for debugging
   console.error(`[Error] ${err.name}: ${err.message}`);
   if (process.env.NODE_ENV === 'development') {
@@ -112,29 +127,33 @@ export const errorHandler = (
 
   // Handle ApiError instances
   if (err instanceof ApiError) {
+    // Use localized message based on error code
+    const localizedMessage = getLocalizedError(err.code, lang);
     res.status(err.statusCode).json(
-      formatErrorResponse(err.code, err.message, err.details)
+      formatErrorResponse(err.code, localizedMessage, err.details)
     );
     return;
   }
 
   // Handle JSON parsing errors
   if (err instanceof SyntaxError && 'body' in err) {
+    const localizedMessage = getLocalizedError('INVALID_JSON', lang);
     res.status(400).json(
       formatErrorResponse(
         ErrorCodes.VALIDATION_ERROR,
-        'Invalid JSON in request body'
+        localizedMessage
       )
     );
     return;
   }
 
   // Handle unknown errors
+  const localizedMessage = getLocalizedError(ErrorCodes.UNKNOWN_ERROR, lang);
   res.status(500).json(
     formatErrorResponse(
       ErrorCodes.UNKNOWN_ERROR,
       process.env.NODE_ENV === 'production'
-        ? 'An unexpected error occurred'
+        ? localizedMessage
         : err.message
     )
   );
@@ -142,16 +161,19 @@ export const errorHandler = (
 
 /**
  * 404 Not Found handler for undefined routes
+ * Requirements: 4.1, 4.2, 4.4
  */
 export const notFoundHandler = (
   req: Request,
   res: Response,
   _next: NextFunction
 ): void => {
+  const lang = getRequestLanguage(req);
+  const localizedMessage = getLocalizedError('ROUTE_NOT_FOUND', lang);
   res.status(404).json(
     formatErrorResponse(
       ErrorCodes.NOT_FOUND,
-      `Route ${req.method} ${req.path} not found`
+      `${localizedMessage}: ${req.method} ${req.path}`
     )
   );
 };

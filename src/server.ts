@@ -7,6 +7,7 @@
 import express, { Application } from 'express';
 import path from 'path';
 import { loggerMiddleware } from './middleware/logger';
+import { i18nMiddleware } from './middleware/i18n';
 import { errorHandler, notFoundHandler } from './middleware/errorHandler';
 import { createCorsMiddleware, getCorsConfig } from './middleware/cors';
 import { calculatorRoutes, previewRoutes } from './routes';
@@ -40,8 +41,16 @@ app.use(express.urlencoded({ extended: true }));
 // Logging middleware - Requirements: 5.2
 app.use(loggerMiddleware);
 
+// i18n middleware - Requirements: 4.1, 4.2
+// Parses Accept-Language header and attaches language preference to request
+app.use(i18nMiddleware);
+
 // Serve static files from public directory
 app.use('/static', express.static(path.join(__dirname, '..', 'public')));
+
+// Serve Vue frontend app (built version)
+const frontendPath = path.join(__dirname, '..', 'public', 'docs-app');
+app.use('/app', express.static(frontendPath));
 
 // Health check endpoint
 app.get('/health', (_req, res) => {
@@ -59,9 +68,9 @@ app.get('/health', (_req, res) => {
 app.use('/api/calculate', calculatorRoutes);
 app.use('/api/preview', previewRoutes);
 
-// Serve test page at root
+// Redirect root to Vue app
 app.get('/', (_req, res) => {
-  res.sendFile(path.join(__dirname, '..', 'test-page.html'));
+  res.redirect('/app/');
 });
 
 // Serve test page explicitly
@@ -78,9 +87,21 @@ app.get('/api-reference', (_req, res) => {
   res.sendFile(path.join(__dirname, '..', 'api-reference.html'));
 });
 
-// Serve Vue integration guide
+// Serve Vue integration guide (legacy HTML)
 app.get('/vue-integration', (_req, res) => {
   res.sendFile(path.join(__dirname, '..', 'vue-integration.html'));
+});
+
+// Vue Frontend App routes - serve index.html for SPA routing
+// All /app/* routes should serve the Vue app's index.html
+app.get('/app/*', (_req, res) => {
+  const indexPath = path.join(__dirname, '..', 'public', 'docs-app', 'index.html');
+  res.sendFile(indexPath, (err) => {
+    if (err) {
+      // If Vue app is not built yet, redirect to legacy test page
+      res.redirect('/');
+    }
+  });
 });
 
 // 404 handler for undefined routes
