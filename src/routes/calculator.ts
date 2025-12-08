@@ -146,9 +146,12 @@ router.post(
 
       // calculationResult 已经由 calculateMultiCabinetDisplayWall 生成，包含完整的排列信息
 
+      // 🎯 过滤掉数量为0的箱体，只返回实际使用的箱体
+      const filteredBestCombination = result.bestCombination.filter((cabinet: any) => cabinet.count > 0);
+
       // Format response with coverage percentage
       const response = {
-        bestCombination: result.bestCombination,
+        bestCombination: filteredBestCombination,
         coverage: result.coverage,
         coveragePercentage: `${(result.coverage * 100).toFixed(2)}%`,
         isFullyFilled: result.isFullyFilled,
@@ -284,10 +287,13 @@ router.post(
 
       const svgString = generateSVGPreview(calculationResult, roomConfigForPreview, svgOptions);
 
+      // 🎯 过滤掉数量为0的箱体，只返回实际使用的箱体
+      const filteredBestCombination = result.bestCombination.filter((cabinet: any) => cabinet.count > 0);
+
       // Format combined response
       const response = {
         // Calculation results
-        bestCombination: result.bestCombination,
+        bestCombination: filteredBestCombination,
         coverage: result.coverage,
         coveragePercentage: `${(result.coverage * 100).toFixed(2)}%`,
         isFullyFilled: result.isFullyFilled,

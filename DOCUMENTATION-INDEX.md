@@ -46,6 +46,7 @@
 - **配置 CORS** → [docs/API-FEATURES.md](./docs/API-FEATURES.md) - CORS 支持
 - **生产部署** → [README.md](./README.md) - Docker 部署
 - **环境变量** → [README.md](./README.md) - 配置部分
+- **构建流程优化** → [docs/BUILD-WORKFLOW-OPTIMIZATION.md](./docs/BUILD-WORKFLOW-OPTIMIZATION.md) - 一键构建
 
 ---
 
@@ -60,6 +61,7 @@
 | [docs/API-FEATURES.md](./docs/API-FEATURES.md) | 所有端点详细说明 | 开发者 | 30分钟 |
 | [docs/INTEGRATION-EXAMPLES.md](./docs/INTEGRATION-EXAMPLES.md) | HTML/React/Vue 集成代码 | 开发者 | 45分钟 |
 | [docs/TESTING-GUIDE.md](./docs/TESTING-GUIDE.md) | 完整测试方法 | 开发者/QA | 30分钟 |
+| [docs/BUILD-WORKFLOW-OPTIMIZATION.md](./docs/BUILD-WORKFLOW-OPTIMIZATION.md) | 构建流程优化指南 | 开发者 | 15分钟 |
 | [docs/README.md](./docs/README.md) | 文档中心导航 | 所有人 | 5分钟 |
 
 ### 项目文档

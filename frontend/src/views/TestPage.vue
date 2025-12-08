@@ -91,8 +91,8 @@ const cabinetData = [
 // ==================== Layout Tab ====================
 const layoutForm = reactive({
   cabinetId: '',
-  wallWidth: 5,
-  wallHeight: 3,
+  wallWidth: 4.3,
+  wallHeight: 3.3,
   unit: 'meters',
   includePower: true,
   includeWeight: true
@@ -128,8 +128,8 @@ const sameFamilyCabinets = computed(() => {
 const oneclickMode = ref<'single' | 'multi'>('single')
 const oneclickForm = reactive({
   cabinetId: '',
-  wallWidth: 5,
-  wallHeight: 3,
+  wallWidth: 4.3,
+  wallHeight: 3.3,
   unit: 'meters',
   autoAux: true,
   showDimensions: true,

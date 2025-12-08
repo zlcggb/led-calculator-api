@@ -191,7 +191,7 @@ const layoutOnlyRequestCode = computed(() => `{
       "brightness": 1000,
       "refreshRate": 5760
     }
-    // ${locale.value === 'zh' ? '不传 power/physical → 仅返回布局结果' : 'No power/physical → Returns layout only'}
+    ${locale.value === 'zh' ? '// 不传 power/physical → 仅返回布局结果' : '// No power/physical → Returns layout only'}
   },
   "roomConfig": {
     "dimensions": { "width": 5, "height": 3 },
@@ -210,7 +210,7 @@ const layoutOnlyResponseCode = computed(() => `{
     "wallWidth": 5000,
     "wallHeight": 3000,
     "coverage": 1.0
-    // ${locale.value === 'zh' ? '无 powerConsumption/physical 字段' : 'No powerConsumption/physical fields'}
+    ${locale.value === 'zh' ? '// 无 powerConsumption/physical 字段' : '// No powerConsumption/physical fields'}
   }
 }`)
 
@@ -223,12 +223,12 @@ const optimalLayoutResponseCode = computed(() => `{
     "wallWidth": 5000,               ${c.value.screenWidth}
     "wallHeight": 3000,              ${c.value.screenHeight}
     "coverage": 1.0,                 ${c.value.coverage}
-    "powerConsumption": {            // ⚡ ${locale.value === 'zh' ? '功耗统计 (当传入power时返回)' : 'Power stats (returned if power provided)'}
-      "maximum": 5400,               // ${locale.value === 'zh' ? '最大功率 (W)' : 'Maximum power (W)'}
-      "typical": 1800                // ${locale.value === 'zh' ? '典型功率 (W)' : 'Typical power (W)'}
+    "powerConsumption": {            ${locale.value === 'zh' ? '// ⚡ 功耗统计 (当传入power时返回)' : '// ⚡ Power stats (returned if power provided)'}
+      "maximum": 5400,               ${locale.value === 'zh' ? '// 最大功率 (W)' : '// Maximum power (W)'}
+      "typical": 1800                ${locale.value === 'zh' ? '// 典型功率 (W)' : '// Typical power (W)'}
     },
-    "physical": {                    // 📦 ${locale.value === 'zh' ? '物理参数 (当传入weight时返回)' : 'Physical params (returned if weight provided)'}
-      "totalWeight": 315             // ${locale.value === 'zh' ? '总重量 (kg)' : 'Total weight (kg)'}
+    "physical": {                    ${locale.value === 'zh' ? '// 📦 物理参数 (当传入weight时返回)' : '// 📦 Physical params (returned if weight provided)'}
+      "totalWeight": 315             ${locale.value === 'zh' ? '// 总重量 (kg)' : '// Total weight (kg)'}
     }
   }
 }`)
@@ -282,9 +282,9 @@ const previewOptionsCode = computed(() => `{
 }`)
 
 const oneClickRequestCode = computed(() => `{
-  "cabinetSpecs": { ... },           // 箱体规格
-  "roomConfig": { ... },             // 墙面配置
-  "previewOptions": {                // 预览选项 (可选)
+  "cabinetSpecs": { ... },           ${locale.value === 'zh' ? '// 箱体规格' : '// Cabinet specs'}
+  "roomConfig": { ... },             ${locale.value === 'zh' ? '// 墙面配置' : '// Room config'}
+  "previewOptions": {                ${locale.value === 'zh' ? '// 预览选项 (可选)' : '// Preview options (optional)'}
     "showDimensions": true,
     "showPerson": true,
     "canvasWidth": 800,
@@ -304,14 +304,14 @@ const oneClickResponseCode = computed(() => `{
       "heightM": 3.0,
       "areaM2": 15.0
     },
-    "powerConsumption": {            // ⚡ ${locale.value === 'zh' ? '功耗统计' : 'Power statistics'}
-      "maximum": 5400,               // ${locale.value === 'zh' ? '最大功率 (W)' : 'Maximum power (W)'}
-      "typical": 1800                // ${locale.value === 'zh' ? '典型功率 (W)' : 'Typical power (W)'}
+    "powerConsumption": {            ${locale.value === 'zh' ? '// ⚡ 功耗统计' : '// ⚡ Power statistics'}
+      "maximum": 5400,               ${locale.value === 'zh' ? '// 最大功率 (W)' : '// Maximum power (W)'}
+      "typical": 1800                ${locale.value === 'zh' ? '// 典型功率 (W)' : '// Typical power (W)'}
     },
-    "physical": {                    // 📦 ${locale.value === 'zh' ? '物理参数' : 'Physical params'}
-      "totalWeight": 315             // ${locale.value === 'zh' ? '总重量 (kg)' : 'Total weight (kg)'}
+    "physical": {                    ${locale.value === 'zh' ? '// 📦 物理参数' : '// 📦 Physical params'}
+      "totalWeight": 315             ${locale.value === 'zh' ? '// 总重量 (kg)' : '// Total weight (kg)'}
     },
-    "preview": {                     // SVG ${locale.value === 'zh' ? '预览数据' : 'preview data'}
+    "preview": {                     ${locale.value === 'zh' ? '// SVG 预览数据' : '// SVG preview data'}
       "svg": "<svg>...</svg>",       ${c.value.svg}
       "width": 800,
       "height": 500
@@ -855,7 +855,7 @@ const previewOptionsFields = computed(() => [
           </p>
 
           <CodeBlock 
-            :code="`// ${locale === 'zh' ? '一键计算 + 预览示例' : 'One-click calculate + preview example'}
+            :code="locale === 'zh' ? `// 一键计算 + 预览示例
 async function calculateWithPreview() {
   const response = await fetch('https://led-api.unilumin-gtm.com/api/calculate/optimal-layout-with-preview', {
     method: 'POST',
@@ -880,7 +880,7 @@ async function calculateWithPreview() {
       previewOptions: {
         showDimensions: true,
         showPerson: true,
-        language: '${locale}'
+        language: 'zh'
       }
     })
   });
@@ -888,10 +888,51 @@ async function calculateWithPreview() {
   const result = await response.json();
   
   if (result.success) {
-    console.log('${locale === 'zh' ? '布局' : 'Layout'}:', result.data.columns, '×', result.data.rows);
-    console.log('${locale === 'zh' ? '箱体总数' : 'Total cabinets'}:', result.data.totalCabinets);
+    console.log('布局:', result.data.columns, '×', result.data.rows);
+    console.log('箱体总数:', result.data.totalCabinets);
     
-    // ${locale === 'zh' ? '显示SVG预览' : 'Display SVG preview'}
+    // 显示SVG预览
+    document.getElementById('preview').innerHTML = result.data.preview.svg;
+  }
+  
+  return result;
+}` : `// One-click calculate + preview example
+async function calculateWithPreview() {
+  const response = await fetch('https://led-api.unilumin-gtm.com/api/calculate/optimal-layout-with-preview', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      cabinetSpecs: {
+        dimensions: { width: 500, height: 1000, depth: 40 },
+        display: {
+          pixelPitch: 1.5625,
+          resolution: { width: 320, height: 640 },
+          brightness: 1000,
+          refreshRate: 5760
+        },
+        power: { maxPower: 180, typicalPower: 60 },
+        physical: { weight: 10.5 }
+      },
+      roomConfig: {
+        dimensions: { width: 5, height: 3 },
+        unit: 'meters',
+        wallType: 'flat'
+      },
+      previewOptions: {
+        showDimensions: true,
+        showPerson: true,
+        language: 'en'
+      }
+    })
+  });
+  
+  const result = await response.json();
+  
+  if (result.success) {
+    console.log('Layout:', result.data.columns, '×', result.data.rows);
+    console.log('Total cabinets:', result.data.totalCabinets);
+    
+    // Display SVG preview
     document.getElementById('preview').innerHTML = result.data.preview.svg;
   }
   
