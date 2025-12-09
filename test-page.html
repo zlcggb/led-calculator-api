@@ -193,6 +193,42 @@
             background: rgba(255,255,255,0.3);
             box-shadow: 0 2px 8px rgba(0,0,0,0.1);
         }
+        /* Resolution preset buttons */
+        .resolution-btn {
+            padding: 10px 12px;
+            border: 2px solid #e1e5e9;
+            border-radius: 10px;
+            background: white;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: #555;
+        }
+        .resolution-btn:hover {
+            border-color: #667eea;
+            background: #f8f9ff;
+        }
+        .resolution-btn.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-color: transparent;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
+        .resolution-info {
+            padding: 10px 14px;
+            background: linear-gradient(135deg, #e3f2fd 0%, #f3e5f5 100%);
+            border-radius: 8px;
+            font-size: 12px;
+            color: #1565c0;
+        }
+        .resolution-info .target {
+            font-weight: 600;
+        }
+        .resolution-info .actual {
+            color: #7b1fa2;
+            margin-left: 8px;
+        }
     </style>
 </head>
 <body>
@@ -406,11 +442,22 @@
                     </div>
                     <div class="form-section">
                         <h3 data-i18n="oneclick.wallDimensions">📐 可用墙面尺寸</h3>
-                        <div class="form-group">
+                        <!-- 🎯 分辨率预设选择 (仅单箱体模式) -->
+                        <div class="form-group" id="oneclickResolutionGroup">
+                            <label data-i18n="oneclick.resolution">分辨率预设</label>
+                            <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:8px;">
+                                <button type="button" class="resolution-btn active" data-resolution="Custom" onclick="selectResolution('Custom')">Custom</button>
+                                <button type="button" class="resolution-btn" data-resolution="FHD" onclick="selectResolution('FHD')">FHD</button>
+                                <button type="button" class="resolution-btn" data-resolution="UHD" onclick="selectResolution('UHD')">UHD</button>
+                                <button type="button" class="resolution-btn" data-resolution="8K" onclick="selectResolution('8K')">8K</button>
+                            </div>
+                            <div id="oneclickResolutionInfo" style="margin-top:8px;"></div>
+                        </div>
+                        <div class="form-group" id="oneclickWallWidthGroup">
                             <label data-i18n="oneclick.wallWidth">墙面宽度</label>
                             <input type="number" id="oneclickWallWidth" value="5" step="0.1" min="0.1">
                         </div>
-                        <div class="form-group">
+                        <div class="form-group" id="oneclickWallHeightGroup">
                             <label data-i18n="oneclick.wallHeight">墙面高度</label>
                             <input type="number" id="oneclickWallHeight" value="3" step="0.1" min="0.1">
                         </div>
@@ -526,6 +573,11 @@
                         selectCabinet: '请选择箱体...',
                         autoAux: '自动添加同系列辅助箱体 (多箱体模式)',
                         wallDimensions: '📐 可用墙面尺寸',
+                        resolution: '分辨率预设',
+                        resolutionCustom: '💡 自定义模式：根据墙面尺寸自动计算最优布局',
+                        resolutionTarget: '🎯 目标分辨率',
+                        resolutionActual: '实际分辨率',
+                        resolutionAuto: '(自动计算墙面尺寸)',
                         wallWidth: '墙面宽度',
                         wallHeight: '墙面高度',
                         unit: '单位',
@@ -671,6 +723,11 @@
                         selectCabinet: 'Please select cabinet...',
                         autoAux: 'Auto-add same series auxiliary cabinets (Multi-cabinet mode)',
                         wallDimensions: '📐 Available Wall Dimensions',
+                        resolution: 'Resolution Preset',
+                        resolutionCustom: '💡 Custom Mode: Auto-calculate optimal layout based on wall dimensions',
+                        resolutionTarget: '🎯 Target Resolution',
+                        resolutionActual: 'Actual Resolution',
+                        resolutionAuto: '(Auto-calculate wall size)',
                         wallWidth: 'Wall Width',
                         wallHeight: 'Wall Height',
                         unit: 'Unit',
@@ -1392,6 +1449,14 @@
 
         // ==================== One-Click 一键计算+预览 ====================
         let oneclickMode = 'single'; // 'single' or 'multi'
+        let selectedResolution = 'Custom'; // 'Custom', 'FHD', 'UHD', '8K'
+        
+        // 分辨率预设定义
+        const RESOLUTION_PRESETS = {
+            'FHD': { width: 1920, height: 1080, name: 'Full HD (1080p)' },
+            'UHD': { width: 3840, height: 2160, name: '4K Ultra HD' },
+            '8K': { width: 7680, height: 4320, name: '8K Ultra HD' }
+        };
 
         function switchOneclickMode(mode) {
             oneclickMode = mode;
@@ -1399,24 +1464,109 @@
             const multiBtn = document.getElementById('oneclickModeMulti');
             const autoAuxGroup = document.getElementById('oneclickAutoAuxGroup');
             const apiEndpoint = document.getElementById('oneclickApiEndpoint');
+            const resolutionGroup = document.getElementById('oneclickResolutionGroup');
             
             if (mode === 'single') {
                 singleBtn.className = 'btn';
                 multiBtn.className = 'btn btn-secondary';
                 autoAuxGroup.style.display = 'none';
+                resolutionGroup.style.display = 'block';
                 apiEndpoint.textContent = 'POST /api/calculate/optimal-layout-with-preview';
+                // 更新分辨率信息显示
+                updateResolutionInfo();
             } else {
                 singleBtn.className = 'btn btn-secondary';
                 multiBtn.className = 'btn';
                 autoAuxGroup.style.display = 'block';
+                resolutionGroup.style.display = 'none';
                 apiEndpoint.textContent = 'POST /api/calculate/smart-combination-with-preview';
             }
+        }
+        
+        // 选择分辨率预设
+        function selectResolution(resolution) {
+            selectedResolution = resolution;
+            
+            // 更新按钮状态
+            document.querySelectorAll('.resolution-btn').forEach(btn => {
+                if (btn.getAttribute('data-resolution') === resolution) {
+                    btn.classList.add('active');
+                } else {
+                    btn.classList.remove('active');
+                }
+            });
+            
+            // 更新墙面尺寸输入框状态
+            const wallWidthInput = document.getElementById('oneclickWallWidth');
+            const wallHeightInput = document.getElementById('oneclickWallHeight');
+            const wallWidthGroup = document.getElementById('oneclickWallWidthGroup');
+            const wallHeightGroup = document.getElementById('oneclickWallHeightGroup');
+            
+            if (resolution === 'Custom') {
+                // Custom模式：启用墙面尺寸输入
+                wallWidthInput.disabled = false;
+                wallHeightInput.disabled = false;
+                wallWidthGroup.style.opacity = '1';
+                wallHeightGroup.style.opacity = '1';
+            } else {
+                // 预设分辨率模式：禁用墙面尺寸输入（自动计算）
+                wallWidthInput.disabled = true;
+                wallHeightInput.disabled = true;
+                wallWidthGroup.style.opacity = '0.6';
+                wallHeightGroup.style.opacity = '0.6';
+            }
+            
+            updateResolutionInfo();
+        }
+        
+        // 更新分辨率信息显示
+        function updateResolutionInfo() {
+            const infoDiv = document.getElementById('oneclickResolutionInfo');
+            const cabinetId = document.getElementById('oneclickMainCabinet').value;
+            const cabinet = getCabinetById(cabinetId);
+            
+            if (selectedResolution === 'Custom') {
+                infoDiv.innerHTML = `<div class="resolution-info">${i18n.t('oneclick.resolutionCustom')}</div>`;
+                return;
+            }
+            
+            const preset = RESOLUTION_PRESETS[selectedResolution];
+            if (!preset) return;
+            
+            if (!cabinet) {
+                infoDiv.innerHTML = `<div class="resolution-info">
+                    <span class="target">${i18n.t('oneclick.resolutionTarget')}: ${preset.width}×${preset.height}px (${preset.name})</span>
+                    <br><span style="color:#e65100;font-size:11px;">⚠️ ${i18n.t('oneclick.selectCabinet')}</span>
+                </div>`;
+                return;
+            }
+            
+            // 计算实际分辨率
+            const cabinetRes = cabinet.display.resolution;
+            const columns = Math.ceil(preset.width / cabinetRes.width);
+            const rows = Math.ceil(preset.height / cabinetRes.height);
+            const actualWidth = cabinetRes.width * columns;
+            const actualHeight = cabinetRes.height * rows;
+            
+            // 计算墙面尺寸
+            const wallWidthM = (cabinet.dimensions.width * columns) / 1000;
+            const wallHeightM = (cabinet.dimensions.height * rows) / 1000;
+            
+            infoDiv.innerHTML = `<div class="resolution-info">
+                <span class="target">${i18n.t('oneclick.resolutionTarget')}: ${preset.width}×${preset.height}px</span>
+                <span class="actual">| ${i18n.t('oneclick.resolutionActual')}: ${actualWidth}×${actualHeight}px</span>
+                <br><span style="font-size:11px;color:#555;">📐 ${columns}×${rows} = ${columns * rows} ${i18n.t('cabinet.dimensions').split(':')[0]} | ${wallWidthM.toFixed(2)}m × ${wallHeightM.toFixed(2)}m ${i18n.t('oneclick.resolutionAuto')}</span>
+            </div>`;
         }
 
         function updateOneclickMainInfo() {
             const mainCabinetId = document.getElementById('oneclickMainCabinet').value;
             const cabinet = getCabinetById(mainCabinetId);
             document.getElementById('oneclickMainCabinetInfo').innerHTML = formatCabinetInfo(cabinet);
+            // 更新分辨率信息（当选择箱体时）
+            if (oneclickMode === 'single') {
+                updateResolutionInfo();
+            }
         }
 
         async function calculateOneClick() {
@@ -1454,6 +1604,8 @@
                             unit: unit,
                             wallType: 'flat'
                         },
+                        // 🎯 添加分辨率预设参数
+                        targetResolution: selectedResolution,
                         previewOptions: {
                             showDimensions: showDimensions,
                             showPerson: showPerson,
@@ -1545,44 +1697,93 @@
         // 单箱体一键结果显示
         function displaySingleOneClickResult(data, container, cabinet) {
             const calcResult = data.calculationResult || {};
+            const resolutionInfo = data.resolution || {};
             
             let powerHtml = '';
             if (calcResult.powerConsumption) {
                 powerHtml = `
                 <div class="result-card">
-                    <h3>⚡ 功耗与物理参数</h3>
+                    <h3>⚡ ${i18n.t('results.powerConsumption')}</h3>
                     <div class="result-grid">
-                        <div class="result-item"><div class="label">最大功率</div><div class="value">${calcResult.powerConsumption.maximum.toLocaleString()} W</div></div>
-                        <div class="result-item"><div class="label">典型功率</div><div class="value">${calcResult.powerConsumption.typical.toLocaleString()} W</div></div>
-                        <div class="result-item"><div class="label">总重量</div><div class="value">${calcResult.physical?.totalWeight?.toFixed(1) || 'N/A'} kg</div></div>
+                        <div class="result-item"><div class="label">${i18n.t('results.maxPower')}</div><div class="value">${calcResult.powerConsumption.maximum.toLocaleString()} W</div></div>
+                        <div class="result-item"><div class="label">${i18n.t('results.typicalPower')}</div><div class="value">${calcResult.powerConsumption.typical.toLocaleString()} W</div></div>
+                        <div class="result-item"><div class="label">${i18n.t('results.totalWeight')}</div><div class="value">${calcResult.physical?.totalWeight?.toFixed(1) || 'N/A'} kg</div></div>
                     </div>
                 </div>`;
             }
             
-            let html = showSuccess('单箱体一键计算完成！') + `
+            // 🎯 分辨率信息卡片
+            let resolutionHtml = '';
+            if (resolutionInfo.mode && resolutionInfo.mode !== 'Custom') {
+                resolutionHtml = `
+                <div class="result-card">
+                    <h3>🖥️ ${i18n.t('results.resolutionInfo')}</h3>
+                    <div class="result-grid">
+                        <div class="result-item">
+                            <div class="label">${i18n.t('oneclick.resolutionTarget').replace('🎯 ', '')}</div>
+                            <div class="value">${resolutionInfo.target?.width}×${resolutionInfo.target?.height}</div>
+                        </div>
+                        <div class="result-item">
+                            <div class="label">${i18n.t('oneclick.resolutionActual')}</div>
+                            <div class="value">${resolutionInfo.actual?.width}×${resolutionInfo.actual?.height}</div>
+                        </div>
+                        <div class="result-item">
+                            <div class="label">${i18n.t('results.totalPixels')}</div>
+                            <div class="value">${resolutionInfo.actual?.totalPixels?.toLocaleString()}</div>
+                        </div>
+                    </div>
+                    <div style="margin-top:10px;padding:8px 12px;background:linear-gradient(135deg, #e8f5e9 0%, #f3e5f5 100%);border-radius:8px;font-size:12px;">
+                        <span class="badge badge-success">${resolutionInfo.mode}</span>
+                        <span style="margin-left:8px;color:#555;">${resolutionInfo.target?.name || ''}</span>
+                    </div>
+                </div>`;
+            } else {
+                // Custom模式也显示实际分辨率
+                resolutionHtml = `
+                <div class="result-card">
+                    <h3>🖥️ ${i18n.t('results.resolutionInfo')}</h3>
+                    <div class="result-grid">
+                        <div class="result-item">
+                            <div class="label">${i18n.t('results.totalWidth')}</div>
+                            <div class="value">${resolutionInfo.actual?.width?.toLocaleString() || calcResult.pixels?.totalWidth?.toLocaleString()} px</div>
+                        </div>
+                        <div class="result-item">
+                            <div class="label">${i18n.t('results.totalHeight')}</div>
+                            <div class="value">${resolutionInfo.actual?.height?.toLocaleString() || calcResult.pixels?.totalHeight?.toLocaleString()} px</div>
+                        </div>
+                        <div class="result-item">
+                            <div class="label">${i18n.t('results.totalPixels')}</div>
+                            <div class="value">${(resolutionInfo.actual?.totalPixels || calcResult.pixels?.totalPixels)?.toLocaleString()}</div>
+                        </div>
+                    </div>
+                </div>`;
+            }
+            
+            let html = showSuccess(i18n.t('results.singleSuccess')) + `
                 <div class="form-grid">
                     <div>
                         <div class="result-card">
-                            <h3>📐 可用墙面</h3>
+                            <h3>📐 ${i18n.t('results.availableWall')}</h3>
                             <div class="result-grid">
-                                <div class="result-item"><div class="label">宽度</div><div class="value">${data.roomDimensions.widthM.toFixed(2)} m</div></div>
-                                <div class="result-item"><div class="label">高度</div><div class="value">${data.roomDimensions.heightM.toFixed(2)} m</div></div>
+                                <div class="result-item"><div class="label">${i18n.t('results.screenWidth')}</div><div class="value">${data.roomDimensions.widthM.toFixed(2)} m</div></div>
+                                <div class="result-item"><div class="label">${i18n.t('results.screenHeight')}</div><div class="value">${data.roomDimensions.heightM.toFixed(2)} m</div></div>
                             </div>
                         </div>
                         <div class="result-card">
-                            <h3>📐 推荐布局</h3>
+                            <h3>📐 ${i18n.t('results.layoutRecommendation')}</h3>
                             <div class="result-grid">
-                                <div class="result-item"><div class="label">列数</div><div class="value">${data.columns}</div></div>
-                                <div class="result-item"><div class="label">行数</div><div class="value">${data.rows}</div></div>
-                                <div class="result-item"><div class="label">箱体总数</div><div class="value">${data.totalCabinets}</div></div>
+                                <div class="result-item"><div class="label">${i18n.t('results.columns')}</div><div class="value">${data.columns}</div></div>
+                                <div class="result-item"><div class="label">${i18n.t('results.rows')}</div><div class="value">${data.rows}</div></div>
+                                <div class="result-item"><div class="label">${i18n.t('results.totalCabinets')}</div><div class="value">${data.totalCabinets}</div></div>
                             </div>
                         </div>
+                        ${resolutionHtml}
                         <div class="result-card">
-                            <h3>📺 屏幕尺寸</h3>
+                            <h3>📺 ${i18n.t('results.screenDimensions')}</h3>
                             <div class="result-grid">
-                                <div class="result-item"><div class="label">宽度</div><div class="value">${data.screenDimensions.widthM.toFixed(2)} m</div></div>
-                                <div class="result-item"><div class="label">高度</div><div class="value">${data.screenDimensions.heightM.toFixed(2)} m</div></div>
-                                <div class="result-item"><div class="label">面积</div><div class="value">${data.screenDimensions.areaM2.toFixed(2)} m²</div></div>
+                                <div class="result-item"><div class="label">${i18n.t('results.screenWidth')}</div><div class="value">${data.screenDimensions.widthM.toFixed(2)} m</div></div>
+                                <div class="result-item"><div class="label">${i18n.t('results.screenHeight')}</div><div class="value">${data.screenDimensions.heightM.toFixed(2)} m</div></div>
+                                <div class="result-item"><div class="label">${i18n.t('results.screenArea')}</div><div class="value">${data.screenDimensions.areaM2.toFixed(2)} m²</div></div>
                             </div>
                         </div>
                         ${powerHtml}

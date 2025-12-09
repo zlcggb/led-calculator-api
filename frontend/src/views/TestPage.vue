@@ -126,6 +126,15 @@ const sameFamilyCabinets = computed(() => {
 
 // ==================== One-Click Tab ====================
 const oneclickMode = ref<'single' | 'multi'>('single')
+const selectedResolution = ref<'Custom' | 'FHD' | 'UHD' | '8K'>('Custom')
+
+// Resolution presets definition
+const RESOLUTION_PRESETS = {
+  'FHD': { width: 1920, height: 1080, name: 'Full HD (1080p)' },
+  'UHD': { width: 3840, height: 2160, name: '4K Ultra HD' },
+  '8K': { width: 7680, height: 4320, name: '8K Ultra HD' }
+} as const
+
 const oneclickForm = reactive({
   cabinetId: '',
   wallWidth: 4.3,
@@ -136,6 +145,31 @@ const oneclickForm = reactive({
   showPerson: true,
   includePower: true,
   includeWeight: true
+})
+
+// Computed: Resolution info based on selected cabinet and resolution preset
+const resolutionInfo = computed(() => {
+  if (selectedResolution.value === 'Custom' || !selectedOneclickCabinet.value) {
+    return null
+  }
+  
+  const preset = RESOLUTION_PRESETS[selectedResolution.value]
+  const cabinet = selectedOneclickCabinet.value
+  const cabinetRes = cabinet.display.resolution
+  
+  const columns = Math.ceil(preset.width / cabinetRes.width)
+  const rows = Math.ceil(preset.height / cabinetRes.height)
+  const actualWidth = cabinetRes.width * columns
+  const actualHeight = cabinetRes.height * rows
+  const wallWidthM = (cabinet.dimensions.width * columns) / 1000
+  const wallHeightM = (cabinet.dimensions.height * rows) / 1000
+  
+  return {
+    target: preset,
+    actual: { width: actualWidth, height: actualHeight },
+    layout: { columns, rows, total: columns * rows },
+    wall: { width: wallWidthM, height: wallHeightM }
+  }
 })
 const oneclickLoading = ref(false)
 const oneclickResult = ref<any>(null)
@@ -370,6 +404,8 @@ async function calculateOneClick() {
             unit: oneclickForm.unit,
             wallType: 'flat'
           },
+          // 🎯 Add resolution preset parameter
+          targetResolution: selectedResolution.value,
           previewOptions: {
             showDimensions: oneclickForm.showDimensions,
             showPerson: oneclickForm.showPerson,
@@ -974,14 +1010,56 @@ function getCabinetById(id: string) {
               <!-- Wall Dimensions -->
               <div class="p-4 bg-apple-gray-50 dark:bg-apple-gray-700/50 rounded-apple">
                 <h3 class="text-sm font-semibold text-primary mb-4">{{ t('test.layout.wallDimensions') }}</h3>
-                <div class="grid grid-cols-2 gap-4">
+                
+                <!-- 🎯 Resolution Preset (Single Cabinet Mode Only) -->
+                <div v-if="oneclickMode === 'single'" class="mb-4">
+                  <label class="block text-sm font-medium text-apple-gray-600 dark:text-apple-gray-300 mb-2">{{ t('test.oneclick.resolution') || 'Resolution Preset' }}</label>
+                  <div class="grid grid-cols-4 gap-2">
+                    <button 
+                      v-for="res in ['Custom', 'FHD', 'UHD', '8K']" 
+                      :key="res"
+                      @click="selectedResolution = res as any"
+                      class="py-2.5 px-3 rounded-lg text-sm font-medium transition-all"
+                      :class="selectedResolution === res 
+                        ? 'bg-primary text-white shadow-apple' 
+                        : 'bg-white dark:bg-apple-gray-800 text-apple-gray-600 dark:text-apple-gray-300 hover:bg-apple-gray-100 dark:hover:bg-apple-gray-700 border border-apple-gray-200 dark:border-apple-gray-600'"
+                    >
+                      {{ res }}
+                    </button>
+                  </div>
+                  <!-- Resolution Info -->
+                  <div v-if="selectedResolution !== 'Custom' && resolutionInfo" class="mt-3 p-3 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 rounded-lg text-xs">
+                    <div class="flex items-center gap-2 text-primary font-medium">
+                      <span>🎯 {{ t('test.oneclick.resolutionTarget') || 'Target' }}: {{ resolutionInfo.target.width }}×{{ resolutionInfo.target.height }}px</span>
+                      <span class="text-apple-gray-400">|</span>
+                      <span class="text-purple-600 dark:text-purple-400">{{ t('test.oneclick.resolutionActual') || 'Actual' }}: {{ resolutionInfo.actual.width }}×{{ resolutionInfo.actual.height }}px</span>
+                    </div>
+                    <div class="mt-1 text-apple-gray-500">
+                      📐 {{ resolutionInfo.layout.columns }}×{{ resolutionInfo.layout.rows }} = {{ resolutionInfo.layout.total }} cabinets | {{ resolutionInfo.wall.width.toFixed(2) }}m × {{ resolutionInfo.wall.height.toFixed(2) }}m
+                    </div>
+                  </div>
+                  <div v-else-if="selectedResolution !== 'Custom' && !selectedOneclickCabinet" class="mt-3 p-3 bg-apple-orange/10 rounded-lg text-xs text-apple-orange">
+                    ⚠️ {{ t('test.layout.selectCabinet') }}
+                  </div>
+                  <div v-else-if="selectedResolution === 'Custom'" class="mt-3 p-3 bg-apple-gray-100 dark:bg-apple-gray-700 rounded-lg text-xs text-apple-gray-500">
+                    💡 {{ t('test.oneclick.resolutionCustom') || 'Custom Mode: Auto-calculate optimal layout based on wall dimensions' }}
+                  </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4" :class="{ 'opacity-50 pointer-events-none': selectedResolution !== 'Custom' && oneclickMode === 'single' }">
                   <div>
-                    <label class="block text-sm font-medium text-apple-gray-600 dark:text-apple-gray-300 mb-2">{{ t('test.layout.wallWidth') }}</label>
-                    <input v-model.number="oneclickForm.wallWidth" type="number" step="0.1" min="0.1" class="input-field">
+                    <label class="block text-sm font-medium text-apple-gray-600 dark:text-apple-gray-300 mb-2">
+                      {{ t('test.layout.wallWidth') }}
+                      <span v-if="selectedResolution !== 'Custom' && oneclickMode === 'single'" class="text-xs text-primary ml-1">(Auto)</span>
+                    </label>
+                    <input v-model.number="oneclickForm.wallWidth" type="number" step="0.1" min="0.1" class="input-field" :disabled="selectedResolution !== 'Custom' && oneclickMode === 'single'">
                   </div>
                   <div>
-                    <label class="block text-sm font-medium text-apple-gray-600 dark:text-apple-gray-300 mb-2">{{ t('test.layout.wallHeight') }}</label>
-                    <input v-model.number="oneclickForm.wallHeight" type="number" step="0.1" min="0.1" class="input-field">
+                    <label class="block text-sm font-medium text-apple-gray-600 dark:text-apple-gray-300 mb-2">
+                      {{ t('test.layout.wallHeight') }}
+                      <span v-if="selectedResolution !== 'Custom' && oneclickMode === 'single'" class="text-xs text-primary ml-1">(Auto)</span>
+                    </label>
+                    <input v-model.number="oneclickForm.wallHeight" type="number" step="0.1" min="0.1" class="input-field" :disabled="selectedResolution !== 'Custom' && oneclickMode === 'single'">
                   </div>
                 </div>
                 <div class="mt-4">
@@ -1064,6 +1142,29 @@ function getCabinetById(id: string) {
                     <div class="p-3 bg-apple-gray-50 dark:bg-apple-gray-700/50 rounded-apple text-center">
                       <div class="text-2xl font-bold text-primary">{{ oneclickResult.totalCabinets }}</div>
                       <div class="text-xs text-apple-gray-500">{{ t('test.results.totalCabinets') }}</div>
+                    </div>
+                  </div>
+                  
+                  <!-- 🎯 Resolution Info Card -->
+                  <div v-if="oneclickResult.resolution" class="p-4 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 rounded-apple">
+                    <h4 class="text-sm font-semibold text-apple-gray-700 dark:text-apple-gray-300 mb-3">🖥️ {{ t('test.results.resolutionInfo') || 'Resolution Info' }}</h4>
+                    <div class="grid grid-cols-3 gap-3">
+                      <div v-if="oneclickResult.resolution.target" class="p-3 bg-white/80 dark:bg-apple-gray-800/80 rounded-lg text-center">
+                        <div class="text-lg font-bold text-primary">{{ oneclickResult.resolution.target.width }}×{{ oneclickResult.resolution.target.height }}</div>
+                        <div class="text-xs text-apple-gray-500">{{ t('test.oneclick.resolutionTarget') || 'Target' }}</div>
+                      </div>
+                      <div class="p-3 bg-white/80 dark:bg-apple-gray-800/80 rounded-lg text-center">
+                        <div class="text-lg font-bold text-purple-600 dark:text-purple-400">{{ oneclickResult.resolution.actual?.width }}×{{ oneclickResult.resolution.actual?.height }}</div>
+                        <div class="text-xs text-apple-gray-500">{{ t('test.oneclick.resolutionActual') || 'Actual' }}</div>
+                      </div>
+                      <div class="p-3 bg-white/80 dark:bg-apple-gray-800/80 rounded-lg text-center">
+                        <div class="text-lg font-bold text-apple-gray-800 dark:text-apple-gray-100">{{ oneclickResult.resolution.actual?.totalPixels?.toLocaleString() }}</div>
+                        <div class="text-xs text-apple-gray-500">{{ t('test.results.totalPixels') || 'Total Pixels' }}</div>
+                      </div>
+                    </div>
+                    <div v-if="oneclickResult.resolution.mode !== 'Custom'" class="mt-3 flex items-center gap-2">
+                      <span class="px-2 py-1 bg-primary/10 text-primary text-xs font-semibold rounded-full">{{ oneclickResult.resolution.mode }}</span>
+                      <span v-if="oneclickResult.resolution.target?.name" class="text-xs text-apple-gray-500">{{ oneclickResult.resolution.target.name }}</span>
                     </div>
                   </div>
                   

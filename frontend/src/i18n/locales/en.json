@@ -89,7 +89,11 @@
       "modeSingle": "📐 Single Cabinet Mode",
       "modeMulti": "🧩 Multi-Cabinet Mode",
       "autoAux": "Auto-add same series auxiliary cabinets",
-      "calculate": "⚡ One-Click Calculate & Preview"
+      "calculate": "⚡ One-Click Calculate & Preview",
+      "resolution": "Resolution Preset",
+      "resolutionTarget": "Target",
+      "resolutionActual": "Actual",
+      "resolutionCustom": "Custom Mode: Auto-calculate optimal layout based on wall dimensions"
     },
     "preview": {
       "title": "SVG Preview Generator",
@@ -119,6 +123,8 @@
       "typicalPower": "Typical Power",
       "totalWeight": "Total Weight",
       "powerAndWeight": "Power & Weight",
+      "resolutionInfo": "Resolution Info",
+      "totalPixels": "Total Pixels",
       "success": "Calculation successful!",
       "error": "Calculation failed"
     },

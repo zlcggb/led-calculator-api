@@ -1,6 +1,8 @@
 # LED Calculator API
 
-专业的 LED 显示墙计算与预览 API 服务 | Professional LED Display Wall Calculation & Preview API
+专业的 LED 显示墙计算与预览 API 服务
+
+中文 | **[English](./README_EN.md)**
 
 [![Node.js](https://img.shields.io/badge/Node.js-18+-green.svg)](https://nodejs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.x-blue.svg)](https://www.typescriptlang.org/)

@@ -89,7 +89,11 @@
       "modeSingle": "📐 单箱体模式",
       "modeMulti": "🧩 多箱体模式",
       "autoAux": "自动添加同系列辅助箱体",
-      "calculate": "⚡ 一键计算并生成预览"
+      "calculate": "⚡ 一键计算并生成预览",
+      "resolution": "分辨率预设",
+      "resolutionTarget": "目标分辨率",
+      "resolutionActual": "实际分辨率",
+      "resolutionCustom": "自定义模式：根据墙面尺寸自动计算最优布局"
     },
     "preview": {
       "title": "SVG 预览生成器",
@@ -119,6 +123,8 @@
       "typicalPower": "典型功率",
       "totalWeight": "总重量",
       "powerAndWeight": "功耗与重量",
+      "resolutionInfo": "分辨率信息",
+      "totalPixels": "总像素",
       "success": "计算成功！",
       "error": "计算失败"
     },

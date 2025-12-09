@@ -320,6 +320,7 @@ router.post(
  * Optimal Layout with Preview request interface
  */
 interface OptimalLayoutWithPreviewRequest extends OptimalLayoutRequest {
+  targetResolution?: 'FHD' | 'UHD' | '8K' | 'Custom';  // 目标分辨率预设
   previewOptions?: {
     showDimensions?: boolean;
     showPerson?: boolean;
@@ -328,6 +329,15 @@ interface OptimalLayoutWithPreviewRequest extends OptimalLayoutRequest {
     language?: 'en' | 'zh';
   };
 }
+
+/**
+ * Resolution presets definition
+ */
+const RESOLUTION_PRESETS: Record<'FHD' | 'UHD' | '8K', { width: number; height: number; name: string }> = {
+  'FHD': { width: 1920, height: 1080, name: 'Full HD (1080p)' },
+  'UHD': { width: 3840, height: 2160, name: '4K Ultra HD' },
+  '8K': { width: 7680, height: 4320, name: '8K Ultra HD' },
+};
 
 /**
  * Validate optimal layout with preview request
@@ -363,13 +373,19 @@ function validateOptimalLayoutWithPreviewRequest(req: Request, _res: Response, n
  * POST /api/calculate/optimal-layout-with-preview
  * Calculate optimal single cabinet layout and generate SVG preview in one request
  * Returns both calculation result and SVG preview
+ * 
+ * Supports targetResolution parameter for resolution-based calculation:
+ * - 'FHD': 1920×1080 (Full HD)
+ * - 'UHD': 3840×2160 (4K)
+ * - '8K': 7680×4320 (8K)
+ * - 'Custom': Use wall dimensions (default behavior)
  */
 router.post(
   '/optimal-layout-with-preview',
   validateOptimalLayoutWithPreviewRequest,
   async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const { cabinetSpecs, roomConfig, previewOptions } = req.body as OptimalLayoutWithPreviewRequest;
+      const { cabinetSpecs, roomConfig, targetResolution, previewOptions } = req.body as OptimalLayoutWithPreviewRequest;
 
       // Convert feet to meters if needed
       let roomWidthM = roomConfig.dimensions.width;
@@ -380,21 +396,62 @@ router.post(
         roomHeightM = roomConfig.dimensions.height * 0.3048;
       }
 
-      // Step 1: Calculate optimal layout
-      const normalizedRoomConfig = {
-        ...roomConfig,
-        dimensions: { width: roomWidthM, height: roomHeightM },
-        unit: 'meters' as const,
-      };
+      let columns: number;
+      let rows: number;
+      let targetPixels: { width: number; height: number } | undefined;
+      let actualPixels: { width: number; height: number };
+      let calculatedWallWidth: number;
+      let calculatedWallHeight: number;
 
-      const layoutResult = calculateOptimalLayout(cabinetSpecs, normalizedRoomConfig);
-      const columns = Math.max(1, layoutResult.columns);
-      const rows = Math.max(1, layoutResult.rows);
+      // Check if resolution-based calculation is requested
+      if (targetResolution && targetResolution !== 'Custom' && RESOLUTION_PRESETS[targetResolution]) {
+        // Resolution-based calculation: calculate columns/rows from target resolution
+        targetPixels = RESOLUTION_PRESETS[targetResolution];
+        const cabinetResolution = cabinetSpecs.display.resolution || { width: 320, height: 640 };
+        
+        // Calculate required columns and rows to achieve target resolution
+        columns = Math.ceil(targetPixels.width / cabinetResolution.width);
+        rows = Math.ceil(targetPixels.height / cabinetResolution.height);
+        
+        // Calculate actual resolution (may be slightly larger than target)
+        actualPixels = {
+          width: cabinetResolution.width * columns,
+          height: cabinetResolution.height * rows
+        };
+        
+        // Calculate wall dimensions based on cabinet count
+        calculatedWallWidth = (cabinetSpecs.dimensions.width * columns) / 1000;
+        calculatedWallHeight = (cabinetSpecs.dimensions.height * rows) / 1000;
+        
+        // Update room dimensions to match calculated wall size
+        roomWidthM = calculatedWallWidth;
+        roomHeightM = calculatedWallHeight;
+      } else {
+        // Traditional wall-based calculation
+        const normalizedRoomConfig = {
+          ...roomConfig,
+          dimensions: { width: roomWidthM, height: roomHeightM },
+          unit: 'meters' as const,
+        };
+
+        const layoutResult = calculateOptimalLayout(cabinetSpecs, normalizedRoomConfig);
+        columns = Math.max(1, layoutResult.columns);
+        rows = Math.max(1, layoutResult.rows);
+        
+        const cabinetResolution = cabinetSpecs.display.resolution || { width: 320, height: 640 };
+        actualPixels = {
+          width: cabinetResolution.width * columns,
+          height: cabinetResolution.height * rows
+        };
+        
+        calculatedWallWidth = (cabinetSpecs.dimensions.width * columns) / 1000;
+        calculatedWallHeight = (cabinetSpecs.dimensions.height * rows) / 1000;
+      }
       const totalCabinets = columns * rows;
 
       // Calculate screen dimensions
-      const screenWidthM = (cabinetSpecs.dimensions.width * columns) / 1000;
-      const screenHeightM = (cabinetSpecs.dimensions.height * rows) / 1000;
+      const screenWidthM = calculatedWallWidth;
+      const screenHeightM = calculatedWallHeight;
       const screenArea = screenWidthM * screenHeightM;
 
       // Build cabinet arrangement for SVG
@@ -507,6 +564,20 @@ router.post(
           widthM: roomWidthM,
           heightM: roomHeightM,
           originalUnit: roomConfig.unit,
+        },
+        // Resolution info (new)
+        resolution: {
+          mode: targetResolution || 'Custom',
+          target: targetPixels ? {
+            width: targetPixels.width,
+            height: targetPixels.height,
+            name: targetResolution ? RESOLUTION_PRESETS[targetResolution as 'FHD' | 'UHD' | '8K']?.name : undefined
+          } : undefined,
+          actual: {
+            width: actualPixels.width,
+            height: actualPixels.height,
+            totalPixels: actualPixels.width * actualPixels.height
+          }
         },
         calculationResult,
         // SVG preview

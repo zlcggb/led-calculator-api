@@ -284,12 +284,70 @@ const previewOptionsCode = computed(() => `{
 const oneClickRequestCode = computed(() => `{
   "cabinetSpecs": { ... },           ${locale.value === 'zh' ? '// 箱体规格' : '// Cabinet specs'}
   "roomConfig": { ... },             ${locale.value === 'zh' ? '// 墙面配置' : '// Room config'}
+  "targetResolution": "Custom",      ${locale.value === 'zh' ? '// 目标分辨率 (可选): "FHD" | "UHD" | "8K" | "Custom"' : '// Target resolution (optional): "FHD" | "UHD" | "8K" | "Custom"'}
   "previewOptions": {                ${locale.value === 'zh' ? '// 预览选项 (可选)' : '// Preview options (optional)'}
     "showDimensions": true,
     "showPerson": true,
     "canvasWidth": 800,
     "canvasHeight": 500,
     "language": "zh"
+  }
+}`)
+
+// Resolution-based request example
+const resolutionBasedRequestCode = computed(() => `{
+  "cabinetSpecs": {
+    "dimensions": { "width": 500, "height": 500, "depth": 40 },
+    "display": {
+      "pixelPitch": 1.5625,
+      "resolution": { "width": 320, "height": 320 },  ${locale.value === 'zh' ? '// 单箱体分辨率' : '// Single cabinet resolution'}
+      "brightness": 1000,
+      "refreshRate": 5760
+    },
+    "power": { "maxPower": 90, "typicalPower": 30 },
+    "physical": { "weight": 5.5 }
+  },
+  "roomConfig": {
+    "dimensions": { "width": 10, "height": 6 },       ${locale.value === 'zh' ? '// 使用分辨率模式时会被忽略' : '// Ignored when using resolution mode'}
+    "unit": "meters",
+    "wallType": "flat"
+  },
+  "targetResolution": "UHD",                          ${locale.value === 'zh' ? '// 指定4K分辨率 (3840×2160)' : '// Specify 4K resolution (3840×2160)'}
+  "previewOptions": {
+    "showDimensions": true,
+    "showPerson": true,
+    "language": "zh"
+  }
+}`)
+
+// Resolution-based response example
+const resolutionBasedResponseCode = computed(() => `{
+  "success": true,
+  "data": {
+    "columns": 12,                                    ${locale.value === 'zh' ? '// 自动计算: ceil(3840/320) = 12' : '// Auto calculated: ceil(3840/320) = 12'}
+    "rows": 7,                                        ${locale.value === 'zh' ? '// 自动计算: ceil(2160/320) = 7' : '// Auto calculated: ceil(2160/320) = 7'}
+    "totalCabinets": 84,
+    "screenDimensions": {
+      "widthM": 6.0,                                  ${locale.value === 'zh' ? '// 12列 × 500mm = 6000mm' : '// 12 cols × 500mm = 6000mm'}
+      "heightM": 3.5,                                 ${locale.value === 'zh' ? '// 7行 × 500mm = 3500mm' : '// 7 rows × 500mm = 3500mm'}
+      "areaM2": 21.0
+    },
+    "resolution": {                                   ${locale.value === 'zh' ? '// 🎯 分辨率信息' : '// 🎯 Resolution info'}
+      "mode": "UHD",                                  ${locale.value === 'zh' ? '// 使用的分辨率模式' : '// Resolution mode used'}
+      "target": {                                     ${locale.value === 'zh' ? '// 目标分辨率' : '// Target resolution'}
+        "width": 3840,
+        "height": 2160,
+        "name": "4K Ultra HD"
+      },
+      "actual": {                                     ${locale.value === 'zh' ? '// 实际分辨率 (可能略大于目标)' : '// Actual resolution (may be slightly larger)'}
+        "width": 3840,                                ${locale.value === 'zh' ? '// 12 × 320 = 3840' : '// 12 × 320 = 3840'}
+        "height": 2240,                               ${locale.value === 'zh' ? '// 7 × 320 = 2240' : '// 7 × 320 = 2240'}
+        "totalPixels": 8601600
+      }
+    },
+    "powerConsumption": { "maximum": 7560, "typical": 2520 },
+    "physical": { "totalWeight": 462 },
+    "preview": { "svg": "<svg>...</svg>", "width": 800, "height": 500 }
   }
 }`)
 
@@ -358,6 +416,25 @@ const previewOptionsFields = computed(() => [
   { path: 'canvasWidth', type: 'number', default: '800', desc: locale.value === 'zh' ? 'SVG画布宽度（像素）' : 'SVG canvas width (pixels)' },
   { path: 'canvasHeight', type: 'number', default: '500', desc: locale.value === 'zh' ? 'SVG画布高度（像素）' : 'SVG canvas height (pixels)' },
   { path: 'language', type: 'string', default: '"zh"', desc: locale.value === 'zh' ? '语言设置："zh" 中文，"en" 英文' : 'Language: "zh" Chinese, "en" English' },
+])
+
+// Resolution presets table
+const resolutionPresetsTable = computed(() => [
+  { preset: 'FHD', resolution: '1920 × 1080', name: locale.value === 'zh' ? '全高清 (1080p)' : 'Full HD (1080p)', desc: locale.value === 'zh' ? '适合小型会议室、零售展示' : 'Suitable for small meeting rooms, retail displays' },
+  { preset: 'UHD', resolution: '3840 × 2160', name: locale.value === 'zh' ? '4K 超高清' : '4K Ultra HD', desc: locale.value === 'zh' ? '适合中大型会议室、展厅' : 'Suitable for medium-large meeting rooms, showrooms' },
+  { preset: '8K', resolution: '7680 × 4320', name: locale.value === 'zh' ? '8K 超高清' : '8K Ultra HD', desc: locale.value === 'zh' ? '适合大型展厅、指挥中心' : 'Suitable for large showrooms, command centers' },
+  { preset: 'Custom', resolution: '-', name: locale.value === 'zh' ? '自定义' : 'Custom', desc: locale.value === 'zh' ? '使用 roomConfig.dimensions 指定墙面尺寸' : 'Use roomConfig.dimensions to specify wall size' },
+])
+
+// Resolution response fields
+const resolutionResponseFields = computed(() => [
+  { path: 'resolution.mode', type: 'string', desc: locale.value === 'zh' ? '使用的分辨率模式：FHD/UHD/8K/Custom' : 'Resolution mode used: FHD/UHD/8K/Custom' },
+  { path: 'resolution.target.width', type: 'number', desc: locale.value === 'zh' ? '目标水平分辨率（像素）' : 'Target horizontal resolution (pixels)' },
+  { path: 'resolution.target.height', type: 'number', desc: locale.value === 'zh' ? '目标垂直分辨率（像素）' : 'Target vertical resolution (pixels)' },
+  { path: 'resolution.target.name', type: 'string', desc: locale.value === 'zh' ? '分辨率名称' : 'Resolution name' },
+  { path: 'resolution.actual.width', type: 'number', desc: locale.value === 'zh' ? '实际水平分辨率（可能略大于目标）' : 'Actual horizontal resolution (may be slightly larger)' },
+  { path: 'resolution.actual.height', type: 'number', desc: locale.value === 'zh' ? '实际垂直分辨率（可能略大于目标）' : 'Actual vertical resolution (may be slightly larger)' },
+  { path: 'resolution.actual.totalPixels', type: 'number', desc: locale.value === 'zh' ? '总像素数' : 'Total pixel count' },
 ])
 </script>
 
@@ -747,6 +824,84 @@ const previewOptionsFields = computed(() => [
               </p>
             </div>
           </div>
+
+          <!-- Auxiliary Cabinets Matching Rules -->
+          <div class="mt-8 pt-6 border-t border-apple-gray-200 dark:border-apple-gray-700">
+            <h3 class="text-lg font-semibold text-apple-gray-800 dark:text-apple-gray-100 mb-4">
+              {{ locale === 'zh' ? '5.3 辅助箱体匹配规则' : '5.3 Auxiliary Cabinet Matching Rules' }}
+            </h3>
+            
+            <div class="alert-warning mb-6">
+              <div>
+                <div class="font-semibold text-apple-yellow mb-2">🔗 {{ locale === 'zh' ? '辅助箱体自动匹配条件' : 'Auxiliary Cabinet Auto-Matching Conditions' }}</div>
+                <p class="text-sm text-apple-gray-600 dark:text-apple-gray-400 mb-3">
+                  {{ locale === 'zh' 
+                    ? '辅助箱体必须与主箱体属于同一产品系列（family），才能进行组合计算。系统根据以下条件自动筛选可用的辅助箱体：'
+                    : 'Auxiliary cabinets must belong to the same product family as the main cabinet for combination calculation. System auto-filters available auxiliary cabinets based on:' }}
+                </p>
+                <ul class="text-sm text-apple-gray-600 dark:text-apple-gray-400 space-y-2 ml-4">
+                  <li class="flex items-start gap-2">
+                    <span class="text-primary font-bold">1.</span>
+                    <span>{{ locale === 'zh' 
+                      ? '同系列产品：辅助箱体的 family 字段必须与主箱体相同（如 UslimIII、UMiniW 等）'
+                      : 'Same product family: auxiliary cabinet\'s family field must match main cabinet (e.g., UslimIII, UMiniW)' }}</span>
+                  </li>
+                  <li class="flex items-start gap-2">
+                    <span class="text-primary font-bold">2.</span>
+                    <span>{{ locale === 'zh' 
+                      ? '相同像素间距：同系列产品通常具有相同的 pixelPitch，确保拼接后画面一致性'
+                      : 'Same pixel pitch: same family products typically have identical pixelPitch for seamless display' }}</span>
+                  </li>
+                  <li class="flex items-start gap-2">
+                    <span class="text-primary font-bold">3.</span>
+                    <span>{{ locale === 'zh' 
+                      ? '排除主箱体本身：辅助箱体列表不包含已选择的主箱体'
+                      : 'Exclude main cabinet: auxiliary list does not include the selected main cabinet' }}</span>
+                  </li>
+                </ul>
+              </div>
+            </div>
+
+            <!-- Example Family Table -->
+            <h4 class="text-base font-semibold text-apple-gray-800 dark:text-apple-gray-100 mb-3">
+              {{ locale === 'zh' ? '产品系列示例' : 'Product Family Examples' }}
+            </h4>
+            <div class="overflow-x-auto mb-6">
+              <table class="apple-table">
+                <thead>
+                  <tr>
+                    <th>{{ locale === 'zh' ? '产品系列 (family)' : 'Product Family' }}</th>
+                    <th>{{ locale === 'zh' ? '像素间距' : 'Pixel Pitch' }}</th>
+                    <th>{{ locale === 'zh' ? '可用箱体尺寸' : 'Available Cabinet Sizes' }}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><code class="inline-code">UslimIII</code></td>
+                    <td>1.5625mm</td>
+                    <td>500×1000, 500×500, 500×250, 250×500, 250×750, 750×250</td>
+                  </tr>
+                  <tr>
+                    <td><code class="inline-code">UMiniW</code></td>
+                    <td>0.9375mm</td>
+                    <td>600×337.5, 300×337.5</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <!-- Matching Logic Explanation -->
+            <div class="p-4 bg-apple-gray-50 dark:bg-apple-gray-700/50 rounded-apple">
+              <h4 class="text-sm font-semibold text-apple-gray-800 dark:text-apple-gray-100 mb-2">
+                {{ locale === 'zh' ? '匹配逻辑示例' : 'Matching Logic Example' }}
+              </h4>
+              <p class="text-sm text-apple-gray-600 dark:text-apple-gray-400">
+                {{ locale === 'zh' 
+                  ? '当选择 UslimIII MIP 1.5 (500×1000) 作为主箱体时，系统自动筛选出同系列的其他尺寸箱体作为辅助箱体：500×500、500×250、250×500、250×750、750×250。这些箱体具有相同的像素间距(1.5625mm)，可以无缝拼接。'
+                  : 'When selecting UslimIII MIP 1.5 (500×1000) as main cabinet, system auto-filters other sizes from the same family as auxiliary: 500×500, 500×250, 250×500, 250×750, 750×250. These cabinets share the same pixel pitch (1.5625mm) for seamless tiling.' }}
+              </p>
+            </div>
+          </div>
         </section>
 
         <!-- One-Click APIs Section -->
@@ -793,6 +948,96 @@ const previewOptionsFields = computed(() => [
             {{ locale === 'zh' ? '6.2 响应示例' : '6.2 Response Example' }}
           </h3>
           <CodeBlock :code="oneClickResponseCode" language="json" filename="Response" />
+
+          <!-- Target Resolution Section -->
+          <div class="mt-10 pt-8 border-t border-apple-gray-200 dark:border-apple-gray-700">
+            <h3 class="text-xl font-bold text-apple-gray-800 dark:text-apple-gray-100 mb-4">
+              🎯 {{ locale === 'zh' ? '6.3 目标分辨率模式 (targetResolution)' : '6.3 Target Resolution Mode (targetResolution)' }}
+            </h3>
+            
+            <div class="alert-info mb-6">
+              <div>
+                <div class="font-semibold text-primary mb-1">💡 {{ locale === 'zh' ? '分辨率优先计算' : 'Resolution-First Calculation' }}</div>
+                <p class="text-sm text-apple-gray-600 dark:text-apple-gray-400">
+                  {{ locale === 'zh' 
+                    ? '使用 targetResolution 参数可以指定目标分辨率（FHD/UHD/8K），系统将自动计算所需的箱体行列数，而非基于墙面尺寸计算。这对于需要精确分辨率的项目非常有用。'
+                    : 'Use targetResolution parameter to specify target resolution (FHD/UHD/8K). System will auto-calculate required cabinet rows/columns instead of wall-based calculation. Useful for projects requiring precise resolution.' }}
+                </p>
+              </div>
+            </div>
+
+            <!-- Resolution Presets Table -->
+            <h4 class="text-lg font-semibold text-apple-gray-800 dark:text-apple-gray-100 mb-4">
+              {{ locale === 'zh' ? '分辨率预设值' : 'Resolution Presets' }}
+            </h4>
+            <div class="overflow-x-auto mb-8">
+              <table class="apple-table">
+                <thead>
+                  <tr>
+                    <th>{{ locale === 'zh' ? '预设值' : 'Preset' }}</th>
+                    <th>{{ locale === 'zh' ? '分辨率' : 'Resolution' }}</th>
+                    <th>{{ locale === 'zh' ? '名称' : 'Name' }}</th>
+                    <th>{{ locale === 'zh' ? '适用场景' : 'Use Case' }}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr v-for="preset in resolutionPresetsTable" :key="preset.preset">
+                    <td><code class="inline-code">{{ preset.preset }}</code></td>
+                    <td><span class="badge-primary">{{ preset.resolution }}</span></td>
+                    <td>{{ preset.name }}</td>
+                    <td>{{ preset.desc }}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <!-- Resolution Request Example -->
+            <h4 class="text-lg font-semibold text-apple-gray-800 dark:text-apple-gray-100 mb-4">
+              {{ locale === 'zh' ? '分辨率模式请求示例' : 'Resolution Mode Request Example' }}
+            </h4>
+            <CodeBlock :code="resolutionBasedRequestCode" language="json" :filename="locale === 'zh' ? '分辨率模式请求' : 'Resolution Mode Request'" />
+
+            <!-- Resolution Response Example -->
+            <h4 class="text-lg font-semibold text-apple-gray-800 dark:text-apple-gray-100 mt-8 mb-4">
+              {{ locale === 'zh' ? '分辨率模式响应示例' : 'Resolution Mode Response Example' }}
+            </h4>
+            <CodeBlock :code="resolutionBasedResponseCode" language="json" :filename="locale === 'zh' ? '分辨率模式响应' : 'Resolution Mode Response'" />
+
+            <!-- Resolution Response Fields -->
+            <h4 class="text-lg font-semibold text-apple-gray-800 dark:text-apple-gray-100 mt-8 mb-4">
+              {{ locale === 'zh' ? '分辨率响应字段说明' : 'Resolution Response Fields' }}
+            </h4>
+            <div class="overflow-x-auto">
+              <table class="apple-table">
+                <thead>
+                  <tr>
+                    <th>{{ t('docs.tables.field') }}</th>
+                    <th>{{ t('docs.tables.type') }}</th>
+                    <th>{{ t('docs.tables.description') }}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr v-for="field in resolutionResponseFields" :key="field.path">
+                    <td><code class="inline-code">{{ field.path }}</code></td>
+                    <td><span class="badge-primary">{{ field.type }}</span></td>
+                    <td>{{ field.desc }}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <!-- Calculation Logic Note -->
+            <div class="alert-warning mt-6">
+              <div>
+                <div class="font-semibold text-apple-yellow mb-1">📐 {{ locale === 'zh' ? '计算逻辑说明' : 'Calculation Logic' }}</div>
+                <p class="text-sm text-apple-gray-600 dark:text-apple-gray-400">
+                  {{ locale === 'zh' 
+                    ? '系统使用 ceil(目标分辨率 ÷ 单箱体分辨率) 计算所需行列数，因此实际分辨率可能略大于目标分辨率。例如：目标 4K (3840×2160)，单箱体 320×320，则需要 12×7=84 个箱体，实际分辨率为 3840×2240。'
+                    : 'System uses ceil(target resolution ÷ cabinet resolution) to calculate rows/columns, so actual resolution may be slightly larger than target. Example: Target 4K (3840×2160), cabinet 320×320, needs 12×7=84 cabinets, actual resolution is 3840×2240.' }}
+                </p>
+              </div>
+            </div>
+          </div>
         </section>
 
         <!-- Preview Section -->
@@ -940,6 +1185,109 @@ async function calculateWithPreview() {
 }`" 
             language="javascript" 
             filename="example.js" 
+          />
+
+          <!-- Resolution-based Example -->
+          <h3 class="text-lg font-semibold text-apple-gray-800 dark:text-apple-gray-100 mt-10 mb-4">
+            {{ locale === 'zh' ? '8.2 分辨率模式示例' : '8.2 Resolution Mode Example' }}
+          </h3>
+          <p class="text-apple-gray-600 dark:text-apple-gray-400 mb-6">
+            {{ locale === 'zh' 
+              ? '使用 targetResolution 参数指定目标分辨率，系统自动计算所需箱体数量：'
+              : 'Use targetResolution parameter to specify target resolution, system auto-calculates required cabinets:' }}
+          </p>
+          <CodeBlock 
+            :code="locale === 'zh' ? `// 分辨率模式示例 - 指定4K分辨率
+async function calculateFor4K() {
+  const response = await fetch('https://led-api.unilumin-gtm.com/api/calculate/optimal-layout-with-preview', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      cabinetSpecs: {
+        dimensions: { width: 500, height: 500, depth: 40 },
+        display: {
+          pixelPitch: 1.5625,
+          resolution: { width: 320, height: 320 },  // 单箱体分辨率
+          brightness: 1000,
+          refreshRate: 5760
+        },
+        power: { maxPower: 90, typicalPower: 30 },
+        physical: { weight: 5.5 }
+      },
+      roomConfig: {
+        dimensions: { width: 10, height: 6 },  // 分辨率模式下会被忽略
+        unit: 'meters',
+        wallType: 'flat'
+      },
+      targetResolution: 'UHD',  // 🎯 指定4K分辨率
+      previewOptions: {
+        showDimensions: true,
+        showPerson: true,
+        language: 'zh'
+      }
+    })
+  });
+  
+  const result = await response.json();
+  
+  if (result.success) {
+    const { resolution } = result.data;
+    console.log('目标分辨率:', resolution.target.width, '×', resolution.target.height);
+    console.log('实际分辨率:', resolution.actual.width, '×', resolution.actual.height);
+    console.log('总像素:', resolution.actual.totalPixels.toLocaleString());
+    console.log('布局:', result.data.columns, '×', result.data.rows);
+    
+    document.getElementById('preview').innerHTML = result.data.preview.svg;
+  }
+  
+  return result;
+}` : `// Resolution mode example - specify 4K resolution
+async function calculateFor4K() {
+  const response = await fetch('https://led-api.unilumin-gtm.com/api/calculate/optimal-layout-with-preview', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      cabinetSpecs: {
+        dimensions: { width: 500, height: 500, depth: 40 },
+        display: {
+          pixelPitch: 1.5625,
+          resolution: { width: 320, height: 320 },  // Single cabinet resolution
+          brightness: 1000,
+          refreshRate: 5760
+        },
+        power: { maxPower: 90, typicalPower: 30 },
+        physical: { weight: 5.5 }
+      },
+      roomConfig: {
+        dimensions: { width: 10, height: 6 },  // Ignored in resolution mode
+        unit: 'meters',
+        wallType: 'flat'
+      },
+      targetResolution: 'UHD',  // 🎯 Specify 4K resolution
+      previewOptions: {
+        showDimensions: true,
+        showPerson: true,
+        language: 'en'
+      }
+    })
+  });
+  
+  const result = await response.json();
+  
+  if (result.success) {
+    const { resolution } = result.data;
+    console.log('Target resolution:', resolution.target.width, '×', resolution.target.height);
+    console.log('Actual resolution:', resolution.actual.width, '×', resolution.actual.height);
+    console.log('Total pixels:', resolution.actual.totalPixels.toLocaleString());
+    console.log('Layout:', result.data.columns, '×', result.data.rows);
+    
+    document.getElementById('preview').innerHTML = result.data.preview.svg;
+  }
+  
+  return result;
+}`" 
+            language="javascript" 
+            filename="resolution-example.js" 
           />
         </section>
       </div>
