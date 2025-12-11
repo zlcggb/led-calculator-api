@@ -58,6 +58,7 @@ const c = computed(() => locale.value === 'zh' ? {
   auxiliaryCabinets: '// 辅助箱体数组',
   wallWidthMm: '// 可用墙面宽度 (mm)',
   wallHeightMm: '// 可用墙面高度 (mm)',
+  arrangementDirection: '// 排列方向: "left-to-right" 或 "right-to-left"',
   isFullyFilled: '// 是否完全填充',
   coveragePercentage: '// 覆盖率百分比',
   bestCombination: '// 最优组合方案',
@@ -111,6 +112,7 @@ const c = computed(() => locale.value === 'zh' ? {
   auxiliaryCabinets: '// Auxiliary cabinets array',
   wallWidthMm: '// Available wall width (mm)',
   wallHeightMm: '// Available wall height (mm)',
+  arrangementDirection: '// Arrangement direction: "left-to-right" or "right-to-left"',
   isFullyFilled: '// Whether fully filled',
   coveragePercentage: '// Coverage percentage',
   bestCombination: '// Optimal combination',
@@ -249,7 +251,8 @@ const smartCombinationRequestCode = computed(() => `{
     }
   ],
   "wallWidthMm": 4300,               ${c.value.wallWidthMm}
-  "wallHeightMm": 3300                ${c.value.wallHeightMm}
+  "wallHeightMm": 3300,              ${c.value.wallHeightMm}
+  "arrangementDirection": "left-to-right"  ${locale.value === 'zh' ? '// 排列方向: "left-to-right" 或 "right-to-left"' : '// Arrangement direction: "left-to-right" or "right-to-left"'}
 }`)
 
 const smartCombinationResponseCode = computed(() => `{
@@ -267,6 +270,9 @@ const smartCombinationResponseCode = computed(() => `{
     },
     "calculationResult": {
       "wallDimensions": { "width": 4.25, "height": 3.0, "area": 12.75 },
+      "arrangement": {
+        "arrangementDirection": "left-to-right"  ${locale.value === 'zh' ? '// 排列方向' : '// Arrangement direction'}
+      },
       "powerConsumption": { "maximum": 4590, "typical": 1530 },
       "physical": { "totalWeight": 273 }
     }

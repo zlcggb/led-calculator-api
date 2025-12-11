@@ -50,6 +50,31 @@ export async function calculateOptimalLayoutWithPreview(
       language: 'en',
     },
   });
+}
+
+// 🧩 Multi-cabinet smart combination + preview
+export async function calculateSmartCombinationWithPreview(
+  mainCabinet: { id: string; specs: CabinetSpecs },
+  auxiliaryCabinets: Array<{ id: string; specs: CabinetSpecs }>,
+  wallWidthMm: number,
+  wallHeightMm: number,
+  arrangementDirection?: 'left-to-right' | 'right-to-left',  // 🎯 排列方向
+  previewOptions?: PreviewOptions
+): Promise<SmartCombinationWithPreviewResponse> {
+  return request('/api/calculate/smart-combination-with-preview', {
+    mainCabinet,
+    auxiliaryCabinets,
+    wallWidthMm,
+    wallHeightMm,
+    arrangementDirection: arrangementDirection || 'left-to-right',  // 默认从左到右
+    previewOptions: previewOptions || {
+      showDimensions: true,
+      showPerson: true,
+      canvasWidth: 800,
+      canvasHeight: 500,
+      language: 'en',
+    },
+  });
 }`
 
 const typeDefinitionsCode = `// Cabinet Specifications
@@ -303,6 +328,70 @@ const responseComparison = `// 📊 Response Comparison
     }
   }
 }`
+
+// 🧩 Multi-cabinet smart combination example with arrangement direction
+const multiCabinetExample = `// 🧩 Multi-Cabinet Smart Combination
+// Automatically finds optimal cabinet combination for wall coverage
+
+import { calculateSmartCombinationWithPreview } from '@/api/ledCalculator';
+
+// Main cabinet (largest size, highest priority)
+const mainCabinet = {
+  id: 'uslimiii-500x1000',
+  specs: {
+    dimensions: { width: 500, height: 1000, depth: 40 },
+    display: {
+      pixelPitch: 1.5625,
+      resolution: { width: 320, height: 640 },
+      brightness: 1000,
+      refreshRate: 5760,
+    },
+    power: { maxPower: 180, typicalPower: 60 },
+    physical: { weight: 10.5 },
+  },
+};
+
+// Auxiliary cabinets (same pixel pitch, different sizes)
+const auxiliaryCabinets = [
+  {
+    id: 'uslimiii-500x500',
+    specs: {
+      dimensions: { width: 500, height: 500, depth: 40 },
+      display: { pixelPitch: 1.5625, resolution: { width: 320, height: 320 } },
+      power: { maxPower: 90, typicalPower: 30 },
+      physical: { weight: 5.4 },
+    },
+  },
+  {
+    id: 'uslimiii-250x500',
+    specs: {
+      dimensions: { width: 250, height: 500, depth: 40 },
+      display: { pixelPitch: 1.5625, resolution: { width: 160, height: 320 } },
+      power: { maxPower: 45, typicalPower: 15 },
+      physical: { weight: 3.5 },
+    },
+  },
+];
+
+// 🎯 Arrangement Direction Options:
+// - 'left-to-right': Cabinets arranged from left to right (default)
+// - 'right-to-left': Cabinets arranged from right to left (mirror layout)
+
+const result = await calculateSmartCombinationWithPreview(
+  mainCabinet,
+  auxiliaryCabinets,
+  4300,  // wallWidthMm
+  3300,  // wallHeightMm
+  'left-to-right',  // 🎯 arrangementDirection
+  { showDimensions: true, showPerson: true, language: 'zh' }
+);
+
+// Response includes:
+// - bestCombination: [{ id, count }, ...]
+// - coveragePercentage: "100%"
+// - isFullyFilled: true
+// - calculationResult.arrangement.arrangementDirection: "left-to-right"
+// - preview.svg: SVG string`
 
 // Complete integration example
 const completeIntegrationExample = `<script setup lang="ts">
@@ -690,6 +779,38 @@ async function calculate() {
             📊 {{ t('vue.usageModes.responseComparison') }}
           </h3>
           <CodeBlock :code="responseComparison" language="json" filename="Response Comparison" />
+
+          <!-- 🧩 Multi-Cabinet Smart Combination -->
+          <h3 class="text-lg font-semibold text-apple-gray-800 dark:text-apple-gray-100 mt-8 mb-4">
+            🧩 Multi-Cabinet Smart Combination
+          </h3>
+          <p class="text-apple-gray-600 dark:text-apple-gray-400 mb-4">
+            Use multiple cabinet sizes to achieve optimal wall coverage. Supports <code class="inline-code">arrangementDirection</code> parameter to control cabinet arrangement direction.
+          </p>
+          
+          <!-- Arrangement Direction Info -->
+          <div class="grid md:grid-cols-2 gap-4 mb-6">
+            <div class="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-apple border border-blue-200 dark:border-blue-800">
+              <div class="flex items-center gap-2 mb-2">
+                <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                </svg>
+                <span class="font-semibold text-blue-700 dark:text-blue-300">left-to-right</span>
+              </div>
+              <p class="text-sm text-blue-600 dark:text-blue-400">Cabinets arranged from left to right (default)</p>
+            </div>
+            <div class="p-4 bg-purple-50 dark:bg-purple-900/20 rounded-apple border border-purple-200 dark:border-purple-800">
+              <div class="flex items-center gap-2 mb-2">
+                <svg class="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                </svg>
+                <span class="font-semibold text-purple-700 dark:text-purple-300">right-to-left</span>
+              </div>
+              <p class="text-sm text-purple-600 dark:text-purple-400">Cabinets arranged from right to left (mirror layout)</p>
+            </div>
+          </div>
+          
+          <CodeBlock :code="multiCabinetExample" language="typescript" filename="Multi-Cabinet Example" />
 
           <!-- Key Points -->
           <div class="alert-warning mt-8">

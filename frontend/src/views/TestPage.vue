@@ -110,6 +110,7 @@ const smartForm = reactive({
   auxiliaryCabinetIds: [] as string[],
   wallWidthMm: 4300,
   wallHeightMm: 3300,
+  arrangementDirection: 'left-to-right' as 'left-to-right' | 'right-to-left',  // 🎯 排列方向
   includePower: true,
   includeWeight: true
 })
@@ -144,7 +145,8 @@ const oneclickForm = reactive({
   showDimensions: true,
   showPerson: true,
   includePower: true,
-  includeWeight: true
+  includeWeight: true,
+  arrangementDirection: 'left-to-right' as 'left-to-right' | 'right-to-left'  // 🎯 排列方向（多箱体模式）
 })
 
 // Computed: Resolution info based on selected cabinet and resolution preset
@@ -345,6 +347,7 @@ async function calculateSmart() {
         auxiliaryCabinets,
         wallWidthMm: smartForm.wallWidthMm,
         wallHeightMm: smartForm.wallHeightMm,
+        arrangementDirection: smartForm.arrangementDirection,  // 🎯 排列方向
         previewOptions: {
           showDimensions: true,
           showPerson: true,
@@ -453,6 +456,7 @@ async function calculateOneClick() {
           })),
           wallWidthMm: Math.round(wallWidthMm),
           wallHeightMm: Math.round(wallHeightMm),
+          arrangementDirection: oneclickForm.arrangementDirection,  // 🎯 排列方向
           previewOptions: {
             showDimensions: oneclickForm.showDimensions,
             showPerson: oneclickForm.showPerson,
@@ -782,6 +786,46 @@ function getCabinetById(id: string) {
                 </div>
               </div>
 
+              <!-- 🎯 Arrangement Direction -->
+              <div class="p-4 bg-apple-gray-50 dark:bg-apple-gray-700/50 rounded-apple">
+                <h3 class="text-sm font-semibold text-primary mb-4">↔️ {{ locale === 'zh' ? '排列方向' : 'Arrangement Direction' }}</h3>
+                <div class="grid grid-cols-2 gap-3">
+                  <button
+                    @click="smartForm.arrangementDirection = 'left-to-right'"
+                    :class="[
+                      'p-3 rounded-lg border-2 transition-all duration-200 flex flex-col items-center gap-2',
+                      smartForm.arrangementDirection === 'left-to-right'
+                        ? 'border-primary bg-primary/10 shadow-md'
+                        : 'border-apple-gray-200 dark:border-apple-gray-600 hover:border-primary/50'
+                    ]"
+                  >
+                    <svg class="w-6 h-6" :class="smartForm.arrangementDirection === 'left-to-right' ? 'text-primary' : 'text-apple-gray-500'" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                    </svg>
+                    <span class="text-sm font-medium" :class="smartForm.arrangementDirection === 'left-to-right' ? 'text-primary' : 'text-apple-gray-600 dark:text-apple-gray-300'">
+                      {{ locale === 'zh' ? '左→右' : 'Left to Right' }}
+                    </span>
+                  </button>
+                  <button
+                    @click="smartForm.arrangementDirection = 'right-to-left'"
+                    :class="[
+                      'p-3 rounded-lg border-2 transition-all duration-200 flex flex-col items-center gap-2',
+                      smartForm.arrangementDirection === 'right-to-left'
+                        ? 'border-primary bg-primary/10 shadow-md'
+                        : 'border-apple-gray-200 dark:border-apple-gray-600 hover:border-primary/50'
+                    ]"
+                  >
+                    <svg class="w-6 h-6" :class="smartForm.arrangementDirection === 'right-to-left' ? 'text-primary' : 'text-apple-gray-500'" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                    </svg>
+                    <span class="text-sm font-medium" :class="smartForm.arrangementDirection === 'right-to-left' ? 'text-primary' : 'text-apple-gray-600 dark:text-apple-gray-300'">
+                      {{ locale === 'zh' ? '右→左' : 'Right to Left' }}
+                    </span>
+                  </button>
+                </div>
+                <p class="mt-3 text-xs text-apple-gray-400">{{ locale === 'zh' ? '控制箱体在屏幕内的排列起始方向' : 'Controls the starting direction of cabinet arrangement within the screen' }}</p>
+              </div>
+
               <!-- Power & Weight Options -->
               <div class="p-4 bg-apple-gray-50 dark:bg-apple-gray-700/50 rounded-apple">
                 <h3 class="text-sm font-semibold text-primary mb-4">⚙️ {{ t('test.options.powerWeight') }}</h3>
@@ -1084,6 +1128,46 @@ function getCabinetById(id: string) {
                     <span class="text-sm text-apple-gray-700 dark:text-apple-gray-300">{{ t('test.preview.showPerson') }}</span>
                   </label>
                 </div>
+              </div>
+
+              <!-- 🎯 Arrangement Direction (Multi-cabinet mode only) -->
+              <div v-if="oneclickMode === 'multi'" class="p-4 bg-apple-gray-50 dark:bg-apple-gray-700/50 rounded-apple">
+                <h3 class="text-sm font-semibold text-primary mb-4">↔️ {{ locale === 'zh' ? '排列方向' : 'Arrangement Direction' }}</h3>
+                <div class="grid grid-cols-2 gap-3">
+                  <button
+                    @click="oneclickForm.arrangementDirection = 'left-to-right'"
+                    :class="[
+                      'p-3 rounded-lg border-2 transition-all duration-200 flex flex-col items-center gap-2',
+                      oneclickForm.arrangementDirection === 'left-to-right'
+                        ? 'border-primary bg-primary/10 shadow-md'
+                        : 'border-apple-gray-200 dark:border-apple-gray-600 hover:border-primary/50'
+                    ]"
+                  >
+                    <svg class="w-6 h-6" :class="oneclickForm.arrangementDirection === 'left-to-right' ? 'text-primary' : 'text-apple-gray-500'" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                    </svg>
+                    <span class="text-sm font-medium" :class="oneclickForm.arrangementDirection === 'left-to-right' ? 'text-primary' : 'text-apple-gray-600 dark:text-apple-gray-300'">
+                      {{ locale === 'zh' ? '左→右' : 'Left to Right' }}
+                    </span>
+                  </button>
+                  <button
+                    @click="oneclickForm.arrangementDirection = 'right-to-left'"
+                    :class="[
+                      'p-3 rounded-lg border-2 transition-all duration-200 flex flex-col items-center gap-2',
+                      oneclickForm.arrangementDirection === 'right-to-left'
+                        ? 'border-primary bg-primary/10 shadow-md'
+                        : 'border-apple-gray-200 dark:border-apple-gray-600 hover:border-primary/50'
+                    ]"
+                  >
+                    <svg class="w-6 h-6" :class="oneclickForm.arrangementDirection === 'right-to-left' ? 'text-primary' : 'text-apple-gray-500'" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                    </svg>
+                    <span class="text-sm font-medium" :class="oneclickForm.arrangementDirection === 'right-to-left' ? 'text-primary' : 'text-apple-gray-600 dark:text-apple-gray-300'">
+                      {{ locale === 'zh' ? '右→左' : 'Right to Left' }}
+                    </span>
+                  </button>
+                </div>
+                <p class="mt-3 text-xs text-apple-gray-400">{{ locale === 'zh' ? '控制箱体在屏幕内的排列起始方向' : 'Controls the starting direction of cabinet arrangement' }}</p>
               </div>
 
               <!-- Power & Weight Options -->

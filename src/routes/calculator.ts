@@ -98,7 +98,7 @@ router.post(
   validateSmartCombinationRequest,
   async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const { mainCabinet, auxiliaryCabinets, wallWidthMm, wallHeightMm } = req.body as SmartCombinationRequest;
+      const { mainCabinet, auxiliaryCabinets, wallWidthMm, wallHeightMm, arrangementDirection } = req.body as SmartCombinationRequest;
 
       // Use enhanced algorithm with precision optimization
       const result = await enhancedProgressiveCabinetCombination(
@@ -139,7 +139,7 @@ router.post(
         result.bestCombination,
         tempRoomConfig,
         tempDisplayConfig,
-        'left-to-right'  // 默认从左到右排列
+        arrangementDirection || 'left-to-right'  // 🎯 支持排列方向参数
       );
       
       const arrangementResult = calculationResult.arrangement;
@@ -172,6 +172,7 @@ router.post(
  * Smart Combination with Preview request interface
  */
 interface SmartCombinationWithPreviewRequest extends SmartCombinationRequest {
+  arrangementDirection?: 'left-to-right' | 'right-to-left';
   previewOptions?: {
     showDimensions?: boolean;
     showPerson?: boolean;
@@ -226,7 +227,7 @@ router.post(
   validateSmartCombinationWithPreviewRequest,
   async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const { mainCabinet, auxiliaryCabinets, wallWidthMm, wallHeightMm, previewOptions } = req.body as SmartCombinationWithPreviewRequest;
+      const { mainCabinet, auxiliaryCabinets, wallWidthMm, wallHeightMm, arrangementDirection, previewOptions } = req.body as SmartCombinationWithPreviewRequest;
 
       // Step 1: Calculate optimal combination
       const result = await enhancedProgressiveCabinetCombination(
@@ -263,7 +264,7 @@ router.post(
         result.bestCombination,
         tempRoomConfig,
         tempDisplayConfig,
-        'left-to-right'
+        arrangementDirection || 'left-to-right'  // 🎯 支持排列方向参数
       );
 
       // Step 2: Generate SVG preview

@@ -285,6 +285,7 @@ export interface SmartCombinationRequest {
   auxiliaryCabinets: Array<{ id: string; specs: CabinetSpecs }>;
   wallWidthMm: number;
   wallHeightMm: number;
+  arrangementDirection?: 'left-to-right' | 'right-to-left';  // 排列方向
 }
 
 export interface OptimalLayoutRequest {

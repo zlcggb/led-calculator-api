@@ -572,31 +572,36 @@ export async function calculateMultiCabinetDisplayWall(
   }
 
   // 🎯 智能列宽度对齐策略：先铺设主体区域确定列宽度，然后其他行优先使用相同宽度箱体
-  // 步骤1：找到数量最多的箱体（通常是主体箱体，决定了主要列宽度）
-  const dominantCabinet = activeCabinets.reduce((max, cabinet) => 
-    cabinet.count > max.count ? cabinet : max
-  );
+  // 步骤1：找到主导箱体（优先选择面积最大的箱体，而不是数量最多的）
+  // 因为主箱体通常是面积最大的，决定了主要列宽度
+  const dominantCabinet = activeCabinets.reduce((max, cabinet) => {
+    const maxArea = max.specs.dimensions.width * max.specs.dimensions.height;
+    const cabinetArea = cabinet.specs.dimensions.width * cabinet.specs.dimensions.height;
+    // 优先选择面积最大的箱体作为主导箱体
+    return cabinetArea > maxArea ? cabinet : max;
+  });
   const dominantWidth = dominantCabinet.specs.dimensions.width;
   
   console.log(`🎯 检测到主导箱体: ${dominantCabinet.specs.name} (${dominantWidth}×${dominantCabinet.specs.dimensions.height}mm)`);
   console.log(`   列宽度对齐策略: 优先使用宽度为 ${dominantWidth}mm 的箱体以确保列对齐`);
   
   // 步骤2：按列宽度对齐优先级排序
+  // 🎯 关键：优先按宽度分组，确保同宽度的箱体在同一列
   cabinetItems.sort((a, b) => {
-    // 第一优先级：高度从大到小（先铺主体区域）
+    // 第一优先级：宽度与主导箱体匹配的优先（确保主体列先铺）
+    const aMatchesDominant = a.width === dominantWidth;
+    const bMatchesDominant = b.width === dominantWidth;
+    
+    if (aMatchesDominant && !bMatchesDominant) return -1; // a优先（主体列）
+    if (!aMatchesDominant && bMatchesDominant) return 1;  // b优先（主体列）
+    
+    // 第二优先级：同宽度时，高度从大到小（先铺主体区域）
     if (a.height !== b.height) {
       return b.height - a.height;
     }
     
-    // 第二优先级：同高度时，优先使用与主导箱体宽度相同的箱体（确保列对齐）
-    const aMatchesDominant = a.width === dominantWidth;
-    const bMatchesDominant = b.width === dominantWidth;
-    
-    if (aMatchesDominant && !bMatchesDominant) return -1; // a优先
-    if (!aMatchesDominant && bMatchesDominant) return 1;  // b优先
-    
-    // 第三优先级：都不匹配或都匹配时，按宽度从小到大排序
-    return a.width - b.width;
+    // 第三优先级：宽度从大到小（大箱体优先）
+    return b.width - a.width;
   });
   
   console.log('📊 排列顺序（列宽度对齐优化）:');
@@ -611,62 +616,175 @@ export async function calculateMultiCabinetDisplayWall(
     console.log(`   ${key}mm: ${count}个${alignmentMark}`);
   });
 
-  // 使用guillotine算法进行排列（从左下角开始）
-  const arrangedCabinets = [];
-  let rects = [{ x: 0, y: 0, w: wallWidthMm, h: wallHeightMm }];
+  // 🎯 创建虚拟箱体映射：用于智能组合放置
+  // 例如：两个250×500可以组合成一个250×1000的虚拟区域
+  const virtualCombinations: Array<{
+    virtualWidth: number;
+    virtualHeight: number;
+    components: Array<{width: number; height: number; count: number}>;
+  }> = [];
+  
+  // 检查是否有250×500箱体，可以组合成250×1000
+  const has250x500 = cabinetItems.some(item => item.width === 250 && item.height === 500);
+  if (has250x500) {
+    virtualCombinations.push({
+      virtualWidth: 250,
+      virtualHeight: 1000,
+      components: [{ width: 250, height: 500, count: 2 }]
+    });
+    console.log('🔧 启用虚拟组合: 2个250×500 → 250×1000');
+  }
+  
+  // 检查是否有250×750箱体，可以组合成250×1500
+  const has250x750 = cabinetItems.some(item => item.width === 250 && item.height === 750);
+  if (has250x750) {
+    virtualCombinations.push({
+      virtualWidth: 250,
+      virtualHeight: 1500,
+      components: [{ width: 250, height: 750, count: 2 }]
+    });
+  }
 
-  for (const item of cabinetItems) {
+  // 使用guillotine算法进行排列（从左下角开始）
+  const arrangedCabinets: ArrangedCabinet[] = [];
+  let rects = [{ x: 0, y: 0, w: wallWidthMm, h: wallHeightMm }];
+  
+  // 创建可用箱体的剩余数量映射
+  const remainingCounts = new Map<string, number>();
+  cabinetItems.forEach(item => {
+    const key = `${item.width}×${item.height}`;
+    remainingCounts.set(key, (remainingCounts.get(key) || 0) + 1);
+  });
+
+  // 按面积从大到小排序的箱体尺寸列表（用于选择）
+  const uniqueSizes = Array.from(new Set(cabinetItems.map(item => `${item.width}×${item.height}`)))
+    .map(key => {
+      const [w, h] = key.split('×').map(Number);
+      return { width: w, height: h, area: w * h, key };
+    })
+    .sort((a, b) => b.area - a.area);
+
+  // 智能排列：优先填充大区域，边缘区域支持虚拟组合
+  while (rects.length > 0) {
+    const rect = rects.shift();
+    if (!rect || rect.w <= 0 || rect.h <= 0) continue;
+    
     let placed = false;
     
-    // 找到能放置的矩形区域
-    for (let i = 0; i < rects.length; i++) {
-      const rect = rects[i];
-      
-      if (rect.w >= item.width && rect.h >= item.height) {
-        // 放置箱体
-        arrangedCabinets.push({
-          cabinetId: item.id,
-          specs: item.specs,
-          position: { x: rect.x, y: rect.y },
-          size: { width: item.width, height: item.height },
-          gridPosition: { 
-            row: Math.floor(rect.y / item.height), 
-            col: Math.floor(rect.x / item.width) 
+    // 🎯 只在边缘区域（宽度小于主箱体宽度）尝试虚拟组合
+    const isEdgeRegion = rect.w < dominantWidth;
+    
+    if (isEdgeRegion) {
+      // 在边缘区域尝试虚拟组合
+      for (const combo of virtualCombinations) {
+        if (rect.w >= combo.virtualWidth && rect.h >= combo.virtualHeight) {
+          // 检查是否有足够的组件箱体
+          let canUseCombo = true;
+          for (const comp of combo.components) {
+            const compKey = `${comp.width}×${comp.height}`;
+            const available = remainingCounts.get(compKey) || 0;
+            if (available < comp.count) {
+              canUseCombo = false;
+              break;
+            }
           }
-        });
-
-        // 分割剩余空间（guillotine切割）
-        const newRects = [];
-        
-        // 右侧剩余矩形
-        if (rect.w > item.width) {
-          newRects.push({
-            x: rect.x + item.width,
-            y: rect.y,
-            w: rect.w - item.width,
-            h: item.height
-          });
+          
+          if (canUseCombo) {
+            // 使用虚拟组合：放置多个小箱体
+            let yOffset = 0;
+            for (const comp of combo.components) {
+              const compKey = `${comp.width}×${comp.height}`;
+              for (let i = 0; i < comp.count; i++) {
+                const item = cabinetItems.find(it => it.width === comp.width && it.height === comp.height);
+                if (item) {
+                  arrangedCabinets.push({
+                    cabinetId: item.id,
+                    specs: item.specs,
+                    position: { x: rect.x, y: rect.y + yOffset },
+                    size: { width: comp.width, height: comp.height },
+                    gridPosition: { 
+                      row: Math.floor((rect.y + yOffset) / comp.height), 
+                      col: Math.floor(rect.x / comp.width) 
+                    }
+                  });
+                  yOffset += comp.height;
+                  remainingCounts.set(compKey, (remainingCounts.get(compKey) || 0) - 1);
+                }
+              }
+            }
+            
+            console.log(`✨ 边缘虚拟组合: ${combo.virtualWidth}×${combo.virtualHeight}mm 在位置(${rect.x},${rect.y})`);
+            
+            // 生成剩余矩形
+            const rightRect = { x: rect.x + combo.virtualWidth, y: rect.y, w: rect.w - combo.virtualWidth, h: combo.virtualHeight };
+            const topRect = { x: rect.x, y: rect.y + combo.virtualHeight, w: rect.w, h: rect.h - combo.virtualHeight };
+            
+            if (rightRect.w > 0 && rightRect.h > 0) rects.unshift(rightRect);
+            if (topRect.w > 0 && topRect.h > 0) rects.push(topRect);
+            
+            placed = true;
+            break;
+          }
         }
-        
-        // 上方剩余矩形
-        if (rect.h > item.height) {
-          newRects.push({
-            x: rect.x,
-            y: rect.y + item.height,
-            w: rect.w,
-            h: rect.h - item.height
-          });
-        }
-        
-        // 移除已使用的矩形，添加新的剩余矩形
-        rects.splice(i, 1, ...newRects);
-        placed = true;
-        break;
       }
     }
     
+    if (placed) continue;
+    
+    // 🎯 常规放置：优先选择与主导宽度匹配的箱体（列对齐策略）
+    // 按列对齐优先级重新排序可用尺寸
+    const sortedSizesForRect = [...uniqueSizes].sort((a, b) => {
+      // 优先级1：宽度与主导箱体匹配
+      const aMatchesDominant = a.width === dominantWidth;
+      const bMatchesDominant = b.width === dominantWidth;
+      
+      if (aMatchesDominant && !bMatchesDominant) return -1;
+      if (!aMatchesDominant && bMatchesDominant) return 1;
+      
+      // 优先级2：面积从大到小
+      return b.area - a.area;
+    });
+    
+    for (const size of sortedSizesForRect) {
+      const available = remainingCounts.get(size.key) || 0;
+      if (available <= 0) continue;
+      
+      if (rect.w >= size.width && rect.h >= size.height) {
+        const item = cabinetItems.find(it => it.width === size.width && it.height === size.height);
+        if (item) {
+          arrangedCabinets.push({
+            cabinetId: item.id,
+            specs: item.specs,
+            position: { x: rect.x, y: rect.y },
+            size: { width: size.width, height: size.height },
+            gridPosition: { 
+              row: Math.floor(rect.y / size.height), 
+              col: Math.floor(rect.x / size.width) 
+            }
+          });
+          
+          remainingCounts.set(size.key, available - 1);
+          
+          // 分割剩余空间（guillotine切割）
+          const rightRect = { x: rect.x + size.width, y: rect.y, w: rect.w - size.width, h: size.height };
+          const topRect = { x: rect.x, y: rect.y + size.height, w: rect.w, h: rect.h - size.height };
+          
+          if (rightRect.w > 0 && rightRect.h > 0) rects.unshift(rightRect);
+          if (topRect.w > 0 && topRect.h > 0) rects.push(topRect);
+          
+          placed = true;
+          break;
+        }
+      }
+    }
+    
+    // 如果没有放置任何箱体，记录无法填充的区域
     if (!placed) {
-      console.warn(`⚠️ 无法放置箱体: ${item.width}×${item.height}mm`);
+      // 检查是否还有剩余箱体
+      const hasRemaining = Array.from(remainingCounts.values()).some(count => count > 0);
+      if (hasRemaining) {
+        console.warn(`⚠️ 无法在区域(${rect.x},${rect.y}) ${rect.w}×${rect.h}mm 放置剩余箱体`);
+      }
     }
   }
 
@@ -1188,6 +1306,7 @@ export function progressiveCabinetCombinationTest(
 
 /**
  * 优化的几何排版算法：优先使用指定的主箱体，并尽量减少箱体总数
+ * 支持虚拟箱体组合（如两个250×500组合成250×1000）
  * @param wallWidthMM 墙体宽度
  * @param wallHeightMM 墙体高度
  * @param cabinetTypes 箱体类型列表
@@ -1200,8 +1319,93 @@ function optimizedGeometricPacking(
   cabinetTypes: Array<{id: string, widthMM: number, heightMM: number, specs: CabinetSpecs, priority: number}>,
   mainCabinetId: string
 ) {
+  // 🎯 虚拟箱体逻辑：生成可能的虚拟组合以提高覆盖率
+  // 虚拟箱体优先级应该与同尺寸的实际箱体相同，以便在排序时按面积优先
+  const extendedTypes: Array<{id: string, widthMM: number, heightMM: number, specs: CabinetSpecs, priority: number, isVirtual?: boolean, sourceId?: string, multiplier?: number}> = [...cabinetTypes];
+  
+  cabinetTypes.forEach(smallType => {
+    // 两个250×500可以组合成250×1000
+    if (smallType.widthMM === 250 && smallType.heightMM === 500) {
+      if (!cabinetTypes.some(t => t.widthMM === 250 && t.heightMM === 1000)) {
+        extendedTypes.push({
+          id: `virtual_250x1000_from_${smallType.id}`,
+          widthMM: 250,
+          heightMM: 1000,
+          specs: smallType.specs,
+          priority: smallType.priority, // 🎯 与源箱体相同优先级，让面积决定选择
+          isVirtual: true,
+          sourceId: smallType.id,
+          multiplier: 2 // 一个虚拟箱体 = 2个实际箱体
+        });
+        console.log(`🔧 创建虚拟箱体: 250×1000 (由2个${smallType.id}组成), 优先级=${smallType.priority}`);
+      }
+    }
+    
+    // 两个250×750可以组合成250×1500
+    if (smallType.widthMM === 250 && smallType.heightMM === 750) {
+      if (!cabinetTypes.some(t => t.widthMM === 250 && t.heightMM === 1500)) {
+        extendedTypes.push({
+          id: `virtual_250x1500_from_${smallType.id}`,
+          widthMM: 250,
+          heightMM: 1500,
+          specs: smallType.specs,
+          priority: smallType.priority,
+          isVirtual: true,
+          sourceId: smallType.id,
+          multiplier: 2
+        });
+        console.log(`🔧 创建虚拟箱体: 250×1500 (由2个${smallType.id}组成), 优先级=${smallType.priority}`);
+      }
+    }
+    
+    // 两个500×250可以组合成1000×250
+    if (smallType.widthMM === 500 && smallType.heightMM === 250) {
+      if (!cabinetTypes.some(t => t.widthMM === 1000 && t.heightMM === 250)) {
+        extendedTypes.push({
+          id: `virtual_1000x250_from_${smallType.id}`,
+          widthMM: 1000,
+          heightMM: 250,
+          specs: smallType.specs,
+          priority: smallType.priority,
+          isVirtual: true,
+          sourceId: smallType.id,
+          multiplier: 2
+        });
+        console.log(`🔧 创建虚拟箱体: 1000×250 (由2个${smallType.id}组成), 优先级=${smallType.priority}`);
+      }
+    }
+    
+    // 两个500×500可以组合成500×1000
+    if (smallType.widthMM === 500 && smallType.heightMM === 500) {
+      if (!cabinetTypes.some(t => t.widthMM === 500 && t.heightMM === 1000)) {
+        extendedTypes.push({
+          id: `virtual_500x1000_from_${smallType.id}`,
+          widthMM: 500,
+          heightMM: 1000,
+          specs: smallType.specs,
+          priority: smallType.priority,
+          isVirtual: true,
+          sourceId: smallType.id,
+          multiplier: 2
+        });
+        console.log(`🔧 创建虚拟箱体: 500×1000 (由2个${smallType.id}组成), 优先级=${smallType.priority}`);
+      }
+    }
+    
+    // 🎯 新增：250×500 + 250×750 可以组合成 250×1250（用于填充特殊高度）
+    // 这种组合可以帮助填充 4750mm 高度 = 1000×4 + 750 或 1000×3 + 1250 + 250
+  });
+  
+  console.log(`📊 虚拟箱体扩展: 原${cabinetTypes.length}种 → 扩展后${extendedTypes.length}种`);
+  
+  // 🎯 调试：显示所有扩展后的箱体类型
+  extendedTypes.forEach(t => {
+    const isVirtual = t.isVirtual ? '(虚拟)' : '';
+    console.log(`   ${t.widthMM}×${t.heightMM}mm ${isVirtual} 优先级=${t.priority} 面积=${t.widthMM * t.heightMM}`);
+  });
+
   // 按优先级排序：主箱体优先，然后按面积从大到小排序（优先使用大箱体减少数量）
-  const sortedTypes = [...cabinetTypes].sort((a, b) => {
+  const sortedTypes = [...extendedTypes].sort((a, b) => {
     // 首先按优先级排序（优先级数字越小越优先）
     if (a.priority !== b.priority) {
       return a.priority - b.priority;
@@ -1262,11 +1466,61 @@ function optimizedGeometricPacking(
         chosen = (bestAuxiliary && bestArea > mainArea * 1.5) ? bestAuxiliary : mainCabinet;
       }
     } else {
-      // 如果主箱体放不下，选择能放下的最大箱体（sortedTypes已按面积从大到小排序）
+      // 如果主箱体放不下，选择能放下的最大箱体
+      // 🎯 智能高度感知选择：优先选择能让剩余高度被完美填充的箱体
+      let bestFit = null;
+      let bestScore = -1;
+      
+      // 获取所有可用的高度值（用于检查剩余高度是否可填充）
+      const availableHeights = [...new Set(sortedTypes.map(t => t.heightMM))].sort((a, b) => b - a);
+      
+      // 检查某个高度是否可以被可用箱体高度完美填充
+      const canPerfectlyFillHeight = (height: number): boolean => {
+        if (height <= 0) return true;
+        if (height < Math.min(...availableHeights)) return false;
+        
+        // 使用动态规划检查是否可以完美填充
+        const dp = new Set<number>([0]);
+        for (const h of availableHeights) {
+          const newValues: number[] = [];
+          dp.forEach(v => {
+            const newVal = v + h;
+            if (newVal <= height && !dp.has(newVal)) {
+              newValues.push(newVal);
+            }
+          });
+          newValues.forEach(v => dp.add(v));
+        }
+        return dp.has(height);
+      };
+      
       for (const type of sortedTypes) {
         if (type.widthMM <= rect.w && type.heightMM <= rect.h) {
-          chosen = type;
-          break; // 已按面积排序，第一个能放下的就是最大的
+          const area = type.widthMM * type.heightMM;
+          const remainingHeight = rect.h - type.heightMM;
+          
+          // 计算得分：面积 + 剩余高度可填充性奖励
+          let score = area;
+          
+          // 🎯 关键：如果选择这个箱体后，剩余高度可以被完美填充，给予大奖励
+          if (canPerfectlyFillHeight(remainingHeight)) {
+            score += 10000000; // 大奖励确保优先选择可完美填充的方案
+          }
+          
+          if (score > bestScore) {
+            bestScore = score;
+            bestFit = type;
+          }
+        }
+      }
+      
+      if (bestFit) {
+        chosen = bestFit;
+        // 调试：显示边缘区域的箱体选择
+        if (rect.w <= 300) {
+          const isVirtual = (bestFit as any).isVirtual ? '(虚拟)' : '';
+          const remainingH = rect.h - bestFit.heightMM;
+          console.log(`🔍 边缘区域选择: 空间${rect.w}×${rect.h}mm → 选择${bestFit.widthMM}×${bestFit.heightMM}mm ${isVirtual}, 剩余高度${remainingH}mm`);
         }
       }
     }
@@ -1314,7 +1568,38 @@ function optimizedGeometricPacking(
   const totalAreaMM = wallWidthMM * wallHeightMM;
   const coverage = totalAreaMM > 0 ? ((totalAreaMM - unfillableArea) / totalAreaMM) : 0;
 
-  return { counts, coverage, unfillableArea, arrangedCabinets };
+  // 🎯 将虚拟箱体计数转换为实际箱体计数
+  const realCounts = new Map<string, number>();
+  
+  // 首先初始化所有实际箱体的计数为0
+  cabinetTypes.forEach(type => {
+    realCounts.set(type.id, 0);
+  });
+  
+  // 遍历所有计数，处理虚拟箱体
+  counts.forEach((count, id) => {
+    if (count === 0) return;
+    
+    // 查找是否是虚拟箱体
+    const virtualType = extendedTypes.find(t => t.id === id && t.isVirtual);
+    
+    if (virtualType && virtualType.sourceId && virtualType.multiplier) {
+      // 虚拟箱体：将计数转换为实际箱体
+      const sourceId = virtualType.sourceId;
+      const multiplier = virtualType.multiplier;
+      const actualCount = count * multiplier;
+      
+      realCounts.set(sourceId, (realCounts.get(sourceId) || 0) + actualCount);
+      console.log(`🔄 虚拟箱体转换: ${count}个${id} → ${actualCount}个${sourceId}`);
+    } else if (cabinetTypes.some(t => t.id === id)) {
+      // 实际箱体：直接累加
+      realCounts.set(id, (realCounts.get(id) || 0) + count);
+    }
+  });
+
+  console.log(`🎯 虚拟箱体增强算法完成: 覆盖率${(coverage * 100).toFixed(2)}%`);
+
+  return { counts: realCounts, coverage, unfillableArea, arrangedCabinets };
 }
 
 /**
